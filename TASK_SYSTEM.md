@@ -1,8 +1,8 @@
-# Task Manager — ghi chú triển khai V1
+# Task Manager V1
 
-Mục tiêu của V1 là nhận một nhiệm vụ cụ thể, thực hiện được bằng các Skill có sẵn và báo kết quả đúng. Chưa cần tự nghĩ ra việc mới.
+The first version has one job: take a specific user request, execute it using supported skills, and report a verified result. It does not need to invent new goals.
 
-## Trạng thái
+## Task states
 
 ```text
 QUEUED -> PREPARING -> RUNNING -> COMPLETED
@@ -10,21 +10,21 @@ QUEUED -> PREPARING -> RUNNING -> COMPLETED
                         v  |
                        PAUSED
 
-Có thể chuyển sang FAILED khi không xử lý được lỗi.
-Người dùng có thể CANCEL khi nhiệm vụ chưa kết thúc.
+Unrecoverable errors lead to FAILED.
+The user can CANCEL a task before it reaches a terminal state.
 ```
 
-- `QUEUED`: đang đợi.
-- `PREPARING`: kiểm tra điều kiện trước khi chạy.
-- `RUNNING`: đang thực hiện.
-- `PAUSED`: dừng tạm, giữ tiến độ.
-- `COMPLETED`: đã kiểm tra và đạt yêu cầu.
-- `FAILED`: không hoàn thành được, có lý do cụ thể.
-- `CANCELLED`: người dùng hủy.
+- `QUEUED`: waiting for its turn.
+- `PREPARING`: checking prerequisites.
+- `RUNNING`: executing steps.
+- `PAUSED`: temporarily stopped with progress retained.
+- `COMPLETED`: the result has been verified.
+- `FAILED`: the task cannot be completed; an error is recorded.
+- `CANCELLED`: stopped by the user.
 
-Ba trạng thái cuối là kết thúc. Nếu chạy lại, tạo lượt chạy mới để không lẫn log.
+COMPLETED, FAILED, and CANCELLED are terminal states. A retry after termination creates a new execution record so logs remain traceable.
 
-## Ví dụ nhiệm vụ
+## Example task
 
 ```json
 {
@@ -40,54 +40,54 @@ Ba trạng thái cuối là kết thúc. Nếu chạy lại, tạo lượt chạ
 }
 ```
 
-Đây chỉ là định dạng thử nghiệm. Khi viết code sẽ bổ sung thời gian tạo, thời gian cập nhật, timeout và dữ liệu để tiếp tục sau khi thoát game.
+This is a draft format. The implementation will also need timestamps, timeouts, and checkpoint information.
 
-## Cách xử lý COLLECT_ITEM
+## How COLLECT_ITEM should work
 
-1. Đếm số item đang có trong inventory.
-2. Nếu đã đủ 16 thì hoàn thành ngay. Mặc định của V1 là **sở hữu ít nhất 16 item**, không bắt buộc 16 item đó đều được nhặt sau khi nhận lệnh.
-3. Nếu thiếu, tìm nguồn tài nguyên trong khu vực bot có thể tiếp cận.
-4. Di chuyển, phá block phù hợp, nhặt vật phẩm.
-5. Đọc lại inventory. Nếu chưa đủ thì tiếp tục, nhưng phải có giới hạn thời gian và phạm vi tìm kiếm.
+1. Count matching items already in the inventory.
+2. If the count is at least 16, finish immediately. The default V1 rule is **have at least 16 items**, not necessarily collect 16 new ones.
+3. Otherwise, look for an accessible source of the item.
+4. Navigate, harvest or break the appropriate block, and collect drops.
+5. Read the inventory again. Continue only within the configured search and time limits.
 
-Nếu bot không thấy cây, không nên cho đi vô tận. Nếu bị kẹt, thử tính lại đường một số lần. Không giải quyết được thì trả lỗi để người dùng biết.
+If no trees are found, the bot should not wander forever. If navigation gets stuck, it may retry with a new path a limited number of times before reporting failure.
 
-## Một số mã lỗi dự kiến
+## Initial error codes
 
-| Mã | Ý nghĩa |
+| Code | Meaning |
 | --- | --- |
-| `RESOURCE_NOT_FOUND` | Không tìm được tài nguyên trong phạm vi tìm kiếm |
-| `PATHFINDING_FAILED` | Không tìm được đường |
-| `PLAYER_STUCK` | Nhân vật không tiến triển |
-| `OUT_OF_REACH` | Mục tiêu nằm ngoài tầm thao tác |
-| `INVENTORY_FULL` | Không còn chỗ chứa |
-| `TIMEOUT` | Quá thời gian cho phép |
-| `SKILL_UNAVAILABLE` | Chưa có Skill để làm bước này |
-| `DISCONNECTED` | Mất kết nối |
+| `RESOURCE_NOT_FOUND` | Nothing suitable found within the search area |
+| `PATHFINDING_FAILED` | No viable route |
+| `PLAYER_STUCK` | No movement or task progress |
+| `OUT_OF_REACH` | Target cannot be interacted with |
+| `INVENTORY_FULL` | No room for items |
+| `TIMEOUT` | Operation exceeded its time limit |
+| `SKILL_UNAVAILABLE` | Required capability is not implemented |
+| `DISCONNECTED` | Connection to the server was lost |
 
-Không phải lỗi nào cũng nên thử lại. Ví dụ không có Skill hoặc không có quyền phá block thì retry liên tục cũng vô ích.
+Not every failure is retryable. Missing skills or denied permissions should not trigger an endless retry loop.
 
-## Tạm dừng, hủy và khôi phục
+## Pause, cancel, and recovery
 
-Pause phải dừng việc phát lệnh mới, đồng thời yêu cầu Skill hiện tại dừng an toàn. Cancel phải giải phóng quyền điều khiển nhân vật.
+Pausing stops new actions and asks the current skill to stop safely. Cancellation also releases control of the player.
 
-Khi mở game lại, đọc tiến độ đã lưu nhưng **không chạy tiếp ngay lập tức**. Trước hết kiểm tra inventory, vị trí, dimension và mục tiêu còn tồn tại hay không.
+After restarting the game, load the saved checkpoint but do not immediately repeat the last action. Check the current inventory, position, dimension, and target first.
 
-## AI liên quan thế nào?
+## Where AI fits
 
-Lệnh cố định chạy trực tiếp qua Task Manager. Với yêu cầu tự nhiên, AI tạo kế hoạch trước, sau đó hệ thống kiểm tra Skill và tham số.
+Fixed commands go straight to the Task Manager. Natural-language requests are turned into proposed plans, which are validated against supported skills and parameters.
 
-FAST THINK có thể đề xuất tiếp tục, chỉnh kế hoạch, dừng hoặc chuyển sang DEEP THINK. DEEP THINK dùng để phân tích kết quả hoặc lỗi khó. Trong V1, AI không tự thêm nhiệm vụ mới.
+FAST THINK may recommend continuing, adjusting, aborting, or escalating to DEEP THINK. DEEP THINK can review results or difficult errors. In V1, neither automatically assigns new tasks.
 
-## Những bài thử đầu tiên
+## Tests to run first
 
-- Giao nhiệm vụ lấy 16 gỗ khi inventory đang có 0, 8 hoặc 16 gỗ.
-- Gửi item ID không hợp lệ; hệ thống phải từ chối.
-- Pause giữa lúc đang đi, sau đó Resume.
-- Cancel khi đang đào; bot phải dừng.
-- Cố tình cho đường đi bị chặn; phải báo lỗi sau số lần thử có giới hạn.
-- Thoát game giữa nhiệm vụ, vào lại và kiểm tra trước khi tiếp tục.
-- Gửi kế hoạch AI có Skill chưa hỗ trợ; không được chạy.
-- Cho API mất phản hồi; game không được đứng.
+- Request 16 oak logs with 0, 8, and 16 already in inventory.
+- Reject an invalid item ID or count.
+- Pause while navigating, then resume.
+- Cancel during mining and confirm that actions stop.
+- Block the path deliberately and check that retries are bounded.
+- Restart midway through a task and revalidate before continuing.
+- Reject an AI plan that names an unsupported skill.
+- Simulate an API timeout and confirm the game stays responsive.
 
-Khi các trường hợp này ổn định mới coi Task Manager V1 đủ nền tảng để mở rộng.
+Task Manager V1 is ready for expansion only when these cases behave predictably.
