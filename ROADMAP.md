@@ -1,55 +1,55 @@
-# Kế hoạch phát triển
+# Development Plan
 
-Đây là thứ tự dự định làm, không phải lịch phát hành cố định. Hiện mới có repository và tài liệu, chưa có bản mod chạy được.
+This is an order of work, not a release schedule. The repository currently holds design notes; there is no working mod yet.
 
-## Trước khi viết code
+## Before coding
 
-- [ ] Chọn chính xác phiên bản Minecraft Java.
-- [ ] Kiểm tra bản Fabric, Java và Baritone phù hợp.
-- [ ] Chuẩn bị IntelliJ IDEA, Gradle và môi trường chạy thử trên Windows.
-- [ ] Tạo dự án Fabric tối thiểu, thiết lập .gitignore để tránh đẩy file build và dữ liệu riêng tư.
+- [ ] Pick the target Minecraft Java version.
+- [ ] Check compatible Fabric, Java, and Baritone releases.
+- [ ] Set up IntelliJ IDEA, Gradle, and a Windows test environment.
+- [ ] Create a minimal Fabric project and a suitable `.gitignore`.
 
-**Mốc đạt được:** mod khởi động trong client thử nghiệm và ghi được log.
+**Done when:** the mod launches in a development client and produces a log entry.
 
-## Bước 1 — Bot biết nhận việc
+## Step 1 — Execute a simple task
 
-- [ ] Đọc vị trí, máu, thức ăn và inventory.
-- [ ] Có Task Manager với queue, pause, resume, cancel.
-- [ ] Gọi được Skill di chuyển.
-- [ ] Thử phá block và nhặt vật phẩm trong Survival.
-- [ ] Giao nhiệm vụ lấy 16 khúc gỗ và kiểm tra kết quả.
-- [ ] Log đủ để tìm nguyên nhân nếu nhiệm vụ thất bại.
+- [ ] Read player position, health, hunger, and inventory.
+- [ ] Add a Task Manager with a queue, pause, resume, and cancel.
+- [ ] Implement a movement skill.
+- [ ] Test block breaking and item pickup in Survival.
+- [ ] Request 16 oak logs and verify the inventory result.
+- [ ] Record enough information to diagnose failures.
 
-**Mốc đạt được:** bot làm xong một nhiệm vụ thu thập đơn giản, hoặc báo lỗi đúng thay vì bị treo.
+**Done when:** the bot either completes a simple collection task or reports a specific failure without hanging.
 
-## Bước 2 — Sinh tồn cơ bản
+## Step 2 — Basic survival
 
-- [ ] Xử lý nguy hiểm trước mắt bằng logic tại máy.
-- [ ] Chế tạo và quản lý inventory.
-- [ ] Biết mở rương, lấy và cất vật phẩm.
-- [ ] Lưu vị trí nhà, rương và tiến độ.
-- [ ] Tạo hệ thống xây nhà theo blueprint.
-- [ ] Xây thử nhà 7×7 có giường, rương, bàn chế tạo, lò nung và đuốc.
+- [ ] Handle immediate threats locally.
+- [ ] Add crafting and inventory management.
+- [ ] Open containers and transfer items.
+- [ ] Persist base locations, storage, and task progress.
+- [ ] Build a blueprint-based construction system.
+- [ ] Test a 7×7 starter house with a bed, chest, crafting table, furnace, and lighting.
 
-**Mốc đạt được:** bot tự chuẩn bị vật liệu và dựng được chỗ ở cơ bản trong Survival, không cần Creative.
+**Done when:** the bot can gather materials and build a usable starter shelter in Survival without Creative privileges.
 
-## Bước 3 — Thêm AI
+## Step 3 — AI integration
 
-- [ ] Làm backend và Web Dashboard.
-- [ ] Có ô nhập nhiệm vụ bằng ngôn ngữ tự nhiên.
-- [ ] AI trả về kế hoạch; người dùng xem và duyệt trước khi chạy.
-- [ ] Thêm FAST THINK, DEEP THINK và giới hạn chi phí API.
-- [ ] Cho phép chỉnh sửa kế hoạch đang đề xuất.
-- [ ] Xử lý trường hợp API lỗi hoặc hết ngân sách.
+- [ ] Build a backend and web dashboard.
+- [ ] Accept natural-language task requests.
+- [ ] Generate a plan, validate it, and let the user approve it.
+- [ ] Add FAST THINK, DEEP THINK, and API spending limits.
+- [ ] Support revisions to proposed plans.
+- [ ] Handle API failures and exhausted budgets.
 
-**Mốc đạt được:** người dùng giao một nhiệm vụ nhiều bước từ dashboard và bot thực hiện được bằng các Skill đã có.
+**Done when:** the user can submit a supported multi-step task from the dashboard and receive a verified result.
 
-## Bước 4 — Ổn định rồi mới mở rộng
+## Step 4 — Reliability and expansion
 
-- [ ] Kiểm thử việc mất kết nối, chết và khởi động lại.
-- [ ] Thêm các mẫu nhà, cách quản lý kho và kỹ năng sinh tồn.
-- [ ] Tự động build và chạy kiểm thử trên GitHub.
-- [ ] Viết hướng dẫn cài đặt, giới hạn hiện tại và cách xuất log.
-- [ ] Xem xét giấy phép trước khi công khai mã nguồn.
+- [ ] Test disconnects, deaths, and restarts.
+- [ ] Add more skills, storage workflows, and house blueprints.
+- [ ] Set up automated builds and tests on GitHub.
+- [ ] Document installation, limitations, and debug-report export.
+- [ ] Review dependencies and choose a license before making the code public.
 
-Chưa cần đặt mốc v1.0 hay ngày phát hành. Ưu tiên hiện tại vẫn là làm cho một nhiệm vụ nhỏ chạy ổn định.
+There is no need to set a v1.0 date yet. The immediate priority is getting one small task to work reliably.
