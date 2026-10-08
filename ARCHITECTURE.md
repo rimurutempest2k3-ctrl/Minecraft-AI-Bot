@@ -1,87 +1,94 @@
-# Cấu trúc hệ thống (bản phác thảo)
+# Architecture Notes
 
-Đây là cách dự định chia code để dễ làm từng phần. Chưa phải cấu trúc package Java cuối cùng.
+This is a working outline of how the code might be split up. It is not a final Java package layout.
 
-## Luồng xử lý
+## Main flow
 
 ```text
-Người dùng
-  |-- Lệnh cố định
-  |-- Dashboard: nhập nhiệm vụ bằng tiếng Việt
+User
+  |-- Fixed command
+  |-- Natural-language request from dashboard
   |
   v
-Kiểm tra yêu cầu / AI phân tích nếu cần
+Task input / AI planning when needed
   |
   v
-Hàng đợi nhiệm vụ
+Validation
+  |
+  v
+Task queue
   |
   v
 Task Manager
-  |-- Đọc trạng thái Minecraft
-  |-- Gọi Skill phù hợp
-  |-- Kiểm tra kết quả
-  |-- Thử lại hoặc báo lỗi
+  |-- Read game state
+  |-- Run a skill
+  |-- Check the result
+  |-- Retry or report failure
   |
   v
 Minecraft client (Fabric / Baritone)
 ```
 
-AI Gateway, trí nhớ và log sẽ nối vào luồng này, nhưng không cần xây tất cả cùng lúc.
+Memory, logging, and the AI Gateway fit around this flow. They do not all need to be built at once.
 
-## 1. Đọc trạng thái game
+## Reading game state
 
-Phần này lấy tọa độ, máu, thức ăn, inventory, dimension và các thông tin thế giới mà client thực sự nhìn thấy. Những dữ liệu này là căn cứ để kiểm tra nhiệm vụ, không dựa vào lời AI nói rằng “đã xong”.
+This module collects the player's position, health, hunger, inventory, dimension, and information the client can actually observe. Task completion must be based on these observations, not on the AI claiming that something is finished.
 
-Không gọi API trong game tick. Những việc liên quan mạng hoặc xử lý lâu phải chạy bất đồng bộ để tránh đứng game.
+Network calls and other slow work must not block the Minecraft client thread.
 
-## 2. Task Manager
+## Task Manager
 
-Giữ một nhiệm vụ đang chạy và một hàng đợi. Nó quyết định bước tiếp theo, chuyển trạng thái, lưu tiến độ và gửi lệnh xuống Skill.
+The Task Manager owns the active task and pending queue. It advances steps, updates status, saves checkpoints, and dispatches skills.
 
-Task Manager không tự đi tìm đường hay bấm vào ô inventory. Nếu cần di chuyển thì gọi Skill di chuyển; nếu cần lấy đồ thì gọi Skill tương tác rương.
+It does not implement pathfinding or click inventory slots directly. Those responsibilities belong to skills.
 
-## 3. Skill
+## Skills
 
-Mỗi Skill cần có đầu vào rõ ràng, điều kiện để chạy, cách biết đã xong và cách hủy giữa chừng.
+Each skill needs a clear input, preconditions, a way to detect completion, a timeout, and cancellation support.
 
-Các Skill ưu tiên:
-- `MOVE_TO`: đi tới tọa độ, dùng Baritone nếu bản đang dùng tương thích.
-- `LOOK_AT`: hướng nhìn vào mục tiêu.
-- `BREAK_BLOCK`: phá block có thể tiếp cận.
-- `PICKUP_ITEM`: nhặt vật phẩm rồi kiểm tra inventory.
+Start with:
 
-Sau đó mới thêm `PLACE_BLOCK`, chế tạo, mở rương và chuyển đồ. Không nên coi một Skill là hoàn thành chỉ vì đã gửi lệnh: phải kiểm tra trạng thái Minecraft sau thao tác.
+- `MOVE_TO`: navigate to a position, potentially through Baritone.
+- `LOOK_AT`: face a target.
+- `BREAK_BLOCK`: break a reachable block.
+- `PICKUP_ITEM`: collect a dropped item and verify the inventory change.
 
-Tại một thời điểm chỉ có một Skill được điều khiển nhân vật theo cách có thể xung đột với Skill khác.
+Add `PLACE_BLOCK`, crafting, container access, and item transfers later. Issuing an action is not proof that the server accepted it; verify the resulting game state.
 
-## 4. Trí nhớ
+Only one skill should control conflicting player actions at a time.
 
-Ban đầu chỉ cần lưu nhiệm vụ, bước đang chạy và một số dữ liệu quan trọng. Về sau thêm vị trí nhà, rương, khu vực đã khám phá và lần cuối nhìn thấy chúng.
+## Memory
 
-Sau khi bot chết hoặc kết nối lại, cần kiểm tra trạng thái mới rồi mới tiếp tục. Không được mặc định mọi block hoặc vật phẩm vẫn còn nguyên.
+Initially, persist the task queue, active task, checkpoints, and a small amount of world information. Later, add bases, storage locations, explored areas, and last-seen timestamps.
 
-## 5. AI và dashboard
+After a death, disconnect, or restart, reload the checkpoint but verify the current inventory, dimension, position, and target before continuing.
 
-Dashboard sẽ có hai đường:
-- **Manual Task:** nhập lệnh cố định, không cần AI.
-- **AI Task Gateway:** nhập yêu cầu tự nhiên; backend gửi trạng thái liên quan lên API để tạo kế hoạch có cấu trúc.
+## AI Gateway and dashboard
 
-Kế hoạch AI trả về phải được kiểm tra: đúng định dạng, đúng tham số, chỉ dùng Skill có thật và không vượt quyền. Người dùng có thể xem, sửa hoặc duyệt kế hoạch trước khi chạy. API key giữ ở backend, không đưa vào JavaScript của trình duyệt.
+The dashboard will offer two entry points:
 
-FAST THINK kiểm tra tiến độ theo chu kỳ. DEEP THINK đánh giá khi hoàn thành hoặc gặp lỗi khó. Bản đầu không cho AI tự quyết định nhiệm vụ tiếp theo mà không có người dùng.
+- **Manual Task:** fixed commands that do not require an AI API.
+- **AI Task Gateway:** natural-language requests sent to a backend that returns a structured plan.
 
-## 6. Xây nhà
+The plan must pass schema, skill availability, parameter, and permission checks before execution. Users should be able to review and revise it. Keep the API key on the backend, never in browser-side JavaScript.
 
-`BaseBuilder` đọc một blueprint, tính vật liệu, kiểm tra vị trí xây, thực hiện từng phần và đối chiếu các block đã đặt. Cần xử lý việc đứng đúng tầm với, đặt block theo hướng và tránh phá công trình của người khác.
+FAST THINK periodically reviews progress. DEEP THINK reviews completed tasks or difficult failures. Neither should silently add a new task in the first user-directed version.
 
-Một file .schem chỉ là dữ liệu công trình, không có nghĩa bot tự xây được. Phần đặt block trong Survival vẫn phải tự làm.
+## BaseBuilder
 
-## 7. Log và xử lý lỗi
+The builder reads a blueprint, calculates required materials, checks the build site, places blocks in a workable order, and verifies the result. It needs to account for reach distance, block orientation, temporary access, and existing player structures.
 
-Mỗi task có ID riêng. Log nên ghi thời gian, bước đang chạy, Skill, vị trí và lý do thất bại. Cần xuất được báo cáo lỗi gọn, không chứa bí mật đăng nhập.
+A `.schem` file is building data, not a Survival building engine. We still need code that performs valid placement actions.
 
-Các lỗi cần phân biệt ngay từ đầu: không tìm thấy tài nguyên, không có đường đi, bị kẹt, ngoài tầm với, inventory đầy, timeout và mất kết nối.
+## Logging and failure handling
 
-## Thứ tự viết code
+Give each task its own ID. Record timestamps, skill names, current step, location, and error details. Exportable debug reports should not contain authentication data.
 
-Đọc trạng thái game → Task Manager tối thiểu → Skill di chuyển → Skill đào/nhặt → kiểm tra hoàn thành → lưu trạng thái. Chỉ sau đó mới nối dashboard, AI và BaseBuilder.
+Distinguish between missing resources, pathfinding failures, being stuck, out-of-reach targets, full inventory, timeouts, and disconnects.
+
+## Implementation order
+
+Game-state reader → minimal Task Manager → movement skill → mining and pickup → completion validation → persistence.
+
+The dashboard, AI integration, and BaseBuilder can follow once that path works.
