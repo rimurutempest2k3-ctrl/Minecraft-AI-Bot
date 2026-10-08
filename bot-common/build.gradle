@@ -2,9 +2,24 @@ plugins {
     id 'application'
 }
 
+repositories { mavenCentral() }
+dependencies { implementation 'com.google.code.gson:gson:2.14.0' }
+
+tasks.named('processResources') {
+    exclude '**/secrets.properties'
+    from(rootProject.file('ai/SYSTEM_PROMPT.vi.md')) { into 'ai' }
+}
+
+tasks.register('aiCheck', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.minecraftaibot.common.AiSessionsTest'
+}
+tasks.named('check') { dependsOn aiCheck }
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -12,6 +27,36 @@ application {
     mainClass = 'dev.minecraftaibot.common.ConsoleLauncher'
 }
 
+tasks.named('jar') {
+    archiveFileName = 'bot-common.jar'
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+tasks.named('run', JavaExec) {
+    standardInput = System.in
+}
+
+tasks.register('coreCheck', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.minecraftaibot.common.BotCoreTest'
+}
+
+tasks.register('transportCheck', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.minecraftaibot.common.ConsoleTransportTest'
+}
+
+tasks.named('check') {
+    dependsOn coreCheck, transportCheck
+}
+
+// These checks have main methods rather than JUnit annotations.
+// Both are executed explicitly by check above.
+tasks.named('test') {
+    enabled = false
 }
