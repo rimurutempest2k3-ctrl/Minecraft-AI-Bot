@@ -1,7 +1,7 @@
 # Hợp đồng kết nối AI — bản v2
 
 Prompt: SYSTEM_PROMPT.vi.md. Đã nối với Gemini và Groq, chuyển AI dự phòng và bộ nhớ chung local.
-Đã có kiểm tra cấu trúc và vòng thực thi `bot ai run`; `bot ai ask` giữ chế độ đề xuất.
+Đã có kiểm tra cấu trúc và vòng thực thi. Công tắc `bot ai auto on/off/status` kiểm soát việc thực thi: ON cho phép ask/run thực hiện, OFF chỉ cho ask đề xuất.
 Vòng chạy trên client thread, API nền, một hành động tại một thời điểm, nhận kết quả
 và quan sát mới trước lượt tiếp. Hủy dùng generation để loại phản hồi muộn; chết,
 đổi level/player hoặc rời RUNNING hủy nhiệm vụ. Giới hạn cố định 20 lượt/10 phút,

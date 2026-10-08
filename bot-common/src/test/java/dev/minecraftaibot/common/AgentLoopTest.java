@@ -11,6 +11,8 @@ public final class AgentLoopTest {
         List<Consumer<String>> answers=new ArrayList<>(), failures=new ArrayList<>();
         AgentLoop loop=new AgentLoop((input,answer,failure)->{requests.add(input);answers.add(answer);failures.add(failure);},
                 command->{commands.add(command);return "Đã nhận.";},()->stopped[0]++,message->{},()->time[0]);
+        check(!loop.autoEnabled());loop.start("Chưa cho thực thi");loop.tick(true,false,"Quan sát");
+        check(!loop.active() && requests.isEmpty() && commands.isEmpty());loop.setAuto(true);
         loop.start("Lấy tổng 16 gỗ"); loop.tick(true,false,"Túi có 5");
         loop.tick(true,false,"Túi có 5"); check(requests.size()==1);
         answers.getLast().accept(json("mine","{\"block\":\"minecraft:oak_log\",\"quantity\":11}"));
@@ -38,6 +40,15 @@ public final class AgentLoopTest {
             try { AgentLoop.command(parse(invalid)); throw new AssertionError(); } catch(java.io.IOException expected) {}
         }
         check(stopped[0]>=7);
+        loop.start("Tắt trong lúc chờ API");loop.tick(true,false,"Quan sát");Consumer<String> pending=answers.getLast();
+        int beforeCommands=commands.size(),beforeRequests=requests.size(),beforeStops=stopped[0];
+        loop.setAuto(false);check(!loop.autoEnabled() && !loop.active() && stopped[0]==beforeStops+1);
+        pending.accept(json("mine","{\"block\":\"minecraft:oak_log\",\"quantity\":16}"));
+        loop.start("Không được chạy khi OFF");loop.tick(true,false,"Quan sát");
+        check(commands.size()==beforeCommands && requests.size()==beforeRequests);
+        loop.setAuto(true);loop.start("Bật lại phải là nhiệm vụ mới");pending.accept(json("inventory","{}"));
+        check(commands.size()==beforeCommands);loop.tick(true,false,"Quan sát");answers.getLast().accept(json("inventory","{}"));
+        check(commands.size()==beforeCommands+1);loop.setAuto(false);
         System.out.println("All AI loop sequencing, real result feedback, stale callbacks, cancellation, bounded turns/time and chest action validation checks passed.");
     }
     private static String json(String action,String args) { return "{\"action\":\""+action+"\",\"args\":"+args+",\"message\":\"Test\"}"; }

@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "tasks": {
+    "wood": {"label":"Thu gỗ sồi","goal":"minecraft:oak_log","resultItem":"minecraft:oak_log","quantity":16},
+    "birch": {"label":"Thu gỗ bạch dương","goal":"minecraft:birch_log","resultItem":"minecraft:birch_log","quantity":16},
+    "spruce": {"label":"Thu gỗ vân sam","goal":"minecraft:spruce_log","resultItem":"minecraft:spruce_log","quantity":16},
+    "cobblestone": {"label":"Chuẩn bị cúp và thu đá cuội","goal":"minecraft:cobblestone","resultItem":"minecraft:cobblestone","quantity":32,"preparation":"wooden_pickaxe"},
+    "coal": {"label":"Thu than (cần sẵn cúp)","goal":"minecraft:coal_ore","resultItem":"minecraft:coal","quantity":16},
+    "iron": {"label":"Thu sắt thô (cần sẵn cúp đá trở lên)","goal":"minecraft:iron_ore","resultItem":"minecraft:raw_iron","quantity":8}
+  },
+  "recipes": {
+    "planks": {"output":"$log_planks","count":4,"width":2,"cells":[{"row":0,"column":0,"ingredient":"$log"}]},
+    "table": {"output":"minecraft:crafting_table","count":1,"width":2,"cells":[{"row":0,"column":0,"ingredient":"#minecraft:planks"},{"row":0,"column":1,"ingredient":"#minecraft:planks"},{"row":1,"column":0,"ingredient":"#minecraft:planks"},{"row":1,"column":1,"ingredient":"#minecraft:planks"}]},
+    "sticks": {"output":"minecraft:stick","count":4,"width":2,"cells":[{"row":0,"column":0,"ingredient":"#minecraft:planks"},{"row":1,"column":0,"ingredient":"#minecraft:planks"}]},
+    "wooden_pickaxe": {"output":"minecraft:wooden_pickaxe","count":1,"width":3,"cells":[{"row":0,"column":0,"ingredient":"#minecraft:planks"},{"row":0,"column":1,"ingredient":"#minecraft:planks"},{"row":0,"column":2,"ingredient":"#minecraft:planks"},{"row":1,"column":1,"ingredient":"minecraft:stick"},{"row":2,"column":1,"ingredient":"minecraft:stick"}]}
+  },
+  "preparations": {
+    "wooden_pickaxe": {
+      "planksPerLog":4,
+      "budget":[
+        {"when":[{"field":"pickaxe","op":"lt","value":"1"}],"planks":3},
+        {"when":[{"field":"pickaxe","op":"lt","value":"1"},{"field":"sticks","op":"lt","value":"2"}],"planks":2},
+        {"when":[{"field":"pickaxe","op":"lt","value":"1"},{"field":"table_available","op":"lt","value":"1"}],"planks":4}
+      ],
+      "rules":[
+        {"when":[{"field":"pickaxe","op":"gte","value":"1"}],"step":{"action":"mine_goal"}},
+        {"when":[{"field":"planks","op":"lt","value":"$planks_needed"},{"field":"logs","op":"gte","value":"1"}],"step":{"action":"craft","recipe":"planks"}},
+        {"when":[{"field":"planks","op":"lt","value":"$planks_needed"}],"step":{"action":"collect_logs"}},
+        {"when":[{"field":"table_available","op":"lt","value":"1"}],"step":{"action":"craft","recipe":"table"}},
+        {"when":[{"field":"sticks","op":"lt","value":"2"}],"step":{"action":"craft","recipe":"sticks"}},
+        {"when":[{"field":"table_open","op":"lt","value":"1"},{"field":"nearby_table","op":"gte","value":"1"}],"step":{"action":"open_table"}},
+        {"when":[{"field":"table_open","op":"lt","value":"1"}],"step":{"action":"place_table"}},
+        {"when":[],"step":{"action":"craft","recipe":"wooden_pickaxe"}}
+      ]
+    }
+  }
+}

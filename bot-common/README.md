@@ -1,19 +1,35 @@
-# Bot Common — Console Prototype
+# Bot Common — Lõi bot và console
 
-This module is intentionally independent of Minecraft, Fabric, and rendering. It provides a small lifecycle controller, command dispatcher, and rotating console/file logging.
+Module này cung cấp BotCore để quản lý trạng thái, CommandDispatcher để xử lý lệnh,
+Logging để ghi nhật ký, cùng ConsoleServer và ExternalConsole để kết nối console
+ngoài game với core trong Fabric client. Module không phụ thuộc trực tiếp vào Minecraft.
 
-Requirements: JDK 21 and Gradle with Java 21 support.
+Bản tích hợp này dùng JDK 25. Xem [hướng dẫn chạy đầy đủ](../INTEGRATION.md).
 
-From the repository root:
+## Console điều khiển Minecraft
 
-```sh
-gradle :bot-common:run --console=plain
+Sau khi build và mở Minecraft bằng runClient, tại thư mục gốc dự án chạy:
+
+```powershell
+.\bot-console.bat
 ```
 
-Try `bot help`, `bot start`, `bot status`, `bot pause`, `bot resume`, `bot stop`, then `exit`.
+Thử `bot help`, `bot start`, `bot status`, `bot pause`, `bot resume`, `bot stop`.
+Lệnh `exit` đóng console và giữ game chạy.
 
-Logs are written to the process working directory under `logs/` and rotated at approximately 1 MiB per file (three files). These files are excluded from Git.
+## Chạy thử core độc lập
 
-This is **not a Minecraft client mod yet**. The next step is a Fabric adapter that reuses this core, plus an external command transport for remote control. The current terminal reads stdin directly and must not be exposed to the network.
+Để thử trạng thái core mà không mở Minecraft, chạy từ thư mục gốc:
 
-The test class `BotCoreTest` is a simple Java main, not a Gradle test suite yet.
+```powershell
+.\gradlew.bat :bot-common:run --console=plain
+```
+
+Chế độ này tạo core riêng, không điều khiển core trong Minecraft.
+Lệnh `exit` kết thúc chương trình và dừng core thử nghiệm.
+Nhật ký nằm trong thư mục `logs/` của tiến trình, luân phiên ba tệp khoảng 1 MiB.
+
+## Kiểm tra
+
+BotCoreTest và ConsoleTransportTest dùng hàm main thay vì JUnit.
+Tác vụ Gradle `check` chạy chúng qua `coreCheck` và `transportCheck`.

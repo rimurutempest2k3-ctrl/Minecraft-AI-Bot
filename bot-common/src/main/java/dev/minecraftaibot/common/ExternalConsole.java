@@ -57,8 +57,9 @@ public final class ExternalConsole {
                     if (terminal != null) command = terminal.readLine("bot> ");
                     else { System.out.print("bot> "); command = keyboard.readLine(); }
                     if (command == null) break;
-                    if (command.trim().matches("(?i)^bot\\s+get\\s+api(?:\\s+(?:groq|gemini))?$")) {
-                        String provider = command.trim().toLowerCase(java.util.Locale.ROOT).endsWith("groq") ? "groq" : "gemini";
+                    if (command.trim().matches("(?i)^bot\\s+get\\s+api(?:\\s+(?:openai|groq|gemini))?$")) {
+                        String normalized=command.trim().toLowerCase(java.util.Locale.ROOT);
+                        String provider = normalized.endsWith("openai")?"openai":normalized.endsWith("groq") ? "groq" : "gemini";
                         if (terminal == null) {
                             System.out.println("Terminal này không hỗ trợ nhập key ẩn. Dùng secrets.properties hoặc bot get API " + provider + " <key>.");
                             continue;

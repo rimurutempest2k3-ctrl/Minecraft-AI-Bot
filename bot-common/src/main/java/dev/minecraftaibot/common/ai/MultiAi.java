@@ -12,6 +12,14 @@ public final class MultiAi {
         @Override public String toString() { return provider + "/" + model + " (key ẩn)"; }
     }
     public record Answer(String provider, String proposal) {}
+    public static List<String> order(String primary,String fallback,Set<String> supported) throws IOException {
+        if(!supported.contains(primary)) throw new IOException("AI chính không hợp lệ.");
+        LinkedHashSet<String> order=new LinkedHashSet<>();order.add(primary);
+        if(!fallback.equals("off")) for(String provider:fallback.split(",",-1)) {
+            provider=provider.trim();if(!supported.contains(provider)) throw new IOException("AI dự phòng không hợp lệ. Dùng openai, groq, gemini hoặc off.");order.add(provider);
+        }
+        return List.copyOf(order);
+    }
     private final Path memory;
     private final Map<String, AiSessions> providers;
     private final Consumer<String> progress;
@@ -23,7 +31,7 @@ public final class MultiAi {
         JsonArray history = state.getAsJsonArray("history");
         String goal = state.get("goal").getAsString();
         String fullInput = "MỤC TIÊU ĐÃ LƯU (DỮ LIỆU NGƯỜI DÙNG):\n" + goal + "\n" + input;
-        String lastFailure = "Chưa có key cho AI nào. Dùng bot get API groq hoặc bot get API gemini.";
+        String lastFailure = "Chưa có key cho AI nào. Dùng bot get API openai, groq hoặc gemini.";
         for (Route route : routes) {
             if (route.key().isBlank()) { progress.accept("AI: Bỏ qua " + route.provider() + " vì chưa có key."); continue; }
             AiSessions session = providers.get(route.provider());

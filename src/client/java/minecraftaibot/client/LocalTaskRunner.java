@@ -16,45 +16,63 @@ import net.minecraft.world.InteractionHand;
 import java.util.*;
 import java.util.function.*;
 
-/** Local stone prerequisite task, using vanilla crafting and Baritone only. */
-final class LocalStoneTask {
-    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, STONE }
+/** JSON local task executor, using vanilla crafting and Baritone only. */
+final class LocalTaskRunner {
+    private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot");
+    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL }
     private final BotCore bot;
     private final BaritoneController movement;
     private final Consumer<String> notify;
-    private final CraftingController crafting=new CraftingController();
+    private final ProductionController crafting=new ProductionController();
+    private final ProductionController.TablePlacement placement;
     private boolean active;
+    private TaskPresets.Catalog catalog;
+    private TaskPresets.Task definition;
+    private TaskPresets.Preparation preparation;
     private LocalPlayer owner;
     private ClientLevel world;
     private Phase phase;
-    private int quantity, initialStone, initialWood, requestedWood, craftedBefore, oldSelected, clock, batches;
+    private int quantity, initialResult, initialWood, requestedWood, craftedBefore, oldSelected, clock, batches;
     private long started, phaseStarted;
     private BlockPos table, placedAt;
     private Item craftedItem;
     private String status="Chưa có nhiệm vụ local.";
     private static final List<String> WOODS=List.of("oak","birch","spruce","jungle","acacia","dark_oak","mangrove","cherry","pale_oak");
-    LocalStoneTask(BotCore bot,BaritoneController movement,Consumer<String> notify) { this.bot=bot;this.movement=movement;this.notify=notify; }
+    LocalTaskRunner(BotCore bot,BaritoneController movement,ProductionController.TablePlacement placement,Consumer<String> notify) { this.bot=bot;this.movement=movement;this.placement=placement;this.notify=notify; }
     boolean busy() { return active; }
     String status() { return status; }
-    String start(int quantity) {
+    String start(String taskName,int quantity) {
         Minecraft client=Minecraft.getInstance();
         if(active || movement.busy()) return "Đang có tác vụ. Dùng bot stop trước.";
         if(client.player==null || client.level==null || !client.player.isAlive() || bot.state()!=BotState.RUNNING) return "Hãy vào thế giới và nhập bot start trước.";
         if(client.player.containerMenu!=client.player.inventoryMenu || client.gui.screen()!=null || client.gui.overlay()!=null || client.isPaused()) return "Đóng menu và dùng F3+P để game tiếp tục chạy khi chuyển console.";
         if(!client.player.containerMenu.getCarried().isEmpty()) return "Hãy cất vật phẩm ở con trỏ trước.";
-        owner=client.player;world=client.level;this.quantity=quantity;initialStone=stoneCount();
+        try {
+            catalog=TaskPresets.catalog();definition=catalog.require(taskName);preparation=definition.preparation()==null?null:catalog.preparations().get(definition.preparation());
+            requiredItem(definition.resultItem());
+            String block=definition.goal().equals("minecraft:cobblestone")?"minecraft:stone":definition.goal();
+            if(BuiltInRegistries.BLOCK.getOptional(net.minecraft.resources.Identifier.parse(block)).filter(b->!b.defaultBlockState().isAir()).isEmpty())
+                throw new IllegalArgumentException("Block JSON không tồn tại: "+definition.goal());
+            for(var recipe:catalog.recipes().values()) {
+                if(!recipe.output().equals("$log_planks")) requiredItem(recipe.output());
+                for(var cell:recipe.cells()) if(!cell.ingredient().startsWith("$") && !cell.ingredient().startsWith("#")) requiredItem(cell.ingredient());
+            }
+        }
+        catch(IllegalArgumentException invalid) {return invalid.getMessage();}
+        if(quantity<1 || quantity>2304) return "Số lượng phải là 1-2304.";
+        owner=client.player;world=client.level;this.quantity=quantity;initialResult=resultCount();
         oldSelected=owner.getInventory().getSelectedSlot();started=System.nanoTime();active=true;batches=0;clock=0;
-        change(Phase.PLAN,"Local: chuẩn bị cúp để thu thêm " + quantity + " đá cuội/đá. Không gọi API.");return status;
+        change(Phase.PLAN,"Local JSON: "+definition.label()+"; thu thêm "+quantity+" "+definition.resultItem()+". Không gọi API.");return status;
     }
-    private void change(Phase value,String message) { phase=value;phaseStarted=System.nanoTime();status=message;notify.accept(message); }
+    private void change(Phase value,String message) { phase=value;phaseStarted=System.nanoTime();status=message;LOG.info("Local phase {}: {}",value,message);notify.accept(message); }
     private List<ItemStack> inventory() { return owner.getInventory().getNonEquipmentItems(); }
     private int count(Predicate<ItemStack> filter) { return inventory().stream().filter(filter).mapToInt(ItemStack::getCount).sum(); }
     private int count(Item item) { return count(s->s.is(item)); }
-    private int stoneCount() { return count(s->s.is(Items.COBBLESTONE) || s.is(Items.STONE)); }
+    private int resultCount() { return count(s->BuiltInRegistries.ITEM.getKey(s.getItem()).toString().equals(definition.resultItem())); }
     private int pickaxe() {
         for(int i=0;i<inventory().size();i++) {
             ItemStack s=inventory().get(i);
-            if(s.is(ItemTags.PICKAXES) && (!s.isDamageableItem() || s.getMaxDamage()-s.getDamageValue()>2)) return i;
+            if(s.is(ItemTags.PICKAXES) && !BaritoneController.silkTouch(s) && (!s.isDamageableItem() || s.getMaxDamage()-s.getDamageValue()>2)) return i;
         }
         return -1;
     }
@@ -93,12 +111,12 @@ final class LocalStoneTask {
                 }
                 return;
             }
-            if(phase==Phase.STONE) {
-                int collected=Math.max(0,stoneCount()-initialStone);
-                if(collected>=quantity) { finish("Local hoàn thành: đã thu thêm "+collected+"/"+quantity+" đá cuội/đá.");return; }
-                if(pickaxe()<0) { movement.stop();change(Phase.PLAN,"Cúp đã hết độ bền; chuẩn bị cúp mới cho phần còn thiếu.");return; }
+            if(phase==Phase.GOAL) {
+                int collected=Math.max(0,resultCount()-initialResult);
+                if(collected>=quantity) { finish("Local hoàn thành: đã thu thêm "+collected+"/"+quantity+" "+definition.resultItem()+".");return; }
+                if(preparation!=null && pickaxe()<0) { movement.stop();change(Phase.PLAN,"Cúp đã hết độ bền; chuẩn bị cúp mới cho phần còn thiếu.");return; }
                 if(System.nanoTime()-phaseStarted>2_000_000_000L && !movement.busy()) {
-                    cancel("Baritone dừng khi chưa đủ đá: "+collected+"/"+quantity+". "+movement.status());
+                    cancel("Baritone dừng khi chưa đủ "+definition.resultItem()+": "+collected+"/"+quantity+". "+movement.status());
                 }
                 return;
             }
@@ -108,8 +126,10 @@ final class LocalStoneTask {
                 return;
             }
             if(phase==Phase.PLACE) {
-                if(world.getBlockState(placedAt).is(Blocks.CRAFTING_TABLE)) { owner.getInventory().setSelectedSlot(oldSelected);table=placedAt;change(Phase.PLAN,"Đã đặt bàn chế tạo."); }
-                else if(System.nanoTime()-phaseStarted>5_000_000_000L) cancel("Server chưa xác nhận bàn chế tạo được đặt; kiểm tra quyền xây dựng.");
+                if(placement.busy()) return;
+                placedAt=placement.target();
+                if(placedAt!=null && world.getBlockState(placedAt).is(Blocks.CRAFTING_TABLE)) { owner.getInventory().setSelectedSlot(oldSelected);table=placedAt;change(Phase.PLAN,"Đã đặt bàn chế tạo."); }
+                else if(!placement.busy()) cancel(placement.status());
                 return;
             }
             if(phase==Phase.OPEN) {
@@ -131,49 +151,59 @@ final class LocalStoneTask {
         } catch(Exception failure) { cancel("Local dừng: "+(failure instanceof IllegalArgumentException ? failure.getMessage():"Không thao tác được trạng thái game.")); }
     }
     private void plan(Minecraft client) {
-        if(stoneCount()-initialStone>=quantity) { finish("Đã đủ số đá yêu cầu.");return; }
+        if(resultCount()-initialResult>=quantity) { finish("Đã đủ "+definition.resultItem()+" yêu cầu.");return; }
         boolean tableOpen=owner.containerMenu instanceof CraftingMenu;
         if(!tableOpen) table=findTable(client);
-        var supplies=new StonePreparation.Supplies(pickaxe()>=0,count(s->logType(s)!=null),count(s->s.is(ItemTags.PLANKS)),count(Items.STICK),count(Items.CRAFTING_TABLE)>0,table!=null,tableOpen);
-        switch(StonePreparation.next(supplies)) {
-            case MINE_STONE -> {
+        Map<String,Integer> observed=Map.of("pickaxe",pickaxe()>=0?1:0,"logs",count(s->logType(s)!=null),
+                "planks",count(s->s.is(ItemTags.PLANKS)),"sticks",count(Items.STICK),
+                "table_available",count(Items.CRAFTING_TABLE)>0 || table!=null || tableOpen?1:0,
+                "nearby_table",table!=null?1:0,"table_open",tableOpen?1:0);
+        TaskPresets.Step step=preparation==null?new TaskPresets.Step("mine_goal",null):preparation.next(observed);
+        switch(step.action()) {
+            case "mine_goal" -> {
                 closeForMovement();
-                int pick=pickaxe();
-                if(!select(client,pick)) throw new IllegalArgumentException("Không chuyển được cúp lên thanh nhanh.");
-                String response=movement.execute("mine minecraft:stone "+(quantity-Math.max(0,stoneCount()-initialStone)));
+                if(preparation!=null && !select(client,pickaxe())) throw new IllegalArgumentException("Không chuyển được cúp lên thanh nhanh.");
+                String response=movement.execute("mine "+definition.goal()+" "+(quantity-Math.max(0,resultCount()-initialResult)));
                 if(!movement.busy()) throw new IllegalArgumentException(response);
-                change(Phase.STONE,"Local: "+response);
+                change(Phase.GOAL,"Local JSON: "+response);
             }
-            case COLLECT_LOG -> {
-                closeForMovement();
-                requestedWood=StonePreparation.logsNeeded(supplies);initialWood=supplies.logs();
-                String wood=nearestWood();
-                String response=movement.execute("mine minecraft:"+wood+"_log "+requestedWood);
+            case "collect_logs" -> {
+                closeForMovement();requestedWood=preparation.evaluate(observed).get("logs_needed");initialWood=observed.get("logs");
+                String wood=nearestWood();String response=movement.execute("mine minecraft:"+wood+"_log "+requestedWood);
                 if(!movement.busy()) throw new IllegalArgumentException(response);
-                change(Phase.WOOD,"Local: thu thêm "+requestedWood+" gỗ "+wood+" để chế công cụ.");
+                change(Phase.WOOD,"Local JSON: thu thêm "+requestedWood+" gỗ "+wood+" để chế công cụ.");
             }
-            case MAKE_PLANKS -> {
-                ItemStack log=inventory().stream().filter(s->logType(s)!=null).findFirst().orElseThrow();
-                Item planks=BuiltInRegistries.ITEM.getValue(net.minecraft.resources.Identifier.parse("minecraft:"+logType(log)+"_planks"));
-                craft(client,Map.of(0,(Predicate<ItemStack>)s->s.is(log.getItem())),new ItemStack(planks,4));
-            }
-            case MAKE_TABLE -> craft(client,plankRecipe(0,1,width(),width()+1),new ItemStack(Items.CRAFTING_TABLE));
-            case MAKE_STICKS -> craft(client,plankRecipe(0,width()),new ItemStack(Items.STICK,4));
-            case MAKE_PICKAXE -> {
-                Map<Integer,Predicate<ItemStack>> recipe=new LinkedHashMap<>(plankRecipe(0,1,2));
-                recipe.put(4,s->s.is(Items.STICK));recipe.put(7,s->s.is(Items.STICK));
-                craft(client,recipe,new ItemStack(Items.WOODEN_PICKAXE));
-            }
-            case PLACE_TABLE -> placeTable(client);
-            case OPEN_TABLE -> {
+            case "craft" -> craftRecipe(client,catalog.recipes().get(step.recipe()));
+            case "place_table" -> placeTable(client);
+            case "open_table" -> {
+                if(table==null) throw new IllegalArgumentException("Không thấy bàn chế tạo để mở.");
                 closeForMovement();BlockHitResult hit=reachable(table);
                 if(hit!=null) openTable(client,hit);
-                else { movement.approachBlock(table,"bàn chế tạo");change(Phase.APPROACH,"Local: đi tới bàn chế tạo sẵn có tại "+table.toShortString()); }
+                else {movement.approachBlock(table,"bàn chế tạo");change(Phase.APPROACH,"Local: đi tới bàn tại "+table.toShortString());}
             }
+            default -> throw new IllegalArgumentException("Hành động JSON chưa được hỗ trợ.");
         }
     }
-    private int width() { return ((AbstractCraftingMenu)owner.containerMenu).getGridWidth(); }
-    private Map<Integer,Predicate<ItemStack>> plankRecipe(int...cells) { Map<Integer,Predicate<ItemStack>> result=new LinkedHashMap<>();for(int cell:cells) result.put(cell,s->s.is(ItemTags.PLANKS));return result; }
+    private void craftRecipe(Minecraft client,TaskPresets.Recipe recipe) {
+        int width=((AbstractCraftingMenu)owner.containerMenu).getGridWidth();
+        if(width<recipe.width()) throw new IllegalArgumentException("Công thức JSON cần bàn chế tạo 3x3; hãy thêm bước mở bàn trước.");
+        ItemStack log=recipe.output().equals("$log_planks") || recipe.cells().stream().anyMatch(c->c.ingredient().equals("$log"))
+                ?inventory().stream().filter(s->logType(s)!=null).findFirst().orElseThrow(()->new IllegalArgumentException("Thiếu gỗ cho công thức.")):null;
+        Map<Integer,Predicate<ItemStack>> ingredients=new LinkedHashMap<>();
+        for(TaskPresets.Cell cell:recipe.cells()) {
+            Predicate<ItemStack> ingredient;
+            if(cell.ingredient().equals("$log")) ingredient=s->s.is(log.getItem());
+            else if(cell.ingredient().equals("#minecraft:planks")) ingredient=s->s.is(ItemTags.PLANKS);
+            else {Item item=requiredItem(cell.ingredient());ingredient=s->s.is(item);}
+            ingredients.put(cell.row()*width+cell.column(),ingredient);
+        }
+        String output=recipe.output().equals("$log_planks")?"minecraft:"+logType(log)+"_planks":recipe.output();
+        craft(client,ingredients,new ItemStack(requiredItem(output),recipe.count()));
+    }
+    private Item requiredItem(String id) {
+        return BuiltInRegistries.ITEM.getOptional(net.minecraft.resources.Identifier.parse(id))
+                .filter(i->i!=Items.AIR).orElseThrow(()->new IllegalArgumentException("Vật phẩm JSON không tồn tại: "+id));
+    }
     private void craft(Minecraft client,Map<Integer,Predicate<ItemStack>> recipe,ItemStack output) {
         if(++batches>200) throw new IllegalArgumentException("Quá số bước chế tạo của nhiệm vụ.");
         craftedItem=output.getItem();craftedBefore=count(craftedItem);movement.stop();crafting.start(client,recipe,output);
@@ -193,31 +223,17 @@ final class LocalStoneTask {
         return ItemStack.isSameItemSameComponents(inventory().get(selected),expected) && inventory().get(selected).getCount()==expected.getCount();
     }
     private void openTable(Minecraft client,BlockHitResult hit) {
-        InteractionHand hand=owner.getOffhandItem().isEmpty()?InteractionHand.OFF_HAND:InteractionHand.MAIN_HAND;
-        if(hand==InteractionHand.MAIN_HAND && !owner.getMainHandItem().isEmpty()) {
-            int empty=-1;for(int i=0;i<9;i++) if(inventory().get(i).isEmpty()) { empty=i;break; }
-            if(empty<0) throw new IllegalArgumentException("Cần một tay trống hoặc ô trống trên thanh nhanh để mở bàn.");
-            owner.getInventory().setSelectedSlot(empty);
-        }
-        client.gameMode.useItemOn(owner,hand,hit);change(Phase.OPEN,"Local: đang mở bàn chế tạo.");
+        if(owner.isSecondaryUseActive()) throw new IllegalArgumentException("Hãy thả phím cúi người để mở bàn chế tạo.");
+        // Vanilla TryEmptyHandInteraction invokes useWithoutItem only for MAIN_HAND.
+        // Prefer an empty hotbar slot; the vanilla table also opens with an occupied main hand.
+        for(int i=0;i<9;i++) if(inventory().get(i).isEmpty()) {owner.getInventory().setSelectedSlot(i);break;}
+        var result=client.gameMode.useItemOn(owner,InteractionHand.MAIN_HAND,hit);
+        LOG.info("Open crafting table at {} with MAIN_HAND: {}",hit.getBlockPos().toShortString(),result);
+        change(Phase.OPEN,"Local: đang mở bàn chế tạo bằng tay chính.");
     }
     private void placeTable(Minecraft client) {
         closeForMovement();
-        int item=-1;for(int i=0;i<inventory().size();i++) if(inventory().get(i).is(Items.CRAFTING_TABLE)) { item=i;break; }
-        if(!select(client,item)) throw new IllegalArgumentException("Không chuyển được bàn chế tạo lên thanh nhanh.");
-        BlockPos origin=owner.blockPosition();
-        for(BlockPos target:BlockPos.betweenClosed(origin.offset(-2,-1,-2),origin.offset(2,0,2))) {
-            if(!world.getBlockState(target).isAir() || owner.getBoundingBox().intersects(new AABB(target))) continue;
-            BlockPos support=target.below();
-            if(!world.getBlockState(support).isCollisionShapeFullBlock(world,support) || world.getBlockState(support).getBlock() instanceof net.minecraft.world.level.block.EntityBlock) continue;
-            Vec3 top=new Vec3(support.getX()+0.5,support.getY()+1,support.getZ()+0.5);
-            BlockHitResult ray=world.clip(new ClipContext(owner.getEyePosition(),top,ClipContext.Block.OUTLINE,ClipContext.Fluid.NONE,owner));
-            if(ray.getType()!=HitResult.Type.BLOCK || !ray.getBlockPos().equals(support) || ray.getDirection()!=Direction.UP
-                    || owner.getEyePosition().distanceToSqr(top)>Math.pow(owner.blockInteractionRange(),2)) continue;
-            placedAt=target.immutable();client.gameMode.useItemOn(owner,InteractionHand.MAIN_HAND,new BlockHitResult(top,Direction.UP,support,false));
-            change(Phase.PLACE,"Local: đang đặt bàn chế tạo ở "+target.toShortString());return;
-        }
-        throw new IllegalArgumentException("Chưa có chỗ đất trống, bằng phẳng trong tầm để đặt bàn chế tạo.");
+        String message=placement.start(client,null);placedAt=placement.target();change(Phase.PLACE,"Local: "+message);
     }
     private String nearestWood() {
         BlockPos origin=owner.blockPosition();String result="oak";double best=Double.MAX_VALUE;
@@ -231,9 +247,9 @@ final class LocalStoneTask {
         return result;
     }
     void cancel(String reason) {
-        if(!active) return;active=false;movement.stop();crafting.cancel(Minecraft.getInstance());
+        if(!active) return;active=false;movement.stop();placement.cancel("Đã hủy đặt bàn của nhiệm vụ local.");crafting.cancel(Minecraft.getInstance());
         if(owner!=null && Minecraft.getInstance().player==owner) owner.getInventory().setSelectedSlot(oldSelected);
-        status=reason+" Nếu còn nguyên liệu ở lưới chế tạo/con trỏ, hãy cất lại; không tự thả đồ.";notify.accept(status);
+        status=reason+" Nếu còn nguyên liệu ở lưới chế tạo/con trỏ, hãy cất lại; không tự thả đồ.";LOG.warn("{}",status);notify.accept(status);
     }
-    private void finish(String message) { active=false;movement.stop();owner.getInventory().setSelectedSlot(oldSelected);status=message;notify.accept(status); }
+    private void finish(String message) { active=false;movement.stop();owner.getInventory().setSelectedSlot(oldSelected);status=message;LOG.info("{}",status);notify.accept(status); }
 }

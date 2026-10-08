@@ -2,12 +2,13 @@
 
 Mỗi yêu cầu chỉ có một AI trả lời được chấp nhận. AI chính được gọi trước; nếu thiếu key,
 lỗi mạng, lỗi HTTP hoặc trả JSON không hợp lệ, chương trình xét AI dự phòng. Không gọi AI
-thứ hai nếu AI thứ nhất đã thành công. `ask` chỉ đề xuất; `run` tự thực thi từng bước.
+thứ hai nếu AI thứ nhất đã thành công. Khi `bot ai auto on`, `ask` và `run` tự thực thi từng bước. Khi OFF, `ask` chỉ đề xuất và `run` bị khóa.
 
 ## Giao nhiệm vụ tự động
 
 ```text
 bot start
+bot ai auto on
 bot ai run Hãy lấy tổng cộng 16 gỗ sồi vào túi đồ. Ưu tiên rương đã nhớ; thiếu thì đào thêm.
 bot ai status
 bot ai cancel
@@ -17,7 +18,7 @@ bot ai cancel
 server/chiều không gian. AI chọn một hành động JSON; mod kiểm tra rồi gọi lệnh
 đã có. Khi đi/đào/mở/lấy/cất đồ còn chạy, chưa hỏi bước mới. Sau khi tác vụ dừng,
 gửi kết quả lệnh và quan sát mới để AI xác định thành công hay lỗi.
-Console tự hiện từng bước. `bot ai ask` vẫn dùng để hỏi mà không thực thi.
+Console tự hiện từng bước. Dùng `bot ai auto off` để hủy nhiệm vụ AI; sau đó `bot ai ask` chỉ đề xuất.
 
 Giới hạn 20 lượt API, 10 phút/nhiệm vụ, 3 phút/hành động; wait chờ 5 giây.
 Lệnh thay đổi trạng thái hoặc giao tác vụ thủ công ngắt nhiệm vụ AI. Lệnh đọc
@@ -117,8 +118,8 @@ không tự nhập vào bộ nhớ chung. Khi nâng cấp, dùng goal để ghi 
 Prompt đóng gói được chụp một lần cho mỗi provider/profile/model/key/session_revision.
 Chỉ đánh dấu khởi tạo thành công sau phản hồi hợp lệ; đổi cấu hình tạo phiên riêng mới,
 không xóa bộ nhớ chung. Prompt vẫn gửi mỗi lần gọi API vì các endpoint không tự nhớ nó.
-Ứng dụng thêm revision công cụ `tools-v3` để khởi tạo prompt mới cho khả năng rương,
-thực thi từng bước và chuẩn bị cúp local trước khi đào đá; bộ nhớ chung vẫn giữ. Đổi session_revision để dùng bản prompt
+Ứng dụng thêm revision công cụ `tools-v4` để khởi tạo prompt mới cho khả năng rương,
+thực thi từng bước và chuẩn bị cúp local trước khi thu đá cuội (cobblestone); bộ nhớ chung vẫn giữ. Đổi session_revision để dùng bản prompt
 mới trong các lần sửa tiếp theo. Không phải huấn luyện mô hình.
 
 ## Lỗi và giới hạn
@@ -128,7 +129,7 @@ HTTP 400/401/403/404/429 không thử lại cùng dịch vụ trong yêu cầu �
 Nếu tất cả đều lỗi, hiển thị lỗi cuối và không thêm lượt vào bộ nhớ chung. Nếu thiếu key,
 bỏ qua dịch vụ. Mỗi dịch vụ được xét một lần, không quay vòng gọi vô hạn.
 Đóng game sẽ ngắt yêu cầu/thời gian chờ; không chuyển AI sau khi bị ngắt.
-Một yêu cầu chạy luồng nền; lệnh pause/stop vẫn dùng được. Chỉ `run` tự thực thi.
+Một yêu cầu chạy luồng nền; lệnh pause/stop vẫn dùng được. Khi công tắc auto ON, `ask` và `run` đều tự thực thi.
 
 ## Kiểm tra và nguồn
 
@@ -141,3 +142,43 @@ Chưa gọi Groq bằng key thật. Gemini đã được người dùng kiểm t
 - JSON Groq: https://console.groq.com/docs/structured-outputs
 - Hạn mức miễn phí: https://console.groq.com/docs/rate-limits
 - Gemini: https://ai.google.dev/api/generate-content
+
+## Thêm OpenAI API
+
+Provider `openai` dùng Responses API tại https://api.openai.com/v1/responses, nhận JSON object và dùng
+cùng bộ kiểm tra hành động/bộ nhớ local với Groq và Gemini. Model mặc định `gpt-4.1-mini`; có thể đổi bằng console.
+Không tự thêm OpenAI vào thứ tự gọi hiện có, không đọc key của các provider khác để dùng cho OpenAI.
+
+Khởi động lại Minecraft và console để nạp bản mới, sau đó:
+
+```text
+bot get API openai
+bot ai use openai
+bot ai fallback groq,gemini
+bot ai status
+bot ai ask Hãy kiểm tra tình trạng và túi đồ của bot
+```
+
+Nếu Terminal hỗ trợ nhập ẩn, dán key tại lời nhắc. Nếu không hỗ trợ, dùng tệp riêng
+config/minecraft-ai-bot/secrets.properties (trong IDE là run/config/...) với `openai_api_key=...`.
+Không dán key thật vào chat hay ảnh chụp. Biến OPENAI_API_KEY vẫn được ưu tiên nếu đã đặt.
+Các key Gemini/Groq hiện có và bộ nhớ chung được giữ nguyên khi lưu thêm OpenAI key.
+
+Đổi model: `bot ai model openai <model-id>` (tài khoản phải có quyền dùng model đó).
+Thứ tự có thể là `provider=openai` / `fallback=groq,gemini`. Các provider trùng được bỏ qua.
+Muốn Groq chính và OpenAI dự phòng: `bot ai use groq`, rồi `bot ai fallback openai,gemini`.
+`bot ai fallback off` tắt dự phòng. Chỉ gọi AI tiếp theo sau lỗi/thiếu key; không gọi đồng thời cả ba.
+Thêm key không tự gửi yêu cầu; chỉ ask/run mới gọi API. Chưa thử API thật trong quá trình tích hợp.
+
+Phản hồi OpenAI phải completed, có output_text và hợp lệ với action/args/message. Phản hồi incomplete,
+refusal hoặc công cụ ngoài giao thức bị từ chối; không đánh dấu prompt khởi tạo/không lưu vào bộ nhớ chung.
+Prompt vẫn khởi tạo theo provider, model, key và revision; dữ liệu lịch sử dùng chung chỉ là văn bản đã kiểm tra.
+
+Tài liệu chính thức:
+- https://developers.openai.com/api/docs/quickstart
+- https://developers.openai.com/api/docs/guides/structured-outputs
+- https://developers.openai.com/api/docs/models/gpt-4.1-mini
+
+## Công tắc thực thi AI
+
+Mỗi lần mở game, công tắc mặc định OFF. Dùng bot ai auto on để bật, bot ai auto status để xem và bot ai auto off để tắt. Tắt sẽ hủy hành động của nhiệm vụ AI và bỏ qua phản hồi API đang chờ. Bật lại không khôi phục nhiệm vụ cũ; hãy giao yêu cầu mới. Bật công tắc không tự chạy đề xuất đã nhận trước đó. Khi có nhiệm vụ đang chạy, yêu cầu ask/run mới được từ chối cho tới khi nhiệm vụ kết thúc hoặc bạn dùng bot ai cancel.

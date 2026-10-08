@@ -37,7 +37,9 @@ public final class AiSessionsTest {
         ChestMemoryTest.run();
         ChestMemoriesTest.run();
         AgentLoopTest.run();
-        LocalStoneTest.run();
+        LocalTaskTest.run();
+        JumpPlacementTest.run();
+        PlacementRecoveryTest.run();
         MultiAiTest.run();
         checkRetries();
         checkCredentials();

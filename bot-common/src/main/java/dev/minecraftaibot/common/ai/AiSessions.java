@@ -25,7 +25,7 @@ public final class AiSessions {
         return askShared(profile, model, revision, key, input, null);
     }
     public synchronized String askShared(String profile, String model, String revision, String key, String input, JsonArray sharedHistory) throws Exception {
-        if (key == null || key.isBlank()) throw new IOException("Chưa cấu hình Gemini API key.");
+        if (key == null || key.isBlank()) throw new IOException("Chưa cấu hình API key.");
         if (!model.matches("[a-zA-Z0-9._/-]+")) throw new IOException("Tên mô hình không hợp lệ.");
         Files.createDirectories(directory);
         Path file = sessionFile(profile, model, revision, key);
@@ -34,7 +34,7 @@ public final class AiSessions {
             session = JsonParser.parseString(Files.readString(file)).getAsJsonObject();
         } else {
             session = new JsonObject();
-            session.addProperty("provider", profile.startsWith("groq:") ? "groq" : "gemini");
+            session.addProperty("provider", profile.contains(":") ? profile.substring(0,profile.indexOf(':')) : "gemini");
             session.addProperty("profile", profile);
             session.addProperty("model", model);
             session.addProperty("revision", revision);

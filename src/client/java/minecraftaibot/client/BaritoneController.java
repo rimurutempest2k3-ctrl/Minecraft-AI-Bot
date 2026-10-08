@@ -27,6 +27,13 @@ final class BaritoneController {
     private String task = "Chưa có tác vụ";
     private MiningQuota quota;
     private BlockOptionalMetaLookup miningFilter;
+    private boolean cobblestoneGoal;
+    private Boolean previousAutoTool;
+
+    static boolean silkTouch(net.minecraft.world.item.ItemStack stack) {
+        return stack.getEnchantments().keySet().stream().anyMatch(e ->
+                e.is(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH));
+    }
 
     BaritoneController(BotCore bot) { this.bot = bot; }
     void approachChest(BlockPos position) {
@@ -72,23 +79,32 @@ final class BaritoneController {
             engine(); stop();
             baritone.getCustomGoalProcess().setGoalAndPath(new GoalBlock(x, y, z));
         } else if (parts[0].equals("mine")) {
-            Identifier id = Identifier.tryParse(parts[1]);
+            boolean collectingCobblestone = parts[1].equals("cobblestone") || parts[1].equals("minecraft:cobblestone");
+            Identifier id = Identifier.tryParse(collectingCobblestone ? "minecraft:stone" : parts[1]);
             var block = id == null ? java.util.Optional.<net.minecraft.world.level.block.Block>empty()
                     : BuiltInRegistries.BLOCK.getOptional(id);
             if (block.isEmpty() || block.get().defaultBlockState().isAir()) return "Mã block không hợp lệ: " + parts[1];
             int quantity = Integer.parseInt(parts[2]);
             BlockOptionalMetaLookup filter = new BlockOptionalMetaLookup(block.get());
-            MiningQuota nextQuota = new MiningQuota(countItems(client.player, filter), quantity);
+            MiningQuota nextQuota = new MiningQuota(collectingCobblestone
+                    ? countCobblestone(client.player) : countItems(client.player, filter), quantity);
             engine(); stop();
             quota = nextQuota;
             miningFilter = filter;
-            baritone.getMineProcess().mine(quota.targetTotal(), filter);
+            cobblestoneGoal = collectingCobblestone;
+            if(cobblestoneGoal) {
+                // Keep the ordinary pickaxe selected by the local prerequisite task.
+                previousAutoTool = BaritoneAPI.getSettings().autoTool.value;
+                BaritoneAPI.getSettings().autoTool.value = false;
+                // Our exact item counter owns completion; Baritone's stone drop filter also accepts stone.
+                baritone.getMineProcess().mine(filter);
+            } else baritone.getMineProcess().mine(quota.targetTotal(), filter);
         } else throw new IllegalArgumentException("Unsupported action: " + command);
         owner = client.player;
         world = client.level;
-        task = command;
+        task = cobblestoneGoal ? "Thu đá cuội (minecraft:cobblestone) bằng cách đào block minecraft:stone" : command;
         LOG.info("Baritone task started: {}", task);
-        return "Đã giao tác vụ cho Baritone: " + command
+        return "Đã giao tác vụ cho Baritone: " + task
                 + (quota == null ? "" : " (thu thêm " + quota.requested() + ", đã có " + quota.initial()
                 + ", mục tiêu tổng " + quota.targetTotal() + ")")
                 + ". bot pause để tạm dừng; bot stop để hủy.";
@@ -97,7 +113,7 @@ final class BaritoneController {
         if (baritone == null) return "Baritone sẵn sàng; chưa có tác vụ";
         if (owner == null) return task;
         String progress = quota != null && owner != null
-                ? " | Đã thu thêm: " + quota.collected(countItems(owner, miningFilter)) + "/" + quota.requested() : "";
+                ? " | Đã thu thêm: " + quota.collected(currentCount(owner)) + "/" + quota.requested() : "";
         return task + progress + (pause.active ? " (tạm dừng)" : baritone.getPathingBehavior().isPathing()
                 ? " (đang di chuyển)" : " (đang chờ/tính đường hoặc đã hoàn tất)");
     }
@@ -106,7 +122,10 @@ final class BaritoneController {
         if (owner != null && (client.player != owner || client.level != world || !owner.isAlive())) {
             stop(); bot.stop();
         } else if (owner != null && quota != null) {
-            int count = countItems(owner, miningFilter);
+            if(cobblestoneGoal && silkTouch(owner.getMainHandItem())) {
+                stop(); task="Đã dừng thu đá cuội: cúp đang cầm có Silk Touch."; return;
+            }
+            int count = currentCount(owner);
             if (quota.complete(count)) {
                 String completed = "Hoàn thành " + task + " | Đã thu thêm: " + quota.collected(count) + "/" + quota.requested();
                 stop();
@@ -120,6 +139,7 @@ final class BaritoneController {
         }
     }
     void stop() {
+        if(previousAutoTool!=null) {BaritoneAPI.getSettings().autoTool.value=previousAutoTool;previousAutoTool=null;}
         if (baritone != null) {
             pause.active = false;
             baritone.getPathingBehavior().cancelEverything();
@@ -127,7 +147,12 @@ final class BaritoneController {
             baritone.getInputOverrideHandler().clearAllKeys();
         }
         owner = null; world = null; task = "Chưa có tác vụ";
-        quota = null; miningFilter = null;
+        quota = null; miningFilter = null; cobblestoneGoal=false;
+    }
+    private int currentCount(LocalPlayer player) {return cobblestoneGoal ? countCobblestone(player):countItems(player,miningFilter);}
+    private static int countCobblestone(LocalPlayer player) {
+        return player.getInventory().getNonEquipmentItems().stream()
+                .filter(s->s.is(net.minecraft.world.item.Items.COBBLESTONE)).mapToInt(net.minecraft.world.item.ItemStack::getCount).sum();
     }
     private static int countItems(LocalPlayer player, BlockOptionalMetaLookup filter) {
         return player.getInventory().getNonEquipmentItems().stream()

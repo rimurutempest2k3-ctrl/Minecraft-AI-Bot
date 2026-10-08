@@ -91,8 +91,9 @@ Chờ console báo "Đã mở rương" rồi dùng list/take/put. Quá 120 giây
 hoặc rương mục tiêu biến mất thì dừng; tới cạnh nhưng bị che khuất cũng báo lỗi.
 bot stop/bot pause hủy cả bước đi tới rương; resume không tự khôi phục nhiệm vụ này.
 Đóng các menu trước khi đi. Có menu khác mở trên đường thì dừng để người chơi xử lý.
-Mở rương bằng tay đang trống để tránh vô tình dùng/đặt vật phẩm; nếu cả hai tay đều có
-đồ, hãy để trống một tay hoặc mở rương bằng tay rồi dùng các lệnh đọc/lấy.
+Mod mở rương bằng tay chính, ưu tiên chọn ô thanh nhanh trống nếu có. Nếu thanh nhanh
+đầy, rương vanilla vẫn mở được bằng tay chính đang cầm đồ. Không dùng tay phụ để mở
+menu vì Minecraft 26.2 chỉ gọi bước useWithoutItem từ tay chính. Hãy thả phím cúi người.
 
 Minecraft vẫn hiện màn hình rương tiêu chuẩn; thao tác điều khiển bằng console bên ngoài.
 Tắt tự tạm dừng khi chuyển cửa sổ bằng F3+P. Không thao tác chuột/túi đồ khi mod đang chuyển.

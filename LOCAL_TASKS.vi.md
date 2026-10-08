@@ -1,24 +1,26 @@
-# Chuỗi điều kiện local: chuẩn bị công cụ trước khi đào đá
+# Chuỗi điều kiện local: chuẩn bị công cụ trước khi thu đá cuội
 
 Không cần API key hay AI. Trong IntelliJ, chạy lại Minecraft Client rồi mở console:
 
 ```text
 bot start
-bot task stone 16
+bot task cobblestone 16
 bot info
 bot inventory
 ```
 
-`bot task stone` mặc định 32. `bot mine stone 16` hoặc
-`bot mine minecraft:stone 16` cũng dùng quy trình này. Số lượng là **thu thêm**;
-đá cũ trong túi không tính. Đá thường rơi đá cuội khi đào bằng cúp thường.
-Cúp Silk Touch có thể cho stone; tiến độ local tính tổng cobblestone + stone.
+`bot task cobblestone` mặc định 32. `bot mine cobblestone 16` hoặc
+`bot mine minecraft:cobblestone 16` cũng dùng quy trình này. Số lượng là **thu thêm**;
+đá cuội cũ trong túi không tính. Bot đào block minecraft:stone bằng cúp không có Silk Touch.
+Chỉ minecraft:cobblestone được tính vào tiến độ; minecraft:stone không được tính.
+Cúp có Silk Touch được bỏ qua; nếu chỉ có loại đó, bot chuẩn bị cúp gỗ. Baritone không tự đổi công cụ trong lượt thu đá cuội.
+bot task stone sẽ hướng dẫn dùng cobblestone. bot mine minecraft:stone vẫn là lệnh đào block thô, không bảo đảm thu vật phẩm stone.
 
 ## Danh sách điều kiện
 
 | Mục tiêu/bước | Kiểm tra trước | Nếu thiếu |
 | --- | --- | --- |
-| Đào đá | Có cúp thuộc tag pickaxes còn hơn 2 độ bền | Chuẩn bị cúp gỗ |
+| Thu đá cuội | Có cúp không Silk Touch, còn hơn 2 độ bền | Chuẩn bị cúp gỗ |
 | Cúp gỗ | 3 ván + 2 que + bàn chế tạo mở | Chuẩn bị nguyên liệu/bàn |
 | Que | Đã có ít nhất 2 que | 2 ván xếp dọc tạo 4 que |
 | Bàn chế tạo | Đang mở, đã có trong túi hoặc có bàn gần | 4 ván tạo 1 bàn |
@@ -26,12 +28,45 @@ Cúp Silk Touch có thể cho stone; tiến độ local tính tổng cobblestone
 | Gỗ | Gỗ phù hợp đang có trong túi | Baritone lấy lượng còn thiếu |
 
 Ví dụ túi trống, không có bàn gần: lấy 3 khúc gỗ → 12 ván → bàn chế tạo
-→ 4 que → đặt/mở bàn → cúp gỗ → đào đá. Dư 3 ván và 2 que, không vứt đi.
+→ 4 que → đặt/mở bàn → cúp gỗ → thu đá cuội. Dư 3 ván và 2 que, không vứt đi.
 Nếu bàn gần hoặc bàn trong túi đã có, chỉ cần 2 khúc gỗ khi chưa có que/ván.
 Nếu cúp đã có, đi đào luôn, không làm thêm bàn hay cúp. Cúp sắp hỏng được bỏ qua;
-nếu hết cúp giữa lúc đào, bot dừng và chuẩn bị cúp mới cho phần đá còn thiếu.
+nếu hết cúp giữa lúc đào, bot dừng và chuẩn bị cúp mới cho phần đá cuội còn thiếu.
 
 ## Bàn và nguyên liệu
+
+Có thể đặt riêng một bàn từ túi đồ bằng console:
+
+```text
+bot start
+bot place crafting_table
+bot place crafting_table 10 64 -20
+```
+
+Lệnh đầu ưu tiên ô không khí gần nhất có mặt đất đặc, nhìn và chạm tới được.
+Nếu không có ô phù hợp gần, bot thử nhảy rồi đặt bàn vào ô dưới chân mình.
+Chỉ thử khi đứng yên trên nền đặc, ô chân trống, đủ khoảng trống để nhảy và có bàn
+trong túi. Đợi chân cao hơn đỉnh ô mục tiêu mới đặt, không đặt xuyên nhân vật.
+Không nhảy/đặt được dưới chân thì thả phím nhảy, đợi đứng vững rồi tìm chỗ khác
+cách 1–2 block theo phương ngang và dùng Baritone đi tới. Ưu tiên chỗ gần nhất,
+cùng độ cao, nền đặc, đủ chỗ đứng và hành lang không có va chạm; tránh nền magma.
+Tại chỗ mới, tìm ô đặt gần hoặc thử nhảy đặt dưới chân lại. Tối đa 2 lần đổi chỗ,
+không quay lại chỗ đứng đã thử. Mỗi bước đi chờ tối đa 15 giây, toàn bước đặt bàn
+tối đa 60 giây. Hết lượt hoặc không có chỗ phù hợp thì dừng và báo lý do.
+Không tự đào block cản chỉ để tìm chỗ đứng. Stop/pause, mở menu, chết hoặc đổi
+thế giới hủy cả bước đi và thả phím nhảy. Sau khi đặt, nhân vật có thể đứng trên bàn.
+Nếu bàn từ lần đặt trước hiện ra muộn, ưu tiên dùng bàn đó, không tiếp tục đặt bàn
+ở chỗ mới. Quy trình local lấy lại tọa độ bàn cuối cùng sau khi đổi chỗ.
+
+Lệnh có tọa độ đặt bàn vào chính
+ô x/y/z đó, không phải tọa độ block đất bên dưới; ô phải nhìn/chạm tới theo tầm
+Minecraft. Tọa độ chỉ định không tự đổi sang chỗ khác và không tự đi tới tọa độ xa. Phải có bàn trong túi, không tự chế bằng lệnh
+place. Nếu đang đi/đào/chế tạo, dùng stop rồi start trước. Tọa độ đã có bàn thì
+báo có sẵn, không dùng thêm bàn. Dùng bot info xem kết quả đặt; stop/pause hủy chờ,
+không phá bàn đã đặt. Chỉ hỗ trợ crafting_table, chưa đặt mọi loại block.
+
+Quy trình cobblestone gọi cùng bước đặt bàn (kể cả nhảy đặt dưới chân) tự động; không cần nhập place giữa nhiệm vụ.
+Đợi block bàn hiện ổn định 20 tick trên client rồi mới mở/chế, mỗi lần đặt chờ tối đa 5 giây.
 
 Tìm bàn trong chunk đã tải, cách vị trí hiện tại tối đa 12 block mỗi trục ngang
 và 4 block theo chiều cao. Có bàn thì dùng Baritone đi tới, không chế thêm.
@@ -50,6 +85,9 @@ Chế tạo dùng lưới 2x2 trong túi hoặc 3x3 của bàn, đặt chính x�
 kiểm tra sản phẩm server trả về rồi lấy một lượt. Không dùng /give, sửa thẳng túi,
 shift-click chế hàng loạt hay gọi API. Sau mỗi lượt kiểm tra lại túi đồ.
 Menu bàn chế tạo vanilla sẽ hiện trong game. Đóng trước khi di chuyển/đào.
+Mở bàn dùng tay chính, ưu tiên ô thanh nhanh trống; không dùng tay phụ dù tay phụ trống.
+Nếu thanh nhanh đầy, bàn vanilla vẫn mở qua tay chính cầm đồ khi không cúi người.
+Các bước local, kết quả mở bàn và lỗi được ghi thêm vào logs/latest.log để chẩn đoán.
 
 ## Dừng và kiểm tra
 
@@ -69,6 +107,19 @@ Giới hạn 3 phút mỗi bước, 15 phút toàn nhiệm vụ và 200 lượt 
 Quy trình khác như coal/iron hiện vẫn cần người dùng chuẩn bị công cụ phù hợp;
 chưa tự chế cúp đá/cúp sắt, lò nung, hay luyện quặng.
 
+Đã kiểm thử thêm cổng nhảy đặt: đủ độ cao, một lần đặt, đổi cột/block, nhảy thất bại
+và giới hạn thời gian. Chưa xác nhận nhảy đặt dưới chân trong game thực tế.
+Đã kiểm thử chọn chỗ đổi: khoảng cách 1–2 block, gần trước, lọc chỗ không phù hợp,
+không quay lại và giới hạn hai lần. Cần thử cả đi tới chỗ mới và đặt lại trong game.
 Đã build và kiểm thử giả lập đồ thị điều kiện, bỏ qua cúp/bàn đã có, lượng gỗ tối thiểu,
 click công thức, dùng ván khác loại, lượng nguyên liệu tiêu hao và từ chối khi thiếu
 nguyên liệu/chỗ nhận. Chưa kiểm tra chuỗi hoàn chỉnh trên game/server thực tế.
+
+## Sắp xếp mã nguồn
+
+Phần đặt bàn nằm trong ProductionController (lớp con TablePlacement); phần quan sát và lưu rương nằm trong ChestController (lớp con MemoryObserver). LocalTaskRunner giữ riêng vì điều phối toàn bộ nhiệm vụ thu đá cuội. Các lệnh console giữ nguyên.
+
+
+## Bộ thực thi JSON
+
+Chuỗi điều kiện và công thức trong hướng dẫn này nay nằm trong local-tasks.json; LocalTaskRunner thực thi các hành động chung. Không còn bộ StonePreparation hardcode. Xem TASKS.vi.md để sửa/thêm nhiệm vụ, công thức và điều kiện. Lệnh bot task spruce 16 là ví dụ nhiệm vụ mới được thêm hoàn toàn bằng JSON.

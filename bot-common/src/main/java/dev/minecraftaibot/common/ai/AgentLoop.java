@@ -13,7 +13,7 @@ public final class AgentLoop {
     private final Runnable stop;
     private final Consumer<String> notify;
     private final LongSupplier time;
-    private boolean active, requesting, waiting;
+    private boolean active, requesting, waiting, autoEnabled;
     private long generation, started, actionStarted, next;
     private int steps;
     private String goal = "", feedback = "Chưa thực thi hành động.", status = "Chưa có nhiệm vụ AI.";
@@ -21,8 +21,16 @@ public final class AgentLoop {
         this.requester=requester; this.execute=execute; this.stop=stop; this.notify=notify; this.time=time;
     }
     public boolean active() { return active; }
+    public boolean autoEnabled() { return autoEnabled; }
+    public String setAuto(boolean enabled) {
+        autoEnabled=enabled;
+        if(!enabled) cancel("Đã tắt AI tự thực thi; hủy tác vụ AI và bỏ qua phản hồi đang chờ.");
+        return enabled ? "AI tự thực thi: ON. bot ai ask/run sẽ chạy nhiệm vụ; bot ai auto off để tắt."
+                : "AI tự thực thi: OFF. bot ai ask chỉ đề xuất; bot ai run bị khóa.";
+    }
     public String status() { return status + (active ? " | Lượt: " + steps + "/20" : ""); }
     public String start(String goal) {
+        if(!autoEnabled) return "AI tự thực thi đang OFF. Bật bằng bot ai auto on trước.";
         if (active) return "Đang có nhiệm vụ AI. Dùng bot ai cancel trước.";
         this.goal=goal; feedback="Chưa thực thi hành động."; steps=0;
         generation++; active=true; requesting=false; waiting=false; started=time.getAsLong(); next=started;

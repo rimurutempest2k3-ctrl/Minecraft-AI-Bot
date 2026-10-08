@@ -17,7 +17,7 @@ public final class AiCredentials {
             Files.writeString(directory.resolve("secrets.properties"),
                     "# Điền Gemini API key sau dấu =. Không chia sẻ tệp này.\n"
                     + "# Biến môi trường GEMINI_API_KEY được ưu tiên nếu đã đặt.\n"
-                    + "gemini_api_key=\ngroq_api_key=\n", StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+                    + "gemini_api_key=\ngroq_api_key=\nopenai_api_key=\n", StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
         } catch (FileAlreadyExistsException ignored) { /* Never overwrite user credentials. */ }
     }
     public static Credential load(Path directory, String environmentKey) throws IOException {
@@ -63,6 +63,6 @@ public final class AiCredentials {
         } finally { Files.deleteIfExists(temporary); }
     }
     private static void checkProvider(String provider) throws IOException {
-        if (!provider.equals("gemini") && !provider.equals("groq")) throw new IOException("Chỉ hỗ trợ gemini và groq.");
+        if (!java.util.Set.of("gemini","groq","openai").contains(provider)) throw new IOException("Chỉ hỗ trợ gemini, groq và openai.");
     }
 }

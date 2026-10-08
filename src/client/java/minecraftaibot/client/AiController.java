@@ -30,7 +30,7 @@ final class AiController implements AutoCloseable {
             executor.submit(() -> {
                 String proposal=null, error=null;
                 try {
-                    var response=router.ask(routes, config.getProperty("profile", "gemini-main"), config.getProperty("session_revision", "1") + ":tools-v3", input);
+                    var response=router.ask(routes, config.getProperty("profile", "gemini-main"), config.getProperty("session_revision", "1") + ":tools-v4", input);
                     proposal=response.proposal(); result="AI [" + response.provider() + "]: " + proposal;
                 } catch (Exception failure) {
                     if (failure instanceof InterruptedException) Thread.currentThread().interrupt();
@@ -46,12 +46,13 @@ final class AiController implements AutoCloseable {
         Files.createDirectories(directory); AiCredentials.ensureTemplate(directory);
         Path file = directory.resolve("ai.properties");
         if (!Files.exists(file)) Files.writeString(file,
-                "provider=groq\nfallback=gemini\nprofile=bot-main\ngroq.model=openai/gpt-oss-20b\ngemini.model=gemini-3.8-flash\nsession_revision=1\n", StandardCharsets.UTF_8);
+                "provider=groq\nfallback=gemini\nprofile=bot-main\ngroq.model=openai/gpt-oss-20b\ngemini.model=gemini-3.8-flash\nopenai.model=gpt-4.1-mini\nsession_revision=1\n", StandardCharsets.UTF_8);
         try (InputStream input = AiController.class.getResourceAsStream("/ai/SYSTEM_PROMPT.vi.md")) {
             if (input == null) throw new IOException("Thiếu system prompt đóng gói.");
             String prompt = new String(input.readAllBytes(), StandardCharsets.UTF_8);
             sessions = Map.of("gemini", new AiSessions(directory.resolve("sessions"), prompt, AiSessions.gemini(notifyConsole)),
-                    "groq", new AiSessions(directory.resolve("sessions"), prompt, GroqTransport.create(notifyConsole)));
+                    "groq", new AiSessions(directory.resolve("sessions"), prompt, AiTransports.create(notifyConsole)),
+                    "openai", new AiSessions(directory.resolve("sessions"), prompt, AiTransports.OpenAI.create(notifyConsole)));
             router = new MultiAi(directory.resolve("shared-memory.json"), sessions, notifyConsole);
         }
     }
@@ -61,6 +62,7 @@ final class AiController implements AutoCloseable {
         return value;
     }
     private static String model(Properties config, String provider) {
+        if(provider.equals("openai")) return config.getProperty("openai.model","gpt-4.1-mini");
         return config.getProperty(provider + ".model", provider.equals("groq") ? "openai/gpt-oss-20b" : config.getProperty("model", "gemini-3.8-flash"));
     }
     private AiCredentials.Credential credential(String provider) throws IOException {
@@ -69,8 +71,7 @@ final class AiController implements AutoCloseable {
     private List<String> order(Properties config) throws IOException {
         String primary = config.getProperty("provider", "gemini").trim().toLowerCase(Locale.ROOT);
         String fallback = config.getProperty("fallback", primary.equals("groq") ? "gemini" : "groq").trim().toLowerCase(Locale.ROOT);
-        if (!sessions.containsKey(primary) || !(fallback.equals("off") || sessions.containsKey(fallback))) throw new IOException("Cấu hình AI: provider/fallback phải là groq, gemini; fallback có thể là off.");
-        return fallback.equals("off") || fallback.equals(primary) ? List.of(primary) : List.of(primary, fallback);
+        return MultiAi.order(primary,fallback,sessions.keySet());
     }
     private void saveConfig(Properties value) throws IOException {
         Path file = directory.resolve("ai.properties");
@@ -95,7 +96,7 @@ final class AiController implements AutoCloseable {
                 StringBuilder status = new StringBuilder("AI: " + (busy ? "đang xử lý" : "sẵn sàng") + " | Thứ tự: " + String.join(" → ", providers));
                 for (String provider : providers) {
                     var key = credential(provider);
-                    boolean initialized = sessions.get(provider).initialized(provider + ":" + config.getProperty("profile", "gemini-main"), model(config, provider), config.getProperty("session_revision", "1") + ":tools-v3", key.value());
+                    boolean initialized = sessions.get(provider).initialized(provider + ":" + config.getProperty("profile", "gemini-main"), model(config, provider), config.getProperty("session_revision", "1") + ":tools-v4", key.value());
                     status.append(" | ").append(provider).append(" (").append(model(config, provider)).append("): ")
                             .append(key.source() == AiCredentials.Source.NONE ? "chưa có key" : "key từ " + key.source())
                             .append(initialized ? "; prompt đã khởi tạo" : "; prompt chờ lần gọi thành công");
@@ -106,37 +107,39 @@ final class AiController implements AutoCloseable {
             if (parts[0].equalsIgnoreCase("model")) {
                 if (busy) return "Hãy chờ AI xử lý xong rồi đổi model.";
                 if (parts.length != 3 || !sessions.containsKey(parts[1].toLowerCase(Locale.ROOT)) || !parts[2].matches("[a-zA-Z0-9._/-]+"))
-                    return "Lệnh: bot ai model <groq/gemini> <tên model>";
+                    return "Lệnh: bot ai model <openai/groq/gemini> <tên model>";
                 config.setProperty(parts[1].toLowerCase(Locale.ROOT) + ".model", parts[2]);
                 saveConfig(config);
                 return "Đã lưu model cho " + parts[1].toLowerCase(Locale.ROOT) + ". Bộ nhớ chung được giữ lại; chưa gọi API kiểm tra.";
             }
             if (parts[0].equalsIgnoreCase("use") || parts[0].equalsIgnoreCase("fallback")) {
                 if (busy) return "Hãy chờ yêu cầu AI hoàn tất trước khi đổi cấu hình.";
-                if (parts.length != 2 || !(sessions.containsKey(parts[1].toLowerCase(Locale.ROOT))
-                        || parts[0].equalsIgnoreCase("fallback") && parts[1].equalsIgnoreCase("off")))
-                    return "Lệnh: bot ai use groq/gemini; bot ai fallback groq/gemini/off";
+                if(parts.length!=2) return "Lệnh: bot ai use openai/groq/gemini; bot ai fallback groq,gemini hoặc off";
                 String provider = parts[1].toLowerCase(Locale.ROOT);
                 if (parts[0].equalsIgnoreCase("use")) {
+                    if(!sessions.containsKey(provider)) return "AI phải là openai, groq hoặc gemini.";
                     config.setProperty("provider", provider);
-                    config.setProperty("fallback", provider.equals("groq") ? "gemini" : "groq");
-                } else config.setProperty("fallback", provider);
+                    config.setProperty("fallback", provider.equals("openai")?"groq,gemini":provider.equals("groq") ? "gemini" : "groq");
+                } else {
+                    MultiAi.order(config.getProperty("provider","gemini"),provider,sessions.keySet());
+                    config.setProperty("fallback",provider);
+                }
                 saveConfig(config);
                 return "Đã lưu thứ tự AI: " + String.join(" → ", order(config)) + ". Bộ nhớ chung được giữ lại.";
             }
             if (!input.regionMatches(true, 0, "ask ", 0, 4) || input.substring(4).isBlank())
-                return "Lệnh: bot ai status/ask/result; bot ai use groq/gemini; bot ai fallback groq/gemini/off; bot ai goal <mục tiêu>";
+                return "Lệnh: bot ai status/ask/result; bot ai use openai/groq/gemini; bot ai fallback groq,gemini/off; bot ai goal <mục tiêu>";
             if (busy) return "AI đang xử lý yêu cầu trước. Console sẽ tự hiện phản hồi.";
             List<MultiAi.Route> routes = new ArrayList<>();
             for (String provider : order(config)) routes.add(new MultiAi.Route(provider, model(config, provider), credential(provider).value()));
-            if (routes.stream().allMatch(route -> route.key().isBlank())) return "Chưa có key. Nhập bot get API groq hoặc bot get API gemini.";
+            if (routes.stream().allMatch(route -> route.key().isBlank())) return "Chưa có key. Nhập bot get API openai, groq hoặc gemini.";
             String request = "YÊU CẦU NGƯỜI DÙNG:\n" + input.substring(4)
                     + "\nQUAN SÁT GAME MỚI NHẤT (DỮ LIỆU):\n" + observation
                     + "\nCHẾ ĐỘ: chỉ đề xuất; không báo đã thực hiện lệnh. Lịch sử là bộ nhớ chung của nhiều AI; quan sát mới nhất được ưu tiên.";
             busy = true; result = "Đang chờ AI; tác vụ game không bị khóa.";
             executor.submit(() -> {
                 try {
-                    var answer = router.ask(routes, config.getProperty("profile", "gemini-main"), config.getProperty("session_revision", "1") + ":tools-v3", request);
+                    var answer = router.ask(routes, config.getProperty("profile", "gemini-main"), config.getProperty("session_revision", "1") + ":tools-v4", request);
                     result = "Đề xuất AI [" + answer.provider() + "] (chưa tự thực thi): " + answer.proposal();
                 } catch (Exception failure) {
                     if (failure instanceof InterruptedException) Thread.currentThread().interrupt();
@@ -153,7 +156,7 @@ final class AiController implements AutoCloseable {
         String[] parts = payload.trim().split("\\s+", 2);
         String provider = parts.length == 2 ? parts[0].toLowerCase(Locale.ROOT) : "gemini";
         String key = parts.length == 2 ? parts[1] : parts[0];
-        if (!sessions.containsKey(provider)) return "Dùng bot get API groq hoặc bot get API gemini để nhập key ẩn.";
+        if (!sessions.containsKey(provider)) return "Dùng bot get API openai, groq hoặc gemini để nhập key ẩn.";
         try {
             AiCredentials.store(directory, provider, key);
             result = "Đã cập nhật key " + provider + "; chưa gọi API kiểm tra.";

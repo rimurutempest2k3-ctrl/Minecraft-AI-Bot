@@ -55,7 +55,7 @@ public final class CommandDispatcher {
         if (original.matches("(?is)^bot\\s+get(?:\\s.*)?$")) {
             var match = java.util.regex.Pattern.compile("(?is)^bot\\s+get\\s+api(?:\\s+(.+))?$").matcher(original);
             if (!match.matches() || match.group(1) == null)
-                return "Dùng bot get API [groq/gemini] để nhập key ẩn, hoặc bot get API [groq/gemini] <key>.";
+                return "Dùng bot get API [openai/groq/gemini] để nhập key ẩn, hoặc bot get API [openai/groq/gemini] <key>.";
             return assignKey.apply(match.group(1));
         }
         if (original.equalsIgnoreCase("bot ai")) return ai.apply("");
@@ -88,7 +88,11 @@ public final class CommandDispatcher {
             String task = command.substring(9);
             if (task.equals("check")) return information.get() + " | " + inventory.get();
             if (task.equals("inventory")) return inventory.get();
-            try { return execute(TaskPresets.miningCommand(task)); }
+            try {
+                String validated=TaskPresets.miningCommand(task);
+                if(bot.state()!=BotState.RUNNING) return "Hãy nhập bot start trước.";
+                return actions.apply("task "+task.split(" ")[0]+" "+validated.substring(validated.lastIndexOf(' ')+1));
+            }
             catch (IllegalArgumentException invalid) { return invalid.getMessage(); }
         }
         if (command.equals("bot goto") || command.startsWith("bot goto ")) {
@@ -111,10 +115,21 @@ public final class CommandDispatcher {
             if (bot.state() != BotState.RUNNING) return "Hãy nhập bot start trước.";
             return actions.apply("mine " + parts[2] + " " + quantity);
         }
+        if (command.equals("bot place") || command.startsWith("bot place ")) {
+            String[] parts=command.split(" ");
+            if ((parts.length!=3 && parts.length!=6) || !(parts[2].equals("crafting_table") || parts[2].equals("minecraft:crafting_table")))
+                return "Cú pháp: bot place crafting_table [x y z]. Hiện hỗ trợ đặt bàn chế tạo.";
+            if(parts.length==6) try {
+                int x=Integer.parseInt(parts[3]),y=Integer.parseInt(parts[4]),z=Integer.parseInt(parts[5]);
+                if(Math.abs((long)x)>29999984 || Math.abs((long)z)>29999984) return "Tọa độ nằm ngoài giới hạn thế giới.";
+            } catch(NumberFormatException invalid) { return "Tọa độ đặt bàn phải là số nguyên."; }
+            if(bot.state()!=BotState.RUNNING) return "Hãy nhập bot start trước.";
+            return actions.apply("place crafting_table"+(parts.length==6?" "+parts[3]+" "+parts[4]+" "+parts[5]:""));
+        }
         if (command.equals("bot move") || command.startsWith("bot move "))
             return "Di chuyển đã chuyển sang Baritone. Dùng bot goto <x> <y> <z>.";
         return switch (command) {
-            case "help", "bot help" -> "Lệnh: bot start, bot status, bot info, bot inventory, bot chest, bot task list, bot task <tên> [số lượng], bot goto <x> <y> <z>, bot mine <block> <số lượng>, bot pause, bot resume, bot stop, bot get API, bot ai status/ask/result, exit";
+            case "help", "bot help" -> "Lệnh: bot start, bot status, bot info, bot inventory, bot chest, bot task list, bot task <tên> [số lượng], bot goto <x> <y> <z>, bot mine <block> <số lượng>, bot place crafting_table [x y z], bot pause, bot resume, bot stop, bot get API, bot ai status/ask/result, exit";
             case "bot info" -> information.get();
             case "bot inventory" -> inventory.get();
             case "bot start" -> bot.start();
