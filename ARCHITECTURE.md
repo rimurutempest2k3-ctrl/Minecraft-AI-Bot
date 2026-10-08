@@ -1,88 +1,87 @@
-# Architecture — Minecraft AI Bot
+# Cấu trúc hệ thống (bản phác thảo)
 
-**Status:** Proposed architecture, not yet implemented.
+Đây là cách dự định chia code để dễ làm từng phần. Chưa phải cấu trúc package Java cuối cùng.
 
-## Core data flow
-
-```text
-User (manual commands / Web Dashboard)
-                |
-       Task Input / AI Task Gateway
-                |
-      Plan Validator + Permission Checks
-                |
-          Task Queue (one active)
-                |
-            Task Manager <----> Persistent Task/World/Storage Memory
-                |
-          Skill Registry / Executor
-          |          |           |
-     Baritone    Client APIs   BaseBuilder
-          |          |           |
-          +---- Minecraft client/server
-                |
-         Observations + Event Logger
-                |
-       Validator / Retry / Reflex Layer
-
-AI Task Gateway -> Context Builder -> Budget Manager -> LLM
-                                       |
-                              validated plan proposal
-```
-
-## Module responsibilities
-
-### Bot Core
-Lifecycle, tick-safe scheduling, module wiring, connection handling and shutdown. Never block the Minecraft client thread waiting for network/API calls.
-
-### Game State Reader
-Read-only snapshots of player position, health, hunger, inventory, world and visible entities/blocks. Snapshot format must include timestamps and dimension.
-
-### Task Manager
-Single active task, pending queue, task state transitions, cancellation, progress tracking, persistence and skill dispatch. Task Manager never invents missing skills.
-
-### Skill Registry and Executor
-Typed skill contracts with preconditions, parameters, execution, cancellation, postconditions and error codes. Minecraft actions must be legal in Survival, within reach, and checked against server-observed state. Pathfinding may delegate to compatible Baritone.
-
-### Validator and Retry Controller
-Validate incoming task schema, skill availability and parameters before execution. Check postconditions against observations. Bounded retries with backoff; distinguish retryable from permanent failures. Timeouts and no-progress watchdogs prevent infinite loops.
-
-### Reasoning Router
-- FAST THINK: timer-based lightweight review during long tasks; result enum CONTINUE/ADJUST/ABORT/ESCALATE_TO_DEEP.
-- DEEP THINK: after task completion or significant failure; in user-directed V1, propose next task only, do not enqueue autonomously.
-- All AI output is untrusted proposed data: schema validate and authorize before acting.
-- API calls are asynchronous and budget constrained.
-
-### AI Task Gateway
-Backend endpoint accepting natural-language tasks, building a minimal context snapshot, calling AI, validating returned structured plans, presenting a preview, and optionally queueing only after configured approval. Store API key on backend, not in browser JS. Authenticate dashboard endpoints and apply request limits.
-
-### Memory
-Persist tasks and execution checkpoints, last-observed world locations and storage inventories with last-seen timestamps. Revalidate chest contents, block state and surroundings after reconnection; do not assume multiplayer world data is unchanged.
-
-### BaseBuilder
-Read normalized blueprint, compute bill of materials, select safe build site, prepare terrain with authorization, plan placement order, build incrementally, verify every block, record checkpoints and register facilities in memory. Begin with a 7x7 starter house.
-
-### Safety Controller
-Local immediate responses to lava, fall hazards, hostile mobs and low health. May interrupt ordinary tasks. Never wait for an AI response to avoid immediate danger. Respect server permissions and other players' property.
-
-### Logging / Debug
-Structured logs with timestamp, severity, module, taskId, stepId, actionId and requestId; log rotation, redaction, stack traces and debug-report export. Do not store secrets.
-
-## Proposed initial interfaces (conceptual)
+## Luồng xử lý
 
 ```text
-submitTask(TaskSpec) -> TaskId
-getTask(TaskId) -> TaskSnapshot
-pauseTask(TaskId)
-resumeTask(TaskId)
-cancelTask(TaskId)
-Skill.execute(SkillRequest, CancellationToken) -> SkillResult
-Validator.check(TaskSpec, GameSnapshot) -> ValidationResult
+Người dùng
+  |-- Lệnh cố định
+  |-- Dashboard: nhập nhiệm vụ bằng tiếng Việt
+  |
+  v
+Kiểm tra yêu cầu / AI phân tích nếu cần
+  |
+  v
+Hàng đợi nhiệm vụ
+  |
+  v
+Task Manager
+  |-- Đọc trạng thái Minecraft
+  |-- Gọi Skill phù hợp
+  |-- Kiểm tra kết quả
+  |-- Thử lại hoặc báo lỗi
+  |
+  v
+Minecraft client (Fabric / Baritone)
 ```
 
-## Constraints
-- Only one world-mutating skill should own player controls at a time.
-- API failure must not freeze Minecraft; task should continue safely or pause.
-- All user and AI task input passes the same validation layer.
-- Do not depend on Meteor until version, licensing and conflicts are verified.
-- No requirement for operator/creative privileges.
+AI Gateway, trí nhớ và log sẽ nối vào luồng này, nhưng không cần xây tất cả cùng lúc.
+
+## 1. Đọc trạng thái game
+
+Phần này lấy tọa độ, máu, thức ăn, inventory, dimension và các thông tin thế giới mà client thực sự nhìn thấy. Những dữ liệu này là căn cứ để kiểm tra nhiệm vụ, không dựa vào lời AI nói rằng “đã xong”.
+
+Không gọi API trong game tick. Những việc liên quan mạng hoặc xử lý lâu phải chạy bất đồng bộ để tránh đứng game.
+
+## 2. Task Manager
+
+Giữ một nhiệm vụ đang chạy và một hàng đợi. Nó quyết định bước tiếp theo, chuyển trạng thái, lưu tiến độ và gửi lệnh xuống Skill.
+
+Task Manager không tự đi tìm đường hay bấm vào ô inventory. Nếu cần di chuyển thì gọi Skill di chuyển; nếu cần lấy đồ thì gọi Skill tương tác rương.
+
+## 3. Skill
+
+Mỗi Skill cần có đầu vào rõ ràng, điều kiện để chạy, cách biết đã xong và cách hủy giữa chừng.
+
+Các Skill ưu tiên:
+- `MOVE_TO`: đi tới tọa độ, dùng Baritone nếu bản đang dùng tương thích.
+- `LOOK_AT`: hướng nhìn vào mục tiêu.
+- `BREAK_BLOCK`: phá block có thể tiếp cận.
+- `PICKUP_ITEM`: nhặt vật phẩm rồi kiểm tra inventory.
+
+Sau đó mới thêm `PLACE_BLOCK`, chế tạo, mở rương và chuyển đồ. Không nên coi một Skill là hoàn thành chỉ vì đã gửi lệnh: phải kiểm tra trạng thái Minecraft sau thao tác.
+
+Tại một thời điểm chỉ có một Skill được điều khiển nhân vật theo cách có thể xung đột với Skill khác.
+
+## 4. Trí nhớ
+
+Ban đầu chỉ cần lưu nhiệm vụ, bước đang chạy và một số dữ liệu quan trọng. Về sau thêm vị trí nhà, rương, khu vực đã khám phá và lần cuối nhìn thấy chúng.
+
+Sau khi bot chết hoặc kết nối lại, cần kiểm tra trạng thái mới rồi mới tiếp tục. Không được mặc định mọi block hoặc vật phẩm vẫn còn nguyên.
+
+## 5. AI và dashboard
+
+Dashboard sẽ có hai đường:
+- **Manual Task:** nhập lệnh cố định, không cần AI.
+- **AI Task Gateway:** nhập yêu cầu tự nhiên; backend gửi trạng thái liên quan lên API để tạo kế hoạch có cấu trúc.
+
+Kế hoạch AI trả về phải được kiểm tra: đúng định dạng, đúng tham số, chỉ dùng Skill có thật và không vượt quyền. Người dùng có thể xem, sửa hoặc duyệt kế hoạch trước khi chạy. API key giữ ở backend, không đưa vào JavaScript của trình duyệt.
+
+FAST THINK kiểm tra tiến độ theo chu kỳ. DEEP THINK đánh giá khi hoàn thành hoặc gặp lỗi khó. Bản đầu không cho AI tự quyết định nhiệm vụ tiếp theo mà không có người dùng.
+
+## 6. Xây nhà
+
+`BaseBuilder` đọc một blueprint, tính vật liệu, kiểm tra vị trí xây, thực hiện từng phần và đối chiếu các block đã đặt. Cần xử lý việc đứng đúng tầm với, đặt block theo hướng và tránh phá công trình của người khác.
+
+Một file .schem chỉ là dữ liệu công trình, không có nghĩa bot tự xây được. Phần đặt block trong Survival vẫn phải tự làm.
+
+## 7. Log và xử lý lỗi
+
+Mỗi task có ID riêng. Log nên ghi thời gian, bước đang chạy, Skill, vị trí và lý do thất bại. Cần xuất được báo cáo lỗi gọn, không chứa bí mật đăng nhập.
+
+Các lỗi cần phân biệt ngay từ đầu: không tìm thấy tài nguyên, không có đường đi, bị kẹt, ngoài tầm với, inventory đầy, timeout và mất kết nối.
+
+## Thứ tự viết code
+
+Đọc trạng thái game → Task Manager tối thiểu → Skill di chuyển → Skill đào/nhặt → kiểm tra hoàn thành → lưu trạng thái. Chỉ sau đó mới nối dashboard, AI và BaseBuilder.
