@@ -1,50 +1,55 @@
-# Development Roadmap — Minecraft AI Bot
+# Kế hoạch phát triển
 
-**Status:** Planning targets, not completed features or promised release dates.
+Đây là thứ tự dự định làm, không phải lịch phát hành cố định. Hiện mới có repository và tài liệu, chưa có bản mod chạy được.
 
-## Milestone 0 — Project setup
-- [ ] Verify exact target Minecraft, Fabric, Java and Baritone versions.
-- [ ] Set up Windows development environment, Gradle and Fabric project.
-- [ ] Add .gitignore, dependency/license review, CI build and basic tests.
-- [ ] Keep secrets out of Git and document setup steps.
+## Trước khi viết code
 
-**Exit criterion:** clean build and launch in development client.
+- [ ] Chọn chính xác phiên bản Minecraft Java.
+- [ ] Kiểm tra bản Fabric, Java và Baritone phù hợp.
+- [ ] Chuẩn bị IntelliJ IDEA, Gradle và môi trường chạy thử trên Windows.
+- [ ] Tạo dự án Fabric tối thiểu, thiết lập .gitignore để tránh đẩy file build và dữ liệu riêng tư.
 
-## Milestone 1 — v0.1.0 Core Prototype
-- [ ] Read game snapshots (health, hunger, position, inventory).
-- [ ] Task Manager: queue, states, pause/resume/cancel, timeout and retry.
-- [ ] Structured logging and task IDs.
-- [ ] Basic movement, break-block and pickup skills.
-- [ ] End-to-end COLLECT_ITEM task with observed result validation.
+**Mốc đạt được:** mod khởi động trong client thử nghiệm và ghi được log.
 
-**Exit criterion:** collect a specified resource in Survival and produce a reproducible log.
+## Bước 1 — Bot biết nhận việc
 
-## Milestone 2 — v0.2.0 Survival Prototype
-- [ ] Basic safety reflexes and recovery.
-- [ ] Crafting, inventory management, storage interaction.
-- [ ] Persist/revalidate world and storage memory.
-- [ ] BaseBuilder: 7x7 starter-house blueprint, bill of materials, terrain checks, legal placement, checkpointing.
-- [ ] Bed, chest, furnace, crafting table and lighting registered in memory.
+- [ ] Đọc vị trí, máu, thức ăn và inventory.
+- [ ] Có Task Manager với queue, pause, resume, cancel.
+- [ ] Gọi được Skill di chuyển.
+- [ ] Thử phá block và nhặt vật phẩm trong Survival.
+- [ ] Giao nhiệm vụ lấy 16 khúc gỗ và kiểm tra kết quả.
+- [ ] Log đủ để tìm nguyên nhân nếu nhiệm vụ thất bại.
 
-**Exit criterion:** build and use a basic survival shelter without Creative/operator privileges.
+**Mốc đạt được:** bot làm xong một nhiệm vụ thu thập đơn giản, hoặc báo lỗi đúng thay vì bị treo.
 
-## Milestone 3 — v0.3.0 AI Integration
-- [ ] Backend AI Task Gateway with authenticated dashboard.
-- [ ] Natural-language task -> structured plan -> validation -> user preview.
-- [ ] FAST THINK timer and DEEP THINK after task completion.
-- [ ] Budget controls, request timeouts and redacted AI logs.
-- [ ] Task plan revision with explicit approval.
+## Bước 2 — Sinh tồn cơ bản
 
-**Exit criterion:** user assigns a supported multi-step task via dashboard and receives a validated completion report.
+- [ ] Xử lý nguy hiểm trước mắt bằng logic tại máy.
+- [ ] Chế tạo và quản lý inventory.
+- [ ] Biết mở rương, lấy và cất vật phẩm.
+- [ ] Lưu vị trí nhà, rương và tiến độ.
+- [ ] Tạo hệ thống xây nhà theo blueprint.
+- [ ] Xây thử nhà 7×7 có giường, rương, bàn chế tạo, lò nung và đuốc.
 
-## Milestone 4 — Toward v1.0 Stable Release
-- [ ] Resilient task recovery after disconnect/restart.
-- [ ] More skills, expanded blueprints and survival workflows.
-- [ ] Automated tests, documentation and debug-report export.
-- [ ] Performance profiling, permissions and server-rule checks.
-- [ ] Decide whether and when to open-source under a suitable license.
+**Mốc đạt được:** bot tự chuẩn bị vật liệu và dựng được chỗ ở cơ bản trong Survival, không cần Creative.
 
-**Exit criterion:** defined regression suite passes and supported tasks run reliably under documented conditions.
+## Bước 3 — Thêm AI
 
-## Current next action
-While away from Windows: finalize V1 skill contracts and acceptance tests. Do not lock Minecraft/Java version or claim compatibility before checking upstream releases.
+- [ ] Làm backend và Web Dashboard.
+- [ ] Có ô nhập nhiệm vụ bằng ngôn ngữ tự nhiên.
+- [ ] AI trả về kế hoạch; người dùng xem và duyệt trước khi chạy.
+- [ ] Thêm FAST THINK, DEEP THINK và giới hạn chi phí API.
+- [ ] Cho phép chỉnh sửa kế hoạch đang đề xuất.
+- [ ] Xử lý trường hợp API lỗi hoặc hết ngân sách.
+
+**Mốc đạt được:** người dùng giao một nhiệm vụ nhiều bước từ dashboard và bot thực hiện được bằng các Skill đã có.
+
+## Bước 4 — Ổn định rồi mới mở rộng
+
+- [ ] Kiểm thử việc mất kết nối, chết và khởi động lại.
+- [ ] Thêm các mẫu nhà, cách quản lý kho và kỹ năng sinh tồn.
+- [ ] Tự động build và chạy kiểm thử trên GitHub.
+- [ ] Viết hướng dẫn cài đặt, giới hạn hiện tại và cách xuất log.
+- [ ] Xem xét giấy phép trước khi công khai mã nguồn.
+
+Chưa cần đặt mốc v1.0 hay ngày phát hành. Ưu tiên hiện tại vẫn là làm cho một nhiệm vụ nhỏ chạy ổn định.
