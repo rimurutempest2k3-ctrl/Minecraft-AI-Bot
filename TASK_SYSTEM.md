@@ -1,98 +1,93 @@
-# Task System V1 — Specification
+# Task Manager — ghi chú triển khai V1
 
-**Status:** Design draft. Primary mode: user-directed tasks.
+Mục tiêu của V1 là nhận một nhiệm vụ cụ thể, thực hiện được bằng các Skill có sẵn và báo kết quả đúng. Chưa cần tự nghĩ ra việc mới.
 
-## Task lifecycle
+## Trạng thái
+
+```text
 QUEUED -> PREPARING -> RUNNING -> COMPLETED
-RUNNING <-> PAUSED
-QUEUED/PREPARING/RUNNING/PAUSED -> CANCELLED
-PREPARING/RUNNING -> FAILED
+                        |  ^
+                        v  |
+                       PAUSED
 
-Terminal states: COMPLETED, FAILED, CANCELLED. Retrying a terminal task creates a new execution record linked to the original.
+Có thể chuyển sang FAILED khi không xử lý được lỗi.
+Người dùng có thể CANCEL khi nhiệm vụ chưa kết thúc.
+```
 
-## Task schema (example)
+- `QUEUED`: đang đợi.
+- `PREPARING`: kiểm tra điều kiện trước khi chạy.
+- `RUNNING`: đang thực hiện.
+- `PAUSED`: dừng tạm, giữ tiến độ.
+- `COMPLETED`: đã kiểm tra và đạt yêu cầu.
+- `FAILED`: không hoàn thành được, có lý do cụ thể.
+- `CANCELLED`: người dùng hủy.
+
+Ba trạng thái cuối là kết thúc. Nếu chạy lại, tạo lượt chạy mới để không lẫn log.
+
+## Ví dụ nhiệm vụ
+
 ```json
 {
   "taskId": "task_001",
   "type": "COLLECT_ITEM",
-  "source": "USER",
-  "priority": 50,
   "parameters": {
     "item": "minecraft:oak_log",
     "count": 16
   },
   "status": "QUEUED",
-  "progress": {"current": 0, "target": 16},
   "retryCount": 0,
-  "maxRetries": 3,
-  "timeoutSeconds": 600
+  "maxRetries": 3
 }
 ```
-The schema is provisional. Validate item identifiers, bounds, world context and user permissions. Record creation/update timestamps, task version and checkpoint metadata in implementation.
 
-## Queue
-- Exactly one active task in V1; pending tasks wait in a queue.
-- User can reorder/cancel pending tasks.
-- Priority may influence queue order but must not silently preempt a running task.
-- Only explicit user action or a defined safety policy may interrupt execution.
-- Tasks created by AI must be approved and validated before enqueueing.
+Đây chỉ là định dạng thử nghiệm. Khi viết code sẽ bổ sung thời gian tạo, thời gian cập nhật, timeout và dữ liệu để tiếp tục sau khi thoát game.
 
-## First supported task
-**COLLECT_ITEM(item, count)**
-1. Read inventory and establish starting count.
-2. Determine how many additional items are needed (do not accidentally count pre-existing items as newly gathered if the task contract requires newly collected resources).
-3. Search for an accessible resource, navigate, break/harvest, collect drops.
-4. Recheck inventory and world state after each attempt.
-5. Complete only when the agreed postcondition is true.
-6. If unreachable or resource not found after bounded search, return a specific error.
+## Cách xử lý COLLECT_ITEM
 
-V1 default postcondition: player inventory contains at least `count` of the requested item. A future option may require collecting `count` **new** items or delivering them to a specified container.
+1. Đếm số item đang có trong inventory.
+2. Nếu đã đủ 16 thì hoàn thành ngay. Mặc định của V1 là **sở hữu ít nhất 16 item**, không bắt buộc 16 item đó đều được nhặt sau khi nhận lệnh.
+3. Nếu thiếu, tìm nguồn tài nguyên trong khu vực bot có thể tiếp cận.
+4. Di chuyển, phá block phù hợp, nhặt vật phẩm.
+5. Đọc lại inventory. Nếu chưa đủ thì tiếp tục, nhưng phải có giới hạn thời gian và phạm vi tìm kiếm.
 
-## Initial skill contracts
-- MOVE_TO(position, tolerance)
-- LOOK_AT(target)
-- BREAK_BLOCK(position)
-- PICKUP_ITEM(itemEntity / region)
-- PLACE_BLOCK(position, blockState) — planned
-- OPEN_CONTAINER, TRANSFER_ITEM, CRAFT_ITEM — later
+Nếu bot không thấy cây, không nên cho đi vô tận. Nếu bị kẹt, thử tính lại đường một số lần. Không giải quyết được thì trả lỗi để người dùng biết.
 
-Each skill defines required context, preconditions, asynchronous completion, postconditions, timeout, cancellation and error codes.
+## Một số mã lỗi dự kiến
 
-## Error model
-- RESOURCE_NOT_FOUND
-- PATHFINDING_FAILED
-- PLAYER_STUCK
-- OUT_OF_REACH
-- BLOCK_PROTECTED
-- INVENTORY_FULL
-- MISSING_MATERIALS
-- TIMEOUT
-- NO_PROGRESS
-- DISCONNECTED
-- INVALID_TASK
-- SKILL_UNAVAILABLE
+| Mã | Ý nghĩa |
+| --- | --- |
+| `RESOURCE_NOT_FOUND` | Không tìm được tài nguyên trong phạm vi tìm kiếm |
+| `PATHFINDING_FAILED` | Không tìm được đường |
+| `PLAYER_STUCK` | Nhân vật không tiến triển |
+| `OUT_OF_REACH` | Mục tiêu nằm ngoài tầm thao tác |
+| `INVENTORY_FULL` | Không còn chỗ chứa |
+| `TIMEOUT` | Quá thời gian cho phép |
+| `SKILL_UNAVAILABLE` | Chưa có Skill để làm bước này |
+| `DISCONNECTED` | Mất kết nối |
 
-Retry only transient failures, with capped attempts and bounded search. Fail or pause for intervention when recovery is unsafe. Log every retry and state transition.
+Không phải lỗi nào cũng nên thử lại. Ví dụ không có Skill hoặc không có quyền phá block thì retry liên tục cũng vô ích.
 
-## Persistence / restart
-Store task queue, active task checkpoint and last observations. On reconnect, load saved task into a recovery/pause state internally, revalidate player, inventory, dimension, targets and server state, then resume only if safe. Never blindly repeat irreversible actions.
+## Tạm dừng, hủy và khôi phục
 
-## FAST/DEEP THINK integration
-- FAST THINK: configurable periodic review (candidate: every 10 minutes), not per tick; may return CONTINUE, ADJUST, ABORT, ESCALATE_TO_DEEP.
-- DEEP THINK: on completion or significant failure; V1 can explain results or suggest next tasks but cannot autonomously enqueue.
-- No API is necessary for deterministic commands; all AI plans must pass the same schema validator.
+Pause phải dừng việc phát lệnh mới, đồng thời yêu cầu Skill hiện tại dừng an toàn. Cancel phải giải phóng quyền điều khiển nhân vật.
 
-## Observability
-Log fields: timestamp, level, module, taskId, stepId, actionId, requestId, event, details (redacted). Capture task state and relevant game snapshot on failure.
+Khi mở game lại, đọc tiến độ đã lưu nhưng **không chạy tiếp ngay lập tức**. Trước hết kiểm tra inventory, vị trí, dimension và mục tiêu còn tồn tại hay không.
 
-## Acceptance tests (initial)
-1. Valid COLLECT_ITEM transitions through expected states.
-2. Invalid item/count is rejected before execution.
-3. Pause stops issuing new world actions; resume continues safely.
-4. Cancel releases player control and marks CANCELLED.
-5. Skill timeout produces bounded retry then FAILED or PAUSED.
-6. Progress is computed from observed inventory.
-7. Restart restores checkpoint without duplicating actions.
-8. AI plan requesting an unavailable skill is rejected.
-9. API timeout does not block the client thread.
-10. Only one world-mutating skill controls the player at a time.
+## AI liên quan thế nào?
+
+Lệnh cố định chạy trực tiếp qua Task Manager. Với yêu cầu tự nhiên, AI tạo kế hoạch trước, sau đó hệ thống kiểm tra Skill và tham số.
+
+FAST THINK có thể đề xuất tiếp tục, chỉnh kế hoạch, dừng hoặc chuyển sang DEEP THINK. DEEP THINK dùng để phân tích kết quả hoặc lỗi khó. Trong V1, AI không tự thêm nhiệm vụ mới.
+
+## Những bài thử đầu tiên
+
+- Giao nhiệm vụ lấy 16 gỗ khi inventory đang có 0, 8 hoặc 16 gỗ.
+- Gửi item ID không hợp lệ; hệ thống phải từ chối.
+- Pause giữa lúc đang đi, sau đó Resume.
+- Cancel khi đang đào; bot phải dừng.
+- Cố tình cho đường đi bị chặn; phải báo lỗi sau số lần thử có giới hạn.
+- Thoát game giữa nhiệm vụ, vào lại và kiểm tra trước khi tiếp tục.
+- Gửi kế hoạch AI có Skill chưa hỗ trợ; không được chạy.
+- Cho API mất phản hồi; game không được đứng.
+
+Khi các trường hợp này ổn định mới coi Task Manager V1 đủ nền tảng để mở rộng.
