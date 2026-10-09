@@ -1,5 +1,7 @@
 # Minecraft AI Bot
 
+<p align="center"><img src="assets/minecraft-ai-bot-logo.png" alt="Minecraft AI Bot logo" width="320"></p>
+
 A Minecraft Java client mod with Baritone navigation, JSON tasks, survival
 assistance, chest memory, optional AI control and a local web dashboard.
 
