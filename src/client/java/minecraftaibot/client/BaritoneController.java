@@ -133,7 +133,10 @@ final class BaritoneController {
                     : BuiltInRegistries.BLOCK.getOptional(id);
             if (block.isEmpty() || block.get().defaultBlockState().isAir()) return "Invalid block ID: " + parts[1];
             int quantity = Integer.parseInt(parts[2]);
-            BlockOptionalMetaLookup filter = new BlockOptionalMetaLookup(block.get());
+            var oreBlocks=new java.util.ArrayList<net.minecraft.world.level.block.Block>();oreBlocks.add(block.get());
+            if(java.util.Set.of("minecraft:coal_ore","minecraft:iron_ore","minecraft:diamond_ore").contains(id.toString()))
+                BuiltInRegistries.BLOCK.getOptional(Identifier.parse("minecraft:deepslate_"+id.getPath())).ifPresent(oreBlocks::add);
+            BlockOptionalMetaLookup filter = new BlockOptionalMetaLookup(oreBlocks.toArray(net.minecraft.world.level.block.Block[]::new));
             MiningQuota nextQuota = new MiningQuota(collectingCobblestone
                     ? countCobblestone(client.player) : countItems(client.player, filter), quantity);
             engine(); stop();
