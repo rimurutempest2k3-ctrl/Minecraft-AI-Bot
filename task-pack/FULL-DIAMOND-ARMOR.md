@@ -1,6 +1,6 @@
 # Full diamond armor
 
-Use `config/minecraft-ai-bot/tasks/full-diamond-armor.taskbot` with the updated task runner. The published 1.0.1 runner does not support the new `smelt` and `skipIf` fields.
+Use `config/minecraft-ai-bot/tasks/full-diamond-armor.taskbot` with the updated 1.0.1 JAR. Earlier downloads of 1.0.1 do not support the new `smelt`, `skipIf` and `mode` fields.
 
 On the web, open Tasks, browse/import the file, preview it and click Run. Keep survival assistance, automatic armor and shield equipment enabled. Importing the file does not start it.
 
@@ -14,7 +14,7 @@ This is a resource workflow, not a guarantee of obtaining diamonds in every worl
 
 ## Tiếng Việt
 
-Trong web, vào **Nhiệm vụ → Duyệt file nhiệm vụ**, chọn `full-diamond-armor.taskbot`, xem các bước rồi bấm **Khởi chạy**. Cần dùng bản mod cục bộ đã cập nhật bộ đọc; bản 1.0.1 trên GitHub chưa đọc được hai trường mới `smelt` và `skipIf`.
+Trong web, vào **Nhiệm vụ → Duyệt file nhiệm vụ**, chọn `full-diamond-armor.taskbot`, xem các bước rồi bấm **Khởi chạy**. Tải lại JAR 1.0.1 đã cập nhật; file tải trước đợt cập nhật này chưa đọc được các trường mới `smelt`, `skipIf` và `mode`.
 
 Chuỗi chuẩn bị thức ăn, gỗ, đá cuội, công cụ đá và lò. Bot thu phần sắt thô còn thiếu, nung đủ tối đa 30 thỏi sắt để làm cúp, kiếm, khiên và giáp sắt. Sau khi làm đuốc và bổ sung thức ăn, bot đào kim cương rồi chế áo, mũ, quần và giày: **24 kim cương** nếu chưa có món nào.
 

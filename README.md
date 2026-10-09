@@ -30,6 +30,10 @@ then reload the task list on the web. Local tasks do not require an AI key.
 Use Settings to select English/Vietnamese and configure optional AI providers.
 Keep API keys in the game's `config/minecraft-ai-bot/secrets.properties` private.
 
+Tasks support `"mode": "ensure"` to replenish missing stock, or `"mode": "collect"` to gather an additional quantity. Older files default to `ensure`. See [Task modes](https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot/blob/main/task-pack/TASK-MODES.md).
+
+The task pack includes `full-diamond-armor.taskbot`: prepare food and tools, smelt iron, make iron equipment, then collect diamonds and craft all four armor pieces. Existing worn armor is counted and its diamond batch is skipped. See [Diamond armor task](https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot/blob/main/task-pack/FULL-DIAMOND-ARMOR.md). The complete in-game workflow is still awaiting verification.
+
 The optional Windows console uses `bot-console.bat` and `tools/` from the release
 package, placed in the game directory. Run `.\bot-console.bat` in PowerShell.
 Java must be available through PATH or JAVA_HOME. The web does not require this console.
@@ -44,7 +48,7 @@ Hotbar layout: edit `config/minecraft-ai-bot/inventory-layout.json` and run `bot
 | `bot start` | Start the bot |
 | `bot info` | View player and bot status |
 | `bot inventory` | View inventory |
-| `bot workflow list` | List JSON tasks |
+| `bot workflow list` | List task files |
 | `bot workflow run furnace.taskbot` | Run the furnace task |
 | `bot stop` | Stop the bot and cancel its current task |
 
@@ -76,6 +80,8 @@ AI tùy chọn và điều khiển trên web local.
 Nhiệm vụ ở `config/minecraft-ai-bot/tasks/`. Bấm Duyệt file nhiệm vụ trên web để nhập `.taskbot` hoặc `.json` cũ (tối đa 256 KB); file được kiểm tra, lưu thành `.taskbot`, không ghi đè và không tự chạy. Nội dung vẫn là JSON; công thức và cấu hình khác giữ đuôi `.json`. Chọn file, xem trước rồi bấm Khởi chạy.
 Nhiệm vụ local không cần API. Đổi ngôn ngữ và lưu API key trong Cài đặt.
 Có thể dùng các lệnh trong bảng trên. Dùng `bot stop` để hủy nhiệm vụ.
+
+Thêm `"mode": "ensure"` để bổ sung cho đủ, hoặc `"mode": "collect"` để thu thêm số lượng yêu cầu. File cũ mặc định `ensure`. Gói có task giáp kim cương, hỗ trợ nung sắt và bỏ qua đợt đào cho món giáp đã có, kể cả đang mặc. Đã kiểm tra tự động; chuỗi giáp kim cương còn cần thử hoàn tất trong game.
 
 Console là tùy chọn: đặt `bot-console.bat` và `tools/` vào thư mục game, rồi chạy
 `.\bot-console.bat`. Bản đã đóng gói không cần IntelliJ hay Gradle.

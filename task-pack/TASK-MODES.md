@@ -13,7 +13,7 @@ In `ensure`, existing equipment and `skipIf` conditions can skip steps, and a sa
 
 Use `ensure` for equipment preparation and restocking. Use `collect` for gathering an additional batch. The example `collect-wood.taskbot` requests 16 additional logs. Starting a task again in `collect` creates fresh baselines and requests another batch.
 
-The web preview shows the mode. Execution progress shows current stock for `ensure` and net additions for `collect`. These fields require the updated local mod; the published 1.0.1 release predates them.
+The web preview shows the mode. Execution progress shows current stock for `ensure` and net additions for `collect`. Use the updated 1.0.1 JAR; downloads from before this update do not support these fields.
 
 ## Tiếng Việt
 
