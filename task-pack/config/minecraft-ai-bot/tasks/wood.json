@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "title": "Collect wood reserves",
+  "steps": [
+    {
+      "role": "logs",
+      "label": "Wood reserves",
+      "action": "mine",
+      "item": "minecraft:oak_log",
+      "count": 16
+    }
+  ],
+  "description": "Collect 16 logs, automatically choosing nearby tree types."
+}

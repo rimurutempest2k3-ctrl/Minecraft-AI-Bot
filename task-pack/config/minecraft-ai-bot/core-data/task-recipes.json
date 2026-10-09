@@ -1,0 +1,267 @@
+{
+  "version": 1,
+  "recipes": {
+    "table": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "#minecraft:planks"
+        }
+      ],
+      "output": "minecraft:crafting_table",
+      "width": 2,
+      "count": 1
+    },
+    "sticks": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        }
+      ],
+      "output": "minecraft:stick",
+      "width": 2,
+      "count": 4
+    },
+    "bread": {
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "minecraft:wheat"
+        },
+        {
+          "column": 1,
+          "row": 0,
+          "ingredient": "minecraft:wheat"
+        },
+        {
+          "column": 2,
+          "row": 0,
+          "ingredient": "minecraft:wheat"
+        }
+      ],
+      "output": "minecraft:bread",
+      "width": 3,
+      "count": 1
+    },
+    "furnace": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 2,
+          "column": 2,
+          "ingredient": "minecraft:cobblestone"
+        }
+      ],
+      "output": "minecraft:furnace",
+      "width": 3,
+      "count": 1
+    },
+    "wheat": {
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "minecraft:hay_block"
+        }
+      ],
+      "output": "minecraft:wheat",
+      "width": 2,
+      "count": 9
+    },
+    "planks": {
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "$log"
+        }
+      ],
+      "output": "$log_planks",
+      "width": 2,
+      "count": 4
+    },
+    "pickaxe": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:stone_pickaxe",
+      "width": 3,
+      "count": 1
+    },
+    "axe": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:stone_axe",
+      "width": 3,
+      "count": 1
+    },
+    "sword": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:stone_sword",
+      "width": 3,
+      "count": 1
+    },
+    "torch": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:coal"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:torch",
+      "width": 2,
+      "count": 4
+    },
+    "wooden_sword": {
+      "output": "minecraft:wooden_sword",
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:stick"
+        }
+      ]
+    }
+  }
+}

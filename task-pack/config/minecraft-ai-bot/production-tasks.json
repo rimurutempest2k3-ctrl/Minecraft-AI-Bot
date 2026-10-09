@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "tasks": {
+    "smelt_stone": {"machine":"furnace","input":"minecraft:cobblestone","fuel":"auto","quantity":16},
+    "smelt_iron": {"machine":"furnace","input":"minecraft:raw_iron","fuel":"auto","quantity":8},
+    "smelt_gold": {"machine":"furnace","input":"minecraft:raw_gold","fuel":"auto","quantity":8},
+    "smelt_glass": {"machine":"furnace","input":"minecraft:sand","fuel":"auto","quantity":16},
+    "smelt_beef": {"machine":"smoker","input":"minecraft:beef","fuel":"auto","quantity":8}
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "title": "Hunt and cook food",
+  "steps": [
+    {
+      "role": "food",
+      "label": "Hunt animals and cook food",
+      "action": "food",
+      "item": "minecraft:cooked_beef",
+      "count": 8
+    }
+  ],
+  "description": "Prepare 8 food portions; gather wood and craft a furnace if needed."
+}

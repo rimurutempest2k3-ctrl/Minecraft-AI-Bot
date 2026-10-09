@@ -16,7 +16,8 @@ public final class Logging {
 
     public static void initialize(Path directory) throws IOException {
         Files.createDirectories(directory);
-        Logger root = Logger.getLogger("");
+        Logger root = Logger.getLogger("dev.minecraftaibot.common");
+        root.setUseParentHandlers(false);
         for (Handler handler : root.getHandlers()) {
             root.removeHandler(handler);
             handler.close();
@@ -45,5 +46,13 @@ public final class Logging {
         root.setLevel(Level.ALL);
         root.addHandler(console);
         root.addHandler(file);
+    }
+
+    public static void close() {
+        Logger logger = Logger.getLogger("dev.minecraftaibot.common");
+        for (Handler handler : logger.getHandlers()) {
+            logger.removeHandler(handler);
+            handler.close();
+        }
     }
 }

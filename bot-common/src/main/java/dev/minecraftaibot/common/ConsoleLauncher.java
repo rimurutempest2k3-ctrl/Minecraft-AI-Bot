@@ -26,7 +26,7 @@ public final class ConsoleLauncher {
                 if ("exit".equalsIgnoreCase(line.trim())) break;
                 try {
                     String result = dispatcher.execute(line);
-                    if (!result.isBlank()) System.out.println(result);
+                    if (!result.isBlank()) System.out.println(I18n.text(result));
                 } catch (RuntimeException error) {
                     LOG.log(Level.SEVERE, "Command failed", error);
                 }

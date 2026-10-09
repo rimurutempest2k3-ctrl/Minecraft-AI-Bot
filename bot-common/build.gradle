@@ -2,9 +2,36 @@ plugins {
     id 'application'
 }
 
+repositories { mavenCentral() }
+dependencies { implementation 'com.google.code.gson:gson:2.14.0' }
+
+tasks.named('processResources') {
+    exclude '**/secrets.properties'
+    exclude 'tasks/local-tasks.json', 'tasks/production-tasks.json', 'tasks/starter-kit.json', 'tasks/workflows/**'
+    from(rootProject.file('ai/SYSTEM_PROMPT.vi.md')) { into 'ai' }
+}
+
+// Task definitions ship separately from the engine JAR. Tests explicitly install this pack.
+tasks.named('processTestResources') {
+    from(rootProject.file('task-pack/config/minecraft-ai-bot')) { into 'task-fixtures' }
+}
+tasks.register('taskPack', Zip) {
+    from(rootProject.file('task-pack'))
+    destinationDirectory = rootProject.layout.buildDirectory.dir('libs')
+    archiveFileName = 'minecraft-ai-bot-tasks.zip'
+}
+tasks.named('assemble') { dependsOn taskPack }
+
+tasks.register('aiCheck', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.minecraftaibot.common.AiSessionsTest'
+}
+tasks.named('check') { dependsOn aiCheck }
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -12,6 +39,36 @@ application {
     mainClass = 'dev.minecraftaibot.common.ConsoleLauncher'
 }
 
+tasks.named('jar') {
+    archiveFileName = 'bot-common.jar'
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+tasks.named('run', JavaExec) {
+    standardInput = System.in
+}
+
+tasks.register('coreCheck', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.minecraftaibot.common.BotCoreTest'
+}
+
+tasks.register('transportCheck', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'dev.minecraftaibot.common.ConsoleTransportTest'
+}
+
+tasks.named('check') {
+    dependsOn coreCheck, transportCheck
+}
+
+// These checks have main methods rather than JUnit annotations.
+// Both are executed explicitly by check above.
+tasks.named('test') {
+    enabled = false
 }

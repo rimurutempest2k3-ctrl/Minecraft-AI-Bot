@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "id": "minecraft-ai-bot",
+  "version": "${version}",
+  "name": "Minecraft AI Bot",
+  "description": "A client automation mod with local JSON tasks, Baritone navigation, survival assistance, an optional multi-provider AI controller and a local web dashboard.",
+  "authors": [
+    "rimurutempest2k3-ctrl"
+  ],
+  "contact": {
+    "issues": "https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot/issues",
+    "sources": "https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot"
+  },
+  "license": "CC0-1.0",
+  "icon": "assets/minecraft-ai-bot/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "main": [
+      "minecraftaibot.MinecraftAIBot"
+    ],
+    "client": [
+      "minecraftaibot.client.MinecraftAIBotClient"
+    ]
+  },
+  "mixins": [
+    "minecraft-ai-bot.mixins.json",
+    {
+      "config": "minecraft-ai-bot.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*",
+    "baritone": "1.19.0"
+  }
+}

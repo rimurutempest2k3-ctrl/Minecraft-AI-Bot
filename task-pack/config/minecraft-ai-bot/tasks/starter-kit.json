@@ -1,0 +1,70 @@
+{
+  "steps": [
+    {
+      "action": "food",
+      "item": "minecraft:bread",
+      "label": "Hunt and cook food before going underground",
+      "count": 8,
+      "role": "food"
+    },
+    {
+      "action": "mine",
+      "item": "minecraft:cobblestone",
+      "label": "Cobblestone for tools and furnace",
+      "count": 32
+    },
+    {
+      "action": "craft",
+      "item": "minecraft:stone_pickaxe",
+      "role": "pickaxe",
+      "label": "Stone pickaxe or better",
+      "count": 1
+    },
+    {
+      "action": "craft",
+      "item": "minecraft:stone_axe",
+      "role": "axe",
+      "label": "Stone axe or better",
+      "count": 1
+    },
+    {
+      "action": "craft",
+      "item": "minecraft:stone_sword",
+      "role": "sword",
+      "label": "Stone sword or better",
+      "count": 1
+    },
+    {
+      "action": "craft",
+      "item": "minecraft:furnace",
+      "label": "Furnace",
+      "count": 1
+    },
+    {
+      "action": "craft",
+      "item": "minecraft:torch",
+      "label": "Torches",
+      "count": 16
+    },
+    {
+      "action": "mine",
+      "item": "minecraft:coal",
+      "label": "Coal",
+      "count": 8
+    },
+    {
+      "action": "mine",
+      "item": "minecraft:oak_log",
+      "role": "logs",
+      "label": "Wood reserves",
+      "count": 8
+    },
+    {
+      "action": "mine",
+      "item": "minecraft:cobblestone",
+      "label": "Cobblestone reserves",
+      "count": 32
+    }
+  ],
+  "version": 1
+}

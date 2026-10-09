@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "tasks": {
+    "wood": {
+      "label": "Thu gỗ sồi",
+      "goal": "minecraft:oak_log",
+      "resultItem": "minecraft:oak_log",
+      "quantity": 16
+    },
+    "birch": {
+      "label": "Thu gỗ bạch dương",
+      "goal": "minecraft:birch_log",
+      "resultItem": "minecraft:birch_log",
+      "quantity": 16
+    },
+    "spruce": {
+      "label": "Thu gỗ vân sam",
+      "goal": "minecraft:spruce_log",
+      "resultItem": "minecraft:spruce_log",
+      "quantity": 16
+    },
+    "cobblestone": {
+      "label": "Chuẩn bị cúp và thu đá cuội",
+      "goal": "minecraft:cobblestone",
+      "resultItem": "minecraft:cobblestone",
+      "quantity": 32,
+      "preparation": "wooden_pickaxe"
+    },
+    "coal": {
+      "label": "Thu than (cần sẵn cúp)",
+      "goal": "minecraft:coal_ore",
+      "resultItem": "minecraft:coal",
+      "quantity": 16
+    },
+    "iron": {
+      "label": "Thu sắt thô (cần sẵn cúp đá trở lên)",
+      "goal": "minecraft:iron_ore",
+      "resultItem": "minecraft:raw_iron",
+      "quantity": 8
+    }
+  }
+}

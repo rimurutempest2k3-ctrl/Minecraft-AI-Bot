@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "title": "Craft one furnace",
+  "description": "Check existing furnaces, tools and ingredients. If a pickaxe is missing, gather wood → craft planks, a table and sticks → craft a wooden pickaxe. Collect only missing cobblestone, then craft one furnace. Reuse nearby tables; do not place the furnace afterwards.",
+  "goal": {
+    "item": "minecraft:furnace",
+    "count": 1
+  },
+  "steps": [
+    {
+      "label": "Prepare a pickaxe if missing and collect 8 cobblestone",
+      "action": "mine",
+      "item": "minecraft:cobblestone",
+      "count": 8
+    },
+    {
+      "label": "Reuse or place a crafting table, then craft 1 furnace",
+      "action": "craft",
+      "item": "minecraft:furnace",
+      "count": 1
+    }
+  ]
+}

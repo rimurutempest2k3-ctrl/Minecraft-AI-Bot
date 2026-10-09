@@ -1,0 +1,2941 @@
+{
+  "schemaVersion": 1,
+  "minecraftVersion": "26.2",
+  "source": "minecraft-common.jar: vanilla recipes and FuelValues.vanillaBurnTimes",
+  "notes": [
+    "Nguyên liệu và nhiên liệu là hai vai trò riêng. Gỗ có thể nung ra than củi hoặc dùng đốt.",
+    "Ưu tiên recipeAccess và fuelValues của game đang chạy; JSON là dữ liệu vanilla.",
+    "Xô rỗng có thể nằm trong ô nhiên liệu nhưng không cháy; ô kết quả chỉ lấy ra.",
+    "Lò cao/lò hun khói nung và đốt nhiên liệu nhanh gấp đôi; số sản phẩm trên mỗi nhiên liệu thường không tăng.",
+    "Ước lượng nhiên liệu giả định nung liên tục, không tính lửa còn lại/gián đoạn/ô kết quả đầy."
+  ],
+  "slots": {
+    "input": 0,
+    "fuel": 1,
+    "output": 2,
+    "outputAllowsInsertion": false
+  },
+  "machines": {
+    "furnace": {
+      "recipeType": "minecraft:smelting",
+      "defaultCookingTicks": 200,
+      "fuelTickDivisor": 1
+    },
+    "blast_furnace": {
+      "recipeType": "minecraft:blasting",
+      "defaultCookingTicks": 100,
+      "fuelTickDivisor": 2
+    },
+    "smoker": {
+      "recipeType": "minecraft:smoking",
+      "defaultCookingTicks": 100,
+      "fuelTickDivisor": 2
+    }
+  },
+  "fuelRules": [
+    {
+      "action": "add",
+      "ingredient": "minecraft:lava_bucket",
+      "burnTicks": 20000
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:coal_block",
+      "burnTicks": 16000
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:blaze_rod",
+      "burnTicks": 2400
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:coal",
+      "burnTicks": 1600
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:charcoal",
+      "burnTicks": 1600
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:logs",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:bamboo_blocks",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:planks",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:bamboo_mosaic",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wooden_stairs",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:bamboo_mosaic_stairs",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wooden_slabs",
+      "burnTicks": 150
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:bamboo_mosaic_slab",
+      "burnTicks": 150
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wooden_trapdoors",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wooden_pressure_plates",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wooden_shelves",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wooden_fences",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:fence_gates",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:note_block",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:bookshelf",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:chiseled_bookshelf",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:lectern",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:jukebox",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:chest",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:trapped_chest",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:crafting_table",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:daylight_detector",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:banners",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:bow",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:fishing_rod",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:ladder",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:signs",
+      "burnTicks": 200
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:hanging_signs",
+      "burnTicks": 800
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:wooden_shovel",
+      "burnTicks": 200
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:wooden_sword",
+      "burnTicks": 200
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:wooden_spear",
+      "burnTicks": 200
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:wooden_hoe",
+      "burnTicks": 200
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:wooden_axe",
+      "burnTicks": 200
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:wooden_pickaxe",
+      "burnTicks": 200
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wooden_doors",
+      "burnTicks": 200
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:boats",
+      "burnTicks": 1200
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wool",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wooden_buttons",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:stick",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:saplings",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:bowl",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "#minecraft:wool_carpets",
+      "burnTicks": 67
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:dried_kelp_block",
+      "burnTicks": 4001
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:crossbow",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:bamboo",
+      "burnTicks": 50
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:dead_bush",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:short_dry_grass",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:tall_dry_grass",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:scaffolding",
+      "burnTicks": 50
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:loom",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:barrel",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:cartography_table",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:fletching_table",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:smithing_table",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:composter",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:azalea",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:flowering_azalea",
+      "burnTicks": 100
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:mangrove_roots",
+      "burnTicks": 300
+    },
+    {
+      "action": "add",
+      "ingredient": "minecraft:leaf_litter",
+      "burnTicks": 100
+    },
+    {
+      "action": "remove",
+      "ingredient": "#minecraft:non_flammable_wood"
+    }
+  ],
+  "fuels": {
+    "minecraft:acacia_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:acacia_button": {
+      "burnTicks": 100
+    },
+    "minecraft:acacia_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:acacia_door": {
+      "burnTicks": 200
+    },
+    "minecraft:acacia_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:acacia_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:acacia_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:acacia_log": {
+      "burnTicks": 300
+    },
+    "minecraft:acacia_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:acacia_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:acacia_sapling": {
+      "burnTicks": 100
+    },
+    "minecraft:acacia_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:acacia_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:acacia_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:acacia_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:acacia_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:acacia_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:azalea": {
+      "burnTicks": 100
+    },
+    "minecraft:bamboo": {
+      "burnTicks": 50
+    },
+    "minecraft:bamboo_block": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_button": {
+      "burnTicks": 100
+    },
+    "minecraft:bamboo_chest_raft": {
+      "burnTicks": 1200
+    },
+    "minecraft:bamboo_door": {
+      "burnTicks": 200
+    },
+    "minecraft:bamboo_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:bamboo_mosaic": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_mosaic_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:bamboo_mosaic_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_raft": {
+      "burnTicks": 1200
+    },
+    "minecraft:bamboo_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:bamboo_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:bamboo_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:bamboo_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:barrel": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:birch_button": {
+      "burnTicks": 100
+    },
+    "minecraft:birch_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:birch_door": {
+      "burnTicks": 200
+    },
+    "minecraft:birch_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:birch_log": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_sapling": {
+      "burnTicks": 100
+    },
+    "minecraft:birch_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:birch_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:birch_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:birch_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:black_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:black_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:black_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:blaze_rod": {
+      "burnTicks": 2400
+    },
+    "minecraft:blue_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:blue_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:blue_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:bookshelf": {
+      "burnTicks": 300
+    },
+    "minecraft:bow": {
+      "burnTicks": 300
+    },
+    "minecraft:bowl": {
+      "burnTicks": 100
+    },
+    "minecraft:brown_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:brown_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:brown_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:cartography_table": {
+      "burnTicks": 300
+    },
+    "minecraft:charcoal": {
+      "burnTicks": 1600
+    },
+    "minecraft:cherry_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:cherry_button": {
+      "burnTicks": 100
+    },
+    "minecraft:cherry_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:cherry_door": {
+      "burnTicks": 200
+    },
+    "minecraft:cherry_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:cherry_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:cherry_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:cherry_log": {
+      "burnTicks": 300
+    },
+    "minecraft:cherry_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:cherry_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:cherry_sapling": {
+      "burnTicks": 100
+    },
+    "minecraft:cherry_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:cherry_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:cherry_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:cherry_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:cherry_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:cherry_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:chest": {
+      "burnTicks": 300
+    },
+    "minecraft:chiseled_bookshelf": {
+      "burnTicks": 300
+    },
+    "minecraft:coal": {
+      "burnTicks": 1600
+    },
+    "minecraft:coal_block": {
+      "burnTicks": 16000
+    },
+    "minecraft:composter": {
+      "burnTicks": 300
+    },
+    "minecraft:crafting_table": {
+      "burnTicks": 300
+    },
+    "minecraft:crossbow": {
+      "burnTicks": 300
+    },
+    "minecraft:cyan_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:cyan_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:cyan_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:dark_oak_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:dark_oak_button": {
+      "burnTicks": 100
+    },
+    "minecraft:dark_oak_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:dark_oak_door": {
+      "burnTicks": 200
+    },
+    "minecraft:dark_oak_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:dark_oak_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:dark_oak_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:dark_oak_log": {
+      "burnTicks": 300
+    },
+    "minecraft:dark_oak_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:dark_oak_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:dark_oak_sapling": {
+      "burnTicks": 100
+    },
+    "minecraft:dark_oak_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:dark_oak_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:dark_oak_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:dark_oak_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:dark_oak_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:dark_oak_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:daylight_detector": {
+      "burnTicks": 300
+    },
+    "minecraft:dead_bush": {
+      "burnTicks": 100
+    },
+    "minecraft:dried_kelp_block": {
+      "burnTicks": 4001
+    },
+    "minecraft:fishing_rod": {
+      "burnTicks": 300
+    },
+    "minecraft:fletching_table": {
+      "burnTicks": 300
+    },
+    "minecraft:flowering_azalea": {
+      "burnTicks": 100
+    },
+    "minecraft:gray_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:gray_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:gray_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:green_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:green_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:green_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:jukebox": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:jungle_button": {
+      "burnTicks": 100
+    },
+    "minecraft:jungle_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:jungle_door": {
+      "burnTicks": 200
+    },
+    "minecraft:jungle_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:jungle_log": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_sapling": {
+      "burnTicks": 100
+    },
+    "minecraft:jungle_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:jungle_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:jungle_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:jungle_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:ladder": {
+      "burnTicks": 300
+    },
+    "minecraft:lava_bucket": {
+      "burnTicks": 20000,
+      "remainder": "minecraft:bucket"
+    },
+    "minecraft:leaf_litter": {
+      "burnTicks": 100
+    },
+    "minecraft:lectern": {
+      "burnTicks": 300
+    },
+    "minecraft:light_blue_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:light_blue_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:light_blue_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:light_gray_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:light_gray_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:light_gray_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:lime_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:lime_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:lime_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:loom": {
+      "burnTicks": 300
+    },
+    "minecraft:magenta_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:magenta_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:magenta_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:mangrove_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:mangrove_button": {
+      "burnTicks": 100
+    },
+    "minecraft:mangrove_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:mangrove_door": {
+      "burnTicks": 200
+    },
+    "minecraft:mangrove_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:mangrove_log": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_propagule": {
+      "burnTicks": 100
+    },
+    "minecraft:mangrove_roots": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:mangrove_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:mangrove_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:mangrove_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:note_block": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:oak_button": {
+      "burnTicks": 100
+    },
+    "minecraft:oak_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:oak_door": {
+      "burnTicks": 200
+    },
+    "minecraft:oak_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:oak_log": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_sapling": {
+      "burnTicks": 100
+    },
+    "minecraft:oak_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:oak_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:oak_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:oak_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:orange_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:orange_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:orange_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:pale_oak_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:pale_oak_button": {
+      "burnTicks": 100
+    },
+    "minecraft:pale_oak_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:pale_oak_door": {
+      "burnTicks": 200
+    },
+    "minecraft:pale_oak_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:pale_oak_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:pale_oak_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:pale_oak_log": {
+      "burnTicks": 300
+    },
+    "minecraft:pale_oak_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:pale_oak_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:pale_oak_sapling": {
+      "burnTicks": 100
+    },
+    "minecraft:pale_oak_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:pale_oak_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:pale_oak_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:pale_oak_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:pale_oak_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:pale_oak_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:pink_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:pink_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:pink_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:purple_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:purple_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:purple_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:red_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:red_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:red_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:scaffolding": {
+      "burnTicks": 50
+    },
+    "minecraft:short_dry_grass": {
+      "burnTicks": 100
+    },
+    "minecraft:smithing_table": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:spruce_button": {
+      "burnTicks": 100
+    },
+    "minecraft:spruce_chest_boat": {
+      "burnTicks": 1200
+    },
+    "minecraft:spruce_door": {
+      "burnTicks": 200
+    },
+    "minecraft:spruce_fence": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_fence_gate": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_hanging_sign": {
+      "burnTicks": 800
+    },
+    "minecraft:spruce_log": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_planks": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_pressure_plate": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_sapling": {
+      "burnTicks": 100
+    },
+    "minecraft:spruce_shelf": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_sign": {
+      "burnTicks": 200
+    },
+    "minecraft:spruce_slab": {
+      "burnTicks": 150
+    },
+    "minecraft:spruce_stairs": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_trapdoor": {
+      "burnTicks": 300
+    },
+    "minecraft:spruce_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stick": {
+      "burnTicks": 100
+    },
+    "minecraft:stripped_acacia_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_acacia_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_bamboo_block": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_birch_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_birch_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_cherry_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_cherry_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_dark_oak_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_dark_oak_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_jungle_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_jungle_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_mangrove_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_mangrove_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_oak_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_oak_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_pale_oak_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_pale_oak_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_spruce_log": {
+      "burnTicks": 300
+    },
+    "minecraft:stripped_spruce_wood": {
+      "burnTicks": 300
+    },
+    "minecraft:tall_dry_grass": {
+      "burnTicks": 100
+    },
+    "minecraft:trapped_chest": {
+      "burnTicks": 300
+    },
+    "minecraft:white_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:white_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:white_wool": {
+      "burnTicks": 100
+    },
+    "minecraft:wooden_axe": {
+      "burnTicks": 200
+    },
+    "minecraft:wooden_hoe": {
+      "burnTicks": 200
+    },
+    "minecraft:wooden_pickaxe": {
+      "burnTicks": 200
+    },
+    "minecraft:wooden_shovel": {
+      "burnTicks": 200
+    },
+    "minecraft:wooden_spear": {
+      "burnTicks": 200
+    },
+    "minecraft:wooden_sword": {
+      "burnTicks": 200
+    },
+    "minecraft:yellow_banner": {
+      "burnTicks": 300
+    },
+    "minecraft:yellow_carpet": {
+      "burnTicks": 67
+    },
+    "minecraft:yellow_wool": {
+      "burnTicks": 100
+    }
+  },
+  "recipes": {
+    "minecraft:baked_potato": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:potato",
+      "result": {
+        "id": "minecraft:baked_potato"
+      }
+    },
+    "minecraft:black_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:black_terracotta",
+      "result": {
+        "id": "minecraft:black_glazed_terracotta"
+      }
+    },
+    "minecraft:blue_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:blue_terracotta",
+      "result": {
+        "id": "minecraft:blue_glazed_terracotta"
+      }
+    },
+    "minecraft:brick": {
+      "type": "minecraft:smelting",
+      "experience": 0.3,
+      "ingredient": "minecraft:clay_ball",
+      "result": {
+        "id": "minecraft:brick"
+      }
+    },
+    "minecraft:brown_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:brown_terracotta",
+      "result": {
+        "id": "minecraft:brown_glazed_terracotta"
+      }
+    },
+    "minecraft:charcoal": {
+      "type": "minecraft:smelting",
+      "experience": 0.15,
+      "ingredient": "#minecraft:logs_that_burn",
+      "result": {
+        "id": "minecraft:charcoal"
+      }
+    },
+    "minecraft:coal_from_smelting_coal_ore": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "group": "coal",
+      "ingredient": "minecraft:coal_ore",
+      "result": {
+        "id": "minecraft:coal"
+      }
+    },
+    "minecraft:coal_from_smelting_deepslate_coal_ore": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "group": "coal",
+      "ingredient": "minecraft:deepslate_coal_ore",
+      "result": {
+        "id": "minecraft:coal"
+      }
+    },
+    "minecraft:cooked_beef": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:beef",
+      "result": {
+        "id": "minecraft:cooked_beef"
+      }
+    },
+    "minecraft:cooked_chicken": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:chicken",
+      "result": {
+        "id": "minecraft:cooked_chicken"
+      }
+    },
+    "minecraft:cooked_cod": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:cod",
+      "result": {
+        "id": "minecraft:cooked_cod"
+      }
+    },
+    "minecraft:cooked_mutton": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:mutton",
+      "result": {
+        "id": "minecraft:cooked_mutton"
+      }
+    },
+    "minecraft:cooked_porkchop": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:porkchop",
+      "result": {
+        "id": "minecraft:cooked_porkchop"
+      }
+    },
+    "minecraft:cooked_rabbit": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:rabbit",
+      "result": {
+        "id": "minecraft:cooked_rabbit"
+      }
+    },
+    "minecraft:cooked_salmon": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:salmon",
+      "result": {
+        "id": "minecraft:cooked_salmon"
+      }
+    },
+    "minecraft:copper_ingot_from_smelting_copper_ore": {
+      "type": "minecraft:smelting",
+      "experience": 0.7,
+      "group": "copper_ingot",
+      "ingredient": "minecraft:copper_ore",
+      "result": {
+        "id": "minecraft:copper_ingot"
+      }
+    },
+    "minecraft:copper_ingot_from_smelting_deepslate_copper_ore": {
+      "type": "minecraft:smelting",
+      "experience": 0.7,
+      "group": "copper_ingot",
+      "ingredient": "minecraft:deepslate_copper_ore",
+      "result": {
+        "id": "minecraft:copper_ingot"
+      }
+    },
+    "minecraft:copper_ingot_from_smelting_raw_copper": {
+      "type": "minecraft:smelting",
+      "experience": 0.7,
+      "group": "copper_ingot",
+      "ingredient": "minecraft:raw_copper",
+      "result": {
+        "id": "minecraft:copper_ingot"
+      }
+    },
+    "minecraft:copper_nugget_from_smelting": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "ingredient": [
+        "minecraft:copper_pickaxe",
+        "minecraft:copper_shovel",
+        "minecraft:copper_axe",
+        "minecraft:copper_hoe",
+        "minecraft:copper_sword",
+        "minecraft:copper_spear",
+        "minecraft:copper_helmet",
+        "minecraft:copper_chestplate",
+        "minecraft:copper_leggings",
+        "minecraft:copper_boots",
+        "minecraft:copper_horse_armor",
+        "minecraft:copper_nautilus_armor"
+      ],
+      "result": {
+        "id": "minecraft:copper_nugget"
+      }
+    },
+    "minecraft:cracked_deepslate_bricks": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:deepslate_bricks",
+      "result": {
+        "id": "minecraft:cracked_deepslate_bricks"
+      }
+    },
+    "minecraft:cracked_deepslate_tiles": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:deepslate_tiles",
+      "result": {
+        "id": "minecraft:cracked_deepslate_tiles"
+      }
+    },
+    "minecraft:cracked_nether_bricks": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:nether_bricks",
+      "result": {
+        "id": "minecraft:cracked_nether_bricks"
+      }
+    },
+    "minecraft:cracked_polished_blackstone_bricks": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:polished_blackstone_bricks",
+      "result": {
+        "id": "minecraft:cracked_polished_blackstone_bricks"
+      }
+    },
+    "minecraft:cracked_stone_bricks": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:stone_bricks",
+      "result": {
+        "id": "minecraft:cracked_stone_bricks"
+      }
+    },
+    "minecraft:cyan_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:cyan_terracotta",
+      "result": {
+        "id": "minecraft:cyan_glazed_terracotta"
+      }
+    },
+    "minecraft:deepslate": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:cobbled_deepslate",
+      "result": {
+        "id": "minecraft:deepslate"
+      }
+    },
+    "minecraft:diamond_from_smelting_deepslate_diamond_ore": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "group": "diamond",
+      "ingredient": "minecraft:deepslate_diamond_ore",
+      "result": {
+        "id": "minecraft:diamond"
+      }
+    },
+    "minecraft:diamond_from_smelting_diamond_ore": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "group": "diamond",
+      "ingredient": "minecraft:diamond_ore",
+      "result": {
+        "id": "minecraft:diamond"
+      }
+    },
+    "minecraft:dried_kelp_from_smelting": {
+      "type": "minecraft:smelting",
+      "category": "food",
+      "experience": 0.1,
+      "ingredient": "minecraft:kelp",
+      "result": {
+        "id": "minecraft:dried_kelp"
+      }
+    },
+    "minecraft:emerald_from_smelting_deepslate_emerald_ore": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "group": "emerald",
+      "ingredient": "minecraft:deepslate_emerald_ore",
+      "result": {
+        "id": "minecraft:emerald"
+      }
+    },
+    "minecraft:emerald_from_smelting_emerald_ore": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "group": "emerald",
+      "ingredient": "minecraft:emerald_ore",
+      "result": {
+        "id": "minecraft:emerald"
+      }
+    },
+    "minecraft:glass": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "#minecraft:smelts_to_glass",
+      "result": {
+        "id": "minecraft:glass"
+      }
+    },
+    "minecraft:gold_ingot_from_smelting_deepslate_gold_ore": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "group": "gold_ingot",
+      "ingredient": "minecraft:deepslate_gold_ore",
+      "result": {
+        "id": "minecraft:gold_ingot"
+      }
+    },
+    "minecraft:gold_ingot_from_smelting_gold_ore": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "group": "gold_ingot",
+      "ingredient": "minecraft:gold_ore",
+      "result": {
+        "id": "minecraft:gold_ingot"
+      }
+    },
+    "minecraft:gold_ingot_from_smelting_nether_gold_ore": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "group": "gold_ingot",
+      "ingredient": "minecraft:nether_gold_ore",
+      "result": {
+        "id": "minecraft:gold_ingot"
+      }
+    },
+    "minecraft:gold_ingot_from_smelting_raw_gold": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "group": "gold_ingot",
+      "ingredient": "minecraft:raw_gold",
+      "result": {
+        "id": "minecraft:gold_ingot"
+      }
+    },
+    "minecraft:gold_nugget_from_smelting": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "ingredient": [
+        "minecraft:golden_pickaxe",
+        "minecraft:golden_shovel",
+        "minecraft:golden_axe",
+        "minecraft:golden_hoe",
+        "minecraft:golden_sword",
+        "minecraft:golden_spear",
+        "minecraft:golden_helmet",
+        "minecraft:golden_chestplate",
+        "minecraft:golden_leggings",
+        "minecraft:golden_boots",
+        "minecraft:golden_horse_armor",
+        "minecraft:golden_nautilus_armor"
+      ],
+      "result": {
+        "id": "minecraft:gold_nugget"
+      }
+    },
+    "minecraft:gray_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:gray_terracotta",
+      "result": {
+        "id": "minecraft:gray_glazed_terracotta"
+      }
+    },
+    "minecraft:green_dye": {
+      "type": "minecraft:smelting",
+      "experience": 1.0,
+      "ingredient": "minecraft:cactus",
+      "result": {
+        "id": "minecraft:green_dye"
+      }
+    },
+    "minecraft:green_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:green_terracotta",
+      "result": {
+        "id": "minecraft:green_glazed_terracotta"
+      }
+    },
+    "minecraft:iron_ingot_from_smelting_deepslate_iron_ore": {
+      "type": "minecraft:smelting",
+      "experience": 0.7,
+      "group": "iron_ingot",
+      "ingredient": "minecraft:deepslate_iron_ore",
+      "result": {
+        "id": "minecraft:iron_ingot"
+      }
+    },
+    "minecraft:iron_ingot_from_smelting_iron_ore": {
+      "type": "minecraft:smelting",
+      "experience": 0.7,
+      "group": "iron_ingot",
+      "ingredient": "minecraft:iron_ore",
+      "result": {
+        "id": "minecraft:iron_ingot"
+      }
+    },
+    "minecraft:iron_ingot_from_smelting_raw_iron": {
+      "type": "minecraft:smelting",
+      "experience": 0.7,
+      "group": "iron_ingot",
+      "ingredient": "minecraft:raw_iron",
+      "result": {
+        "id": "minecraft:iron_ingot"
+      }
+    },
+    "minecraft:iron_nugget_from_smelting": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "ingredient": [
+        "minecraft:iron_pickaxe",
+        "minecraft:iron_shovel",
+        "minecraft:iron_axe",
+        "minecraft:iron_hoe",
+        "minecraft:iron_sword",
+        "minecraft:iron_spear",
+        "minecraft:iron_helmet",
+        "minecraft:iron_chestplate",
+        "minecraft:iron_leggings",
+        "minecraft:iron_boots",
+        "minecraft:iron_horse_armor",
+        "minecraft:chainmail_helmet",
+        "minecraft:chainmail_chestplate",
+        "minecraft:chainmail_leggings",
+        "minecraft:chainmail_boots",
+        "minecraft:iron_nautilus_armor"
+      ],
+      "result": {
+        "id": "minecraft:iron_nugget"
+      }
+    },
+    "minecraft:lapis_lazuli_from_smelting_deepslate_lapis_ore": {
+      "type": "minecraft:smelting",
+      "experience": 0.2,
+      "group": "lapis_lazuli",
+      "ingredient": "minecraft:deepslate_lapis_ore",
+      "result": {
+        "id": "minecraft:lapis_lazuli"
+      }
+    },
+    "minecraft:lapis_lazuli_from_smelting_lapis_ore": {
+      "type": "minecraft:smelting",
+      "experience": 0.2,
+      "group": "lapis_lazuli",
+      "ingredient": "minecraft:lapis_ore",
+      "result": {
+        "id": "minecraft:lapis_lazuli"
+      }
+    },
+    "minecraft:leaf_litter": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "#minecraft:leaves",
+      "result": {
+        "id": "minecraft:leaf_litter"
+      }
+    },
+    "minecraft:light_blue_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:light_blue_terracotta",
+      "result": {
+        "id": "minecraft:light_blue_glazed_terracotta"
+      }
+    },
+    "minecraft:light_gray_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:light_gray_terracotta",
+      "result": {
+        "id": "minecraft:light_gray_glazed_terracotta"
+      }
+    },
+    "minecraft:lime_dye_from_smelting": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "ingredient": "minecraft:sea_pickle",
+      "result": {
+        "id": "minecraft:lime_dye"
+      }
+    },
+    "minecraft:lime_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:lime_terracotta",
+      "result": {
+        "id": "minecraft:lime_glazed_terracotta"
+      }
+    },
+    "minecraft:magenta_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:magenta_terracotta",
+      "result": {
+        "id": "minecraft:magenta_glazed_terracotta"
+      }
+    },
+    "minecraft:nether_brick": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "ingredient": "minecraft:netherrack",
+      "result": {
+        "id": "minecraft:nether_brick"
+      }
+    },
+    "minecraft:netherite_scrap": {
+      "type": "minecraft:smelting",
+      "experience": 2.0,
+      "ingredient": "minecraft:ancient_debris",
+      "result": {
+        "id": "minecraft:netherite_scrap"
+      }
+    },
+    "minecraft:orange_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:orange_terracotta",
+      "result": {
+        "id": "minecraft:orange_glazed_terracotta"
+      }
+    },
+    "minecraft:pink_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:pink_terracotta",
+      "result": {
+        "id": "minecraft:pink_glazed_terracotta"
+      }
+    },
+    "minecraft:popped_chorus_fruit": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "ingredient": "minecraft:chorus_fruit",
+      "result": {
+        "id": "minecraft:popped_chorus_fruit"
+      }
+    },
+    "minecraft:purple_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:purple_terracotta",
+      "result": {
+        "id": "minecraft:purple_glazed_terracotta"
+      }
+    },
+    "minecraft:quartz": {
+      "type": "minecraft:smelting",
+      "experience": 0.2,
+      "ingredient": "minecraft:nether_quartz_ore",
+      "result": {
+        "id": "minecraft:quartz"
+      }
+    },
+    "minecraft:red_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:red_terracotta",
+      "result": {
+        "id": "minecraft:red_glazed_terracotta"
+      }
+    },
+    "minecraft:redstone_from_smelting_deepslate_redstone_ore": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.7,
+      "group": "redstone",
+      "ingredient": "minecraft:deepslate_redstone_ore",
+      "result": {
+        "id": "minecraft:redstone"
+      }
+    },
+    "minecraft:redstone_from_smelting_redstone_ore": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.7,
+      "group": "redstone",
+      "ingredient": "minecraft:redstone_ore",
+      "result": {
+        "id": "minecraft:redstone"
+      }
+    },
+    "minecraft:resin_brick": {
+      "type": "minecraft:smelting",
+      "experience": 0.1,
+      "ingredient": "minecraft:resin_clump",
+      "result": {
+        "id": "minecraft:resin_brick"
+      }
+    },
+    "minecraft:smooth_basalt": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:basalt",
+      "result": {
+        "id": "minecraft:smooth_basalt"
+      }
+    },
+    "minecraft:smooth_quartz": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:quartz_block",
+      "result": {
+        "id": "minecraft:smooth_quartz"
+      }
+    },
+    "minecraft:smooth_red_sandstone": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:red_sandstone",
+      "result": {
+        "id": "minecraft:smooth_red_sandstone"
+      }
+    },
+    "minecraft:smooth_sandstone": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:sandstone",
+      "result": {
+        "id": "minecraft:smooth_sandstone"
+      }
+    },
+    "minecraft:smooth_stone": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:stone",
+      "result": {
+        "id": "minecraft:smooth_stone"
+      }
+    },
+    "minecraft:sponge": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.15,
+      "ingredient": "minecraft:wet_sponge",
+      "result": {
+        "id": "minecraft:sponge"
+      }
+    },
+    "minecraft:stone": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:cobblestone",
+      "result": {
+        "id": "minecraft:stone"
+      }
+    },
+    "minecraft:terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.35,
+      "ingredient": "minecraft:clay",
+      "result": {
+        "id": "minecraft:terracotta"
+      }
+    },
+    "minecraft:white_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:white_terracotta",
+      "result": {
+        "id": "minecraft:white_glazed_terracotta"
+      }
+    },
+    "minecraft:yellow_glazed_terracotta": {
+      "type": "minecraft:smelting",
+      "category": "blocks",
+      "experience": 0.1,
+      "ingredient": "minecraft:yellow_terracotta",
+      "result": {
+        "id": "minecraft:yellow_glazed_terracotta"
+      }
+    },
+    "minecraft:coal_from_blasting_coal_ore": {
+      "type": "minecraft:blasting",
+      "experience": 0.1,
+      "group": "coal",
+      "ingredient": "minecraft:coal_ore",
+      "result": {
+        "id": "minecraft:coal"
+      }
+    },
+    "minecraft:coal_from_blasting_deepslate_coal_ore": {
+      "type": "minecraft:blasting",
+      "experience": 0.1,
+      "group": "coal",
+      "ingredient": "minecraft:deepslate_coal_ore",
+      "result": {
+        "id": "minecraft:coal"
+      }
+    },
+    "minecraft:copper_ingot_from_blasting_copper_ore": {
+      "type": "minecraft:blasting",
+      "experience": 0.7,
+      "group": "copper_ingot",
+      "ingredient": "minecraft:copper_ore",
+      "result": {
+        "id": "minecraft:copper_ingot"
+      }
+    },
+    "minecraft:copper_ingot_from_blasting_deepslate_copper_ore": {
+      "type": "minecraft:blasting",
+      "experience": 0.7,
+      "group": "copper_ingot",
+      "ingredient": "minecraft:deepslate_copper_ore",
+      "result": {
+        "id": "minecraft:copper_ingot"
+      }
+    },
+    "minecraft:copper_ingot_from_blasting_raw_copper": {
+      "type": "minecraft:blasting",
+      "experience": 0.7,
+      "group": "copper_ingot",
+      "ingredient": "minecraft:raw_copper",
+      "result": {
+        "id": "minecraft:copper_ingot"
+      }
+    },
+    "minecraft:copper_nugget_from_blasting": {
+      "type": "minecraft:blasting",
+      "experience": 0.1,
+      "ingredient": [
+        "minecraft:copper_pickaxe",
+        "minecraft:copper_shovel",
+        "minecraft:copper_axe",
+        "minecraft:copper_hoe",
+        "minecraft:copper_sword",
+        "minecraft:copper_spear",
+        "minecraft:copper_helmet",
+        "minecraft:copper_chestplate",
+        "minecraft:copper_leggings",
+        "minecraft:copper_boots",
+        "minecraft:copper_horse_armor",
+        "minecraft:copper_nautilus_armor"
+      ],
+      "result": {
+        "id": "minecraft:copper_nugget"
+      }
+    },
+    "minecraft:diamond_from_blasting_deepslate_diamond_ore": {
+      "type": "minecraft:blasting",
+      "experience": 1.0,
+      "group": "diamond",
+      "ingredient": "minecraft:deepslate_diamond_ore",
+      "result": {
+        "id": "minecraft:diamond"
+      }
+    },
+    "minecraft:diamond_from_blasting_diamond_ore": {
+      "type": "minecraft:blasting",
+      "experience": 1.0,
+      "group": "diamond",
+      "ingredient": "minecraft:diamond_ore",
+      "result": {
+        "id": "minecraft:diamond"
+      }
+    },
+    "minecraft:emerald_from_blasting_deepslate_emerald_ore": {
+      "type": "minecraft:blasting",
+      "experience": 1.0,
+      "group": "emerald",
+      "ingredient": "minecraft:deepslate_emerald_ore",
+      "result": {
+        "id": "minecraft:emerald"
+      }
+    },
+    "minecraft:emerald_from_blasting_emerald_ore": {
+      "type": "minecraft:blasting",
+      "experience": 1.0,
+      "group": "emerald",
+      "ingredient": "minecraft:emerald_ore",
+      "result": {
+        "id": "minecraft:emerald"
+      }
+    },
+    "minecraft:gold_ingot_from_blasting_deepslate_gold_ore": {
+      "type": "minecraft:blasting",
+      "experience": 1.0,
+      "group": "gold_ingot",
+      "ingredient": "minecraft:deepslate_gold_ore",
+      "result": {
+        "id": "minecraft:gold_ingot"
+      }
+    },
+    "minecraft:gold_ingot_from_blasting_gold_ore": {
+      "type": "minecraft:blasting",
+      "experience": 1.0,
+      "group": "gold_ingot",
+      "ingredient": "minecraft:gold_ore",
+      "result": {
+        "id": "minecraft:gold_ingot"
+      }
+    },
+    "minecraft:gold_ingot_from_blasting_nether_gold_ore": {
+      "type": "minecraft:blasting",
+      "experience": 1.0,
+      "group": "gold_ingot",
+      "ingredient": "minecraft:nether_gold_ore",
+      "result": {
+        "id": "minecraft:gold_ingot"
+      }
+    },
+    "minecraft:gold_ingot_from_blasting_raw_gold": {
+      "type": "minecraft:blasting",
+      "experience": 1.0,
+      "group": "gold_ingot",
+      "ingredient": "minecraft:raw_gold",
+      "result": {
+        "id": "minecraft:gold_ingot"
+      }
+    },
+    "minecraft:gold_nugget_from_blasting": {
+      "type": "minecraft:blasting",
+      "experience": 0.1,
+      "ingredient": [
+        "minecraft:golden_pickaxe",
+        "minecraft:golden_shovel",
+        "minecraft:golden_axe",
+        "minecraft:golden_hoe",
+        "minecraft:golden_sword",
+        "minecraft:golden_spear",
+        "minecraft:golden_helmet",
+        "minecraft:golden_chestplate",
+        "minecraft:golden_leggings",
+        "minecraft:golden_boots",
+        "minecraft:golden_horse_armor",
+        "minecraft:golden_nautilus_armor"
+      ],
+      "result": {
+        "id": "minecraft:gold_nugget"
+      }
+    },
+    "minecraft:iron_ingot_from_blasting_deepslate_iron_ore": {
+      "type": "minecraft:blasting",
+      "experience": 0.7,
+      "group": "iron_ingot",
+      "ingredient": "minecraft:deepslate_iron_ore",
+      "result": {
+        "id": "minecraft:iron_ingot"
+      }
+    },
+    "minecraft:iron_ingot_from_blasting_iron_ore": {
+      "type": "minecraft:blasting",
+      "experience": 0.7,
+      "group": "iron_ingot",
+      "ingredient": "minecraft:iron_ore",
+      "result": {
+        "id": "minecraft:iron_ingot"
+      }
+    },
+    "minecraft:iron_ingot_from_blasting_raw_iron": {
+      "type": "minecraft:blasting",
+      "experience": 0.7,
+      "group": "iron_ingot",
+      "ingredient": "minecraft:raw_iron",
+      "result": {
+        "id": "minecraft:iron_ingot"
+      }
+    },
+    "minecraft:iron_nugget_from_blasting": {
+      "type": "minecraft:blasting",
+      "experience": 0.1,
+      "ingredient": [
+        "minecraft:iron_pickaxe",
+        "minecraft:iron_shovel",
+        "minecraft:iron_axe",
+        "minecraft:iron_hoe",
+        "minecraft:iron_sword",
+        "minecraft:iron_spear",
+        "minecraft:iron_helmet",
+        "minecraft:iron_chestplate",
+        "minecraft:iron_leggings",
+        "minecraft:iron_boots",
+        "minecraft:iron_horse_armor",
+        "minecraft:iron_nautilus_armor",
+        "minecraft:chainmail_helmet",
+        "minecraft:chainmail_chestplate",
+        "minecraft:chainmail_leggings",
+        "minecraft:chainmail_boots"
+      ],
+      "result": {
+        "id": "minecraft:iron_nugget"
+      }
+    },
+    "minecraft:lapis_lazuli_from_blasting_deepslate_lapis_ore": {
+      "type": "minecraft:blasting",
+      "experience": 0.2,
+      "group": "lapis_lazuli",
+      "ingredient": "minecraft:deepslate_lapis_ore",
+      "result": {
+        "id": "minecraft:lapis_lazuli"
+      }
+    },
+    "minecraft:lapis_lazuli_from_blasting_lapis_ore": {
+      "type": "minecraft:blasting",
+      "experience": 0.2,
+      "group": "lapis_lazuli",
+      "ingredient": "minecraft:lapis_ore",
+      "result": {
+        "id": "minecraft:lapis_lazuli"
+      }
+    },
+    "minecraft:netherite_scrap_from_blasting": {
+      "type": "minecraft:blasting",
+      "experience": 2.0,
+      "ingredient": "minecraft:ancient_debris",
+      "result": {
+        "id": "minecraft:netherite_scrap"
+      }
+    },
+    "minecraft:quartz_from_blasting": {
+      "type": "minecraft:blasting",
+      "experience": 0.2,
+      "ingredient": "minecraft:nether_quartz_ore",
+      "result": {
+        "id": "minecraft:quartz"
+      }
+    },
+    "minecraft:redstone_from_blasting_deepslate_redstone_ore": {
+      "type": "minecraft:blasting",
+      "category": "blocks",
+      "experience": 0.7,
+      "group": "redstone",
+      "ingredient": "minecraft:deepslate_redstone_ore",
+      "result": {
+        "id": "minecraft:redstone"
+      }
+    },
+    "minecraft:redstone_from_blasting_redstone_ore": {
+      "type": "minecraft:blasting",
+      "category": "blocks",
+      "experience": 0.7,
+      "group": "redstone",
+      "ingredient": "minecraft:redstone_ore",
+      "result": {
+        "id": "minecraft:redstone"
+      }
+    },
+    "minecraft:baked_potato_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:potato",
+      "result": {
+        "id": "minecraft:baked_potato"
+      }
+    },
+    "minecraft:cooked_beef_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:beef",
+      "result": {
+        "id": "minecraft:cooked_beef"
+      }
+    },
+    "minecraft:cooked_chicken_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:chicken",
+      "result": {
+        "id": "minecraft:cooked_chicken"
+      }
+    },
+    "minecraft:cooked_cod_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:cod",
+      "result": {
+        "id": "minecraft:cooked_cod"
+      }
+    },
+    "minecraft:cooked_mutton_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:mutton",
+      "result": {
+        "id": "minecraft:cooked_mutton"
+      }
+    },
+    "minecraft:cooked_porkchop_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:porkchop",
+      "result": {
+        "id": "minecraft:cooked_porkchop"
+      }
+    },
+    "minecraft:cooked_rabbit_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:rabbit",
+      "result": {
+        "id": "minecraft:cooked_rabbit"
+      }
+    },
+    "minecraft:cooked_salmon_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.35,
+      "ingredient": "minecraft:salmon",
+      "result": {
+        "id": "minecraft:cooked_salmon"
+      }
+    },
+    "minecraft:dried_kelp_from_smoking": {
+      "type": "minecraft:smoking",
+      "category": "food",
+      "experience": 0.1,
+      "ingredient": "minecraft:kelp",
+      "result": {
+        "id": "minecraft:dried_kelp"
+      }
+    }
+  },
+  "acceptedInputs": {
+    "furnace": {
+      "minecraft:acacia_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:acacia_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:acacia_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:ancient_debris": [
+        "minecraft:netherite_scrap"
+      ],
+      "minecraft:azalea_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:basalt": [
+        "minecraft:smooth_basalt"
+      ],
+      "minecraft:beef": [
+        "minecraft:cooked_beef"
+      ],
+      "minecraft:birch_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:birch_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:birch_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:black_terracotta": [
+        "minecraft:black_glazed_terracotta"
+      ],
+      "minecraft:blue_terracotta": [
+        "minecraft:blue_glazed_terracotta"
+      ],
+      "minecraft:brown_terracotta": [
+        "minecraft:brown_glazed_terracotta"
+      ],
+      "minecraft:cactus": [
+        "minecraft:green_dye"
+      ],
+      "minecraft:chainmail_boots": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:chainmail_chestplate": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:chainmail_helmet": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:chainmail_leggings": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:cherry_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:cherry_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:cherry_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:chicken": [
+        "minecraft:cooked_chicken"
+      ],
+      "minecraft:chorus_fruit": [
+        "minecraft:popped_chorus_fruit"
+      ],
+      "minecraft:clay": [
+        "minecraft:terracotta"
+      ],
+      "minecraft:clay_ball": [
+        "minecraft:brick"
+      ],
+      "minecraft:coal_ore": [
+        "minecraft:coal_from_smelting_coal_ore"
+      ],
+      "minecraft:cobbled_deepslate": [
+        "minecraft:deepslate"
+      ],
+      "minecraft:cobblestone": [
+        "minecraft:stone"
+      ],
+      "minecraft:cod": [
+        "minecraft:cooked_cod"
+      ],
+      "minecraft:copper_axe": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_boots": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_chestplate": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_helmet": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_hoe": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_horse_armor": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_leggings": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_nautilus_armor": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_ore": [
+        "minecraft:copper_ingot_from_smelting_copper_ore"
+      ],
+      "minecraft:copper_pickaxe": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_shovel": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_spear": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:copper_sword": [
+        "minecraft:copper_nugget_from_smelting"
+      ],
+      "minecraft:cyan_terracotta": [
+        "minecraft:cyan_glazed_terracotta"
+      ],
+      "minecraft:dark_oak_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:dark_oak_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:dark_oak_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:deepslate_bricks": [
+        "minecraft:cracked_deepslate_bricks"
+      ],
+      "minecraft:deepslate_coal_ore": [
+        "minecraft:coal_from_smelting_deepslate_coal_ore"
+      ],
+      "minecraft:deepslate_copper_ore": [
+        "minecraft:copper_ingot_from_smelting_deepslate_copper_ore"
+      ],
+      "minecraft:deepslate_diamond_ore": [
+        "minecraft:diamond_from_smelting_deepslate_diamond_ore"
+      ],
+      "minecraft:deepslate_emerald_ore": [
+        "minecraft:emerald_from_smelting_deepslate_emerald_ore"
+      ],
+      "minecraft:deepslate_gold_ore": [
+        "minecraft:gold_ingot_from_smelting_deepslate_gold_ore"
+      ],
+      "minecraft:deepslate_iron_ore": [
+        "minecraft:iron_ingot_from_smelting_deepslate_iron_ore"
+      ],
+      "minecraft:deepslate_lapis_ore": [
+        "minecraft:lapis_lazuli_from_smelting_deepslate_lapis_ore"
+      ],
+      "minecraft:deepslate_redstone_ore": [
+        "minecraft:redstone_from_smelting_deepslate_redstone_ore"
+      ],
+      "minecraft:deepslate_tiles": [
+        "minecraft:cracked_deepslate_tiles"
+      ],
+      "minecraft:diamond_ore": [
+        "minecraft:diamond_from_smelting_diamond_ore"
+      ],
+      "minecraft:emerald_ore": [
+        "minecraft:emerald_from_smelting_emerald_ore"
+      ],
+      "minecraft:flowering_azalea_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:gold_ore": [
+        "minecraft:gold_ingot_from_smelting_gold_ore"
+      ],
+      "minecraft:golden_axe": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_boots": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_chestplate": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_helmet": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_hoe": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_horse_armor": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_leggings": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_nautilus_armor": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_pickaxe": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_shovel": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_spear": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:golden_sword": [
+        "minecraft:gold_nugget_from_smelting"
+      ],
+      "minecraft:gray_terracotta": [
+        "minecraft:gray_glazed_terracotta"
+      ],
+      "minecraft:green_terracotta": [
+        "minecraft:green_glazed_terracotta"
+      ],
+      "minecraft:iron_axe": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_boots": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_chestplate": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_helmet": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_hoe": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_horse_armor": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_leggings": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_nautilus_armor": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_ore": [
+        "minecraft:iron_ingot_from_smelting_iron_ore"
+      ],
+      "minecraft:iron_pickaxe": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_shovel": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_spear": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:iron_sword": [
+        "minecraft:iron_nugget_from_smelting"
+      ],
+      "minecraft:jungle_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:jungle_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:jungle_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:kelp": [
+        "minecraft:dried_kelp_from_smelting"
+      ],
+      "minecraft:lapis_ore": [
+        "minecraft:lapis_lazuli_from_smelting_lapis_ore"
+      ],
+      "minecraft:light_blue_terracotta": [
+        "minecraft:light_blue_glazed_terracotta"
+      ],
+      "minecraft:light_gray_terracotta": [
+        "minecraft:light_gray_glazed_terracotta"
+      ],
+      "minecraft:lime_terracotta": [
+        "minecraft:lime_glazed_terracotta"
+      ],
+      "minecraft:magenta_terracotta": [
+        "minecraft:magenta_glazed_terracotta"
+      ],
+      "minecraft:mangrove_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:mangrove_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:mangrove_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:mutton": [
+        "minecraft:cooked_mutton"
+      ],
+      "minecraft:nether_bricks": [
+        "minecraft:cracked_nether_bricks"
+      ],
+      "minecraft:nether_gold_ore": [
+        "minecraft:gold_ingot_from_smelting_nether_gold_ore"
+      ],
+      "minecraft:nether_quartz_ore": [
+        "minecraft:quartz"
+      ],
+      "minecraft:netherrack": [
+        "minecraft:nether_brick"
+      ],
+      "minecraft:oak_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:oak_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:oak_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:orange_terracotta": [
+        "minecraft:orange_glazed_terracotta"
+      ],
+      "minecraft:pale_oak_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:pale_oak_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:pale_oak_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:pink_terracotta": [
+        "minecraft:pink_glazed_terracotta"
+      ],
+      "minecraft:polished_blackstone_bricks": [
+        "minecraft:cracked_polished_blackstone_bricks"
+      ],
+      "minecraft:porkchop": [
+        "minecraft:cooked_porkchop"
+      ],
+      "minecraft:potato": [
+        "minecraft:baked_potato"
+      ],
+      "minecraft:purple_terracotta": [
+        "minecraft:purple_glazed_terracotta"
+      ],
+      "minecraft:quartz_block": [
+        "minecraft:smooth_quartz"
+      ],
+      "minecraft:rabbit": [
+        "minecraft:cooked_rabbit"
+      ],
+      "minecraft:raw_copper": [
+        "minecraft:copper_ingot_from_smelting_raw_copper"
+      ],
+      "minecraft:raw_gold": [
+        "minecraft:gold_ingot_from_smelting_raw_gold"
+      ],
+      "minecraft:raw_iron": [
+        "minecraft:iron_ingot_from_smelting_raw_iron"
+      ],
+      "minecraft:red_sand": [
+        "minecraft:glass"
+      ],
+      "minecraft:red_sandstone": [
+        "minecraft:smooth_red_sandstone"
+      ],
+      "minecraft:red_terracotta": [
+        "minecraft:red_glazed_terracotta"
+      ],
+      "minecraft:redstone_ore": [
+        "minecraft:redstone_from_smelting_redstone_ore"
+      ],
+      "minecraft:resin_clump": [
+        "minecraft:resin_brick"
+      ],
+      "minecraft:salmon": [
+        "minecraft:cooked_salmon"
+      ],
+      "minecraft:sand": [
+        "minecraft:glass"
+      ],
+      "minecraft:sandstone": [
+        "minecraft:smooth_sandstone"
+      ],
+      "minecraft:sea_pickle": [
+        "minecraft:lime_dye_from_smelting"
+      ],
+      "minecraft:spruce_leaves": [
+        "minecraft:leaf_litter"
+      ],
+      "minecraft:spruce_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:spruce_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stone": [
+        "minecraft:smooth_stone"
+      ],
+      "minecraft:stone_bricks": [
+        "minecraft:cracked_stone_bricks"
+      ],
+      "minecraft:stripped_acacia_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_acacia_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_birch_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_birch_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_cherry_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_cherry_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_dark_oak_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_dark_oak_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_jungle_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_jungle_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_mangrove_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_mangrove_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_oak_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_oak_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_pale_oak_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_pale_oak_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_spruce_log": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:stripped_spruce_wood": [
+        "minecraft:charcoal"
+      ],
+      "minecraft:wet_sponge": [
+        "minecraft:sponge"
+      ],
+      "minecraft:white_terracotta": [
+        "minecraft:white_glazed_terracotta"
+      ],
+      "minecraft:yellow_terracotta": [
+        "minecraft:yellow_glazed_terracotta"
+      ]
+    },
+    "blast_furnace": {
+      "minecraft:ancient_debris": [
+        "minecraft:netherite_scrap_from_blasting"
+      ],
+      "minecraft:chainmail_boots": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:chainmail_chestplate": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:chainmail_helmet": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:chainmail_leggings": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:coal_ore": [
+        "minecraft:coal_from_blasting_coal_ore"
+      ],
+      "minecraft:copper_axe": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_boots": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_chestplate": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_helmet": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_hoe": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_horse_armor": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_leggings": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_nautilus_armor": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_ore": [
+        "minecraft:copper_ingot_from_blasting_copper_ore"
+      ],
+      "minecraft:copper_pickaxe": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_shovel": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_spear": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:copper_sword": [
+        "minecraft:copper_nugget_from_blasting"
+      ],
+      "minecraft:deepslate_coal_ore": [
+        "minecraft:coal_from_blasting_deepslate_coal_ore"
+      ],
+      "minecraft:deepslate_copper_ore": [
+        "minecraft:copper_ingot_from_blasting_deepslate_copper_ore"
+      ],
+      "minecraft:deepslate_diamond_ore": [
+        "minecraft:diamond_from_blasting_deepslate_diamond_ore"
+      ],
+      "minecraft:deepslate_emerald_ore": [
+        "minecraft:emerald_from_blasting_deepslate_emerald_ore"
+      ],
+      "minecraft:deepslate_gold_ore": [
+        "minecraft:gold_ingot_from_blasting_deepslate_gold_ore"
+      ],
+      "minecraft:deepslate_iron_ore": [
+        "minecraft:iron_ingot_from_blasting_deepslate_iron_ore"
+      ],
+      "minecraft:deepslate_lapis_ore": [
+        "minecraft:lapis_lazuli_from_blasting_deepslate_lapis_ore"
+      ],
+      "minecraft:deepslate_redstone_ore": [
+        "minecraft:redstone_from_blasting_deepslate_redstone_ore"
+      ],
+      "minecraft:diamond_ore": [
+        "minecraft:diamond_from_blasting_diamond_ore"
+      ],
+      "minecraft:emerald_ore": [
+        "minecraft:emerald_from_blasting_emerald_ore"
+      ],
+      "minecraft:gold_ore": [
+        "minecraft:gold_ingot_from_blasting_gold_ore"
+      ],
+      "minecraft:golden_axe": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_boots": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_chestplate": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_helmet": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_hoe": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_horse_armor": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_leggings": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_nautilus_armor": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_pickaxe": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_shovel": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_spear": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:golden_sword": [
+        "minecraft:gold_nugget_from_blasting"
+      ],
+      "minecraft:iron_axe": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_boots": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_chestplate": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_helmet": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_hoe": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_horse_armor": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_leggings": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_nautilus_armor": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_ore": [
+        "minecraft:iron_ingot_from_blasting_iron_ore"
+      ],
+      "minecraft:iron_pickaxe": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_shovel": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_spear": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:iron_sword": [
+        "minecraft:iron_nugget_from_blasting"
+      ],
+      "minecraft:lapis_ore": [
+        "minecraft:lapis_lazuli_from_blasting_lapis_ore"
+      ],
+      "minecraft:nether_gold_ore": [
+        "minecraft:gold_ingot_from_blasting_nether_gold_ore"
+      ],
+      "minecraft:nether_quartz_ore": [
+        "minecraft:quartz_from_blasting"
+      ],
+      "minecraft:raw_copper": [
+        "minecraft:copper_ingot_from_blasting_raw_copper"
+      ],
+      "minecraft:raw_gold": [
+        "minecraft:gold_ingot_from_blasting_raw_gold"
+      ],
+      "minecraft:raw_iron": [
+        "minecraft:iron_ingot_from_blasting_raw_iron"
+      ],
+      "minecraft:redstone_ore": [
+        "minecraft:redstone_from_blasting_redstone_ore"
+      ]
+    },
+    "smoker": {
+      "minecraft:beef": [
+        "minecraft:cooked_beef_from_smoking"
+      ],
+      "minecraft:chicken": [
+        "minecraft:cooked_chicken_from_smoking"
+      ],
+      "minecraft:cod": [
+        "minecraft:cooked_cod_from_smoking"
+      ],
+      "minecraft:kelp": [
+        "minecraft:dried_kelp_from_smoking"
+      ],
+      "minecraft:mutton": [
+        "minecraft:cooked_mutton_from_smoking"
+      ],
+      "minecraft:porkchop": [
+        "minecraft:cooked_porkchop_from_smoking"
+      ],
+      "minecraft:potato": [
+        "minecraft:baked_potato_from_smoking"
+      ],
+      "minecraft:rabbit": [
+        "minecraft:cooked_rabbit_from_smoking"
+      ],
+      "minecraft:salmon": [
+        "minecraft:cooked_salmon_from_smoking"
+      ]
+    }
+  },
+  "rejectionRules": [
+    "input: no matching recipe for machine",
+    "fuel: absent or burnTicks <= 0",
+    "output: never insert"
+  ],
+  "fuelPreference": [
+    "minecraft:coal",
+    "minecraft:charcoal",
+    "minecraft:coal_block"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "title": "Collect cobblestone",
+  "steps": [
+    {
+      "label": "Cobblestone",
+      "action": "mine",
+      "item": "minecraft:cobblestone",
+      "count": 32
+    }
+  ],
+  "description": "Prepare a pickaxe and crafting table if needed, then collect 32 cobblestone."
+}
