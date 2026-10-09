@@ -24,4 +24,4 @@ jobs:
           name: minecraft-ai-bot
           path: |
             build/releases/*.zip
-            build/libs/minecraft-ai-bot-1.0.0.jar
+            build/libs/minecraft-ai-bot-1.0.1.jar
