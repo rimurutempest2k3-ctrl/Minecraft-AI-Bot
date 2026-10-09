@@ -221,6 +221,7 @@ public final class TaskPresets {
     public static boolean huntable(String entity,boolean baby,boolean named) {
         return !baby && !named && Set.of("minecraft:cow","minecraft:pig","minecraft:sheep","minecraft:chicken").contains(entity);
     }
+    public static boolean foodSearchAllowed(int moves,double distanceSquared) {return moves>=0 && moves<8 && Double.isFinite(distanceSquared) && distanceSquared>=0 && distanceSquared<=160*160;}
     public static int foodBatch(int missing,int available) {
         if(missing<0 || available<0) throw invalid("Negative food quantity");
         return Math.min(64,Math.min(missing,available));

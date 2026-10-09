@@ -11,6 +11,17 @@ import java.util.Set;
 /** Decisions are independent of Minecraft; the client controller owns all interaction. */
 public final class SurvivalPolicy {
     private SurvivalPolicy() {}
+    public static boolean eatingNeeded(double health,double maximum,int hunger) {
+        return hunger<=6 || maximum>0 && health<maximum && hunger<20;
+    }
+    /** Safe food first; raw food is reserved for cooking until sprint hunger is lost. */
+    public static int foodPreference(double health,double maximum,int hunger,boolean raw,boolean harmful,boolean rotten,boolean cooked,boolean golden) {
+        if(golden && maximum>0 && health<maximum*0.5)return 600;
+        if(!eatingNeeded(health,maximum,hunger))return -1;
+        if(hunger>6 && (raw || harmful || rotten))return -1;
+        return raw?100:harmful&&!rotten?0:rotten?10:cooked?400:300;
+    }
+    public static boolean foodChestWithinRange(double distanceSquared) {return Double.isFinite(distanceSquared) && distanceSquared>=0 && distanceSquared<=100*100;}
     public static boolean emergencyFood(double health,double maximum,int hunger) {
         return maximum>0 && Double.isFinite(maximum) && Double.isFinite(health) && (health<maximum*0.5 || hunger<=6);
     }
@@ -254,7 +265,7 @@ public final class SurvivalPolicy {
         }
         var near=threats.stream().filter(t->t.weight()>0 && t.distance()<=(t.ranged()?Math.max(20,settings.scanRadius()):12)).toList();
         if(near.isEmpty()) return new Assessment(Danger.CLEAR,!threats.isEmpty()?Action.IDLE:
-                hunger<=settings.eatBelow() || health<settings.combatMinHealth() && hunger<20?Action.EAT:Action.IDLE,8,"No threat within intervention range.");
+                eatingNeeded(health,maxHealth,hunger)?Action.EAT:Action.IDLE,8,"No threat within intervention range.");
         long ranged=near.stream().filter(Threat::ranged).count();
         boolean mixed=ranged>0 && ranged<near.size();
         double radius=ranged>0?20:preferredEscapeRadius(near.size());

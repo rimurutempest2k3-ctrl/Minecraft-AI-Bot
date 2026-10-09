@@ -35,6 +35,12 @@ final class LocalTaskRunner {
     private final ProductionController.FurnaceRun furnace;
     private Animal prey;
     private Vec3 huntOrigin,lastKill;
+    private Vec3 huntSearchOrigin;
+    private BlockPos huntSearchTarget;
+    private final Set<BlockPos> searchedFoodAreas=new HashSet<>();
+    private int foodSearchMoves;
+    private long foodSearchUntil;
+    private long nextFoodAreaScan;
     private final Set<UUID> skippedPrey=new HashSet<>();
     private long nextHuntPath,preySince,killUntil;
     private int huntAligned;
@@ -539,6 +545,7 @@ final class LocalTaskRunner {
         if(huntWeapon()<0) {prepareRecipe(client,starter.recipes().get("wooden_sword"),new HashSet<>());return;}
         closeForMovement();movement.stop();restoreShallow();
         prey=null;lastKill=null;skippedPrey.clear();huntOrigin=owner.position();nextHuntPath=killUntil=0;huntAligned=0;
+        huntSearchOrigin=huntOrigin;huntSearchTarget=null;searchedFoodAreas.clear();searchedFoodAreas.add(owner.blockPosition());foodSearchMoves=0;nextFoodAreaScan=0;
         var settings=baritone.api.BaritoneAPI.getSettings();huntBreak=settings.allowBreak.value;huntPlace=settings.allowPlace.value;
         settings.allowBreak.value=false;settings.allowPlace.value=false;
         change(Phase.HUNT,"Hunt nearby adult cows/pigs/sheep/chickens for meat; no babies or named animals.");
@@ -566,7 +573,7 @@ final class LocalTaskRunner {
     }
     private void huntTick(Minecraft client) {
         long now=System.nanoTime();
-        if(owner.position().distanceToSqr(huntOrigin)>48*48) {cancel("Hunting stopped: reached the 48-block limit; no unlimited chasing.");return;}
+        if(owner.position().distanceToSqr(huntSearchOrigin)>160*160) {cancel("Food search stopped at the 160-block exploration limit.");return;}
         if(!world.getEntitiesOfClass(Mob.class,owner.getBoundingBox().inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty()) {
             cancel("Hunting stopped: hostile mob nearby; survival takes priority.");return;
         }
@@ -583,11 +590,20 @@ final class LocalTaskRunner {
             if(drop!=null)huntPath(drop.blockPosition(),now);return;
         }
         if(lastKill!=null) {cancel("Hunting stopped: meat not collected after kill. Check drops/server permissions before continuing.");return;}
+        if(huntSearchTarget!=null) {
+            huntOrigin=owner.position();
+            if(now<nextFoodAreaScan && owner.blockPosition().distSqr(huntSearchTarget)>9 && now<foodSearchUntil && movement.busy())return;
+            nextFoodAreaScan=now+1_000_000_000L;
+            boolean found=!world.getEntitiesOfClass(Animal.class,owner.getBoundingBox().inflate(48),this::huntable).isEmpty();
+            if(found || owner.blockPosition().distSqr(huntSearchTarget)<=9 || now>=foodSearchUntil || !movement.busy()) {
+                movement.stop();huntSearchTarget=null;nextHuntPath=0;
+            } else return;
+        }
         if(prey==null || !huntable(prey) || now-preySince>25_000_000_000L) {
             if(prey!=null) skippedPrey.add(prey.getUUID());movement.stop();
             prey=world.getEntitiesOfClass(Animal.class,owner.getBoundingBox().inflate(48),a->huntable(a) && !skippedPrey.contains(a.getUUID()))
                     .stream().min(Comparator.comparingDouble(owner::distanceToSqr)).orElse(null);
-            if(prey==null) {cancel("No suitable adult animal in loaded chunks (48 blocks). Bring meat/food or move elsewhere and rerun.");return;}
+            if(prey==null) {searchFoodArea(now);return;}
             preySince=now;huntAligned=0;nextHuntPath=0;
             notify.accept("Local: hunt "+BuiltInRegistries.ENTITY_TYPE.getKey(prey.getType())+"; stops when enough food is collected.");
         }
@@ -604,6 +620,29 @@ final class LocalTaskRunner {
                 && client.crosshairPickEntity==prey && client.hitResult instanceof EntityHitResult hit && hit.getEntity()==prey && huntable(prey)) {
             KeyMapping.click(InputConstants.getKey(client.options.keyAttack.saveString()));huntAttack=true;huntAligned=0;
         }
+    }
+    private void searchFoodArea(long now) {
+        if(!TaskPresets.foodSearchAllowed(foodSearchMoves,owner.position().distanceToSqr(huntSearchOrigin))) {cancel("No animals found after checking eight areas; food search stopped.");return;}
+        var origin=owner.blockPosition();
+        int[][] offsets={{32,0},{23,23},{0,32},{-23,23},{-32,0},{-23,-23},{0,-32},{23,-23}};
+        for(int i=0;i<offsets.length;i++) {
+            int[] offset=offsets[(i+foodSearchMoves)%offsets.length];
+            for(int dy=0;dy<=6;dy++)for(int sign:dy==0?new int[]{1}:new int[]{1,-1}) {
+                BlockPos pos=origin.offset(offset[0],dy*sign,offset[1]);
+                if(!world.hasChunkAt(pos) || !TaskPresets.foodSearchAllowed(foodSearchMoves,Vec3.atBottomCenterOf(pos).distanceToSqr(huntSearchOrigin))
+                        || searchedFoodAreas.stream().anyMatch(p->p.distSqr(pos)<16*16))continue;
+                if(!world.getBlockState(pos).isAir() || !world.getBlockState(pos.above()).isAir()
+                        || !world.getBlockState(pos.below()).isCollisionShapeFullBlock(world,pos.below())
+                        || !world.getFluidState(pos.below()).isEmpty() || world.getBlockState(pos.below()).is(Blocks.MAGMA_BLOCK)
+                        || world.getBlockState(pos.below()).is(Blocks.CACTUS)
+                        || world.getBiome(pos).unwrapKey().map(k->k.identifier().toString().equals("minecraft:deep_dark")).orElse(false))continue;
+                if(!world.getEntitiesOfClass(Mob.class,new AABB(pos).inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty())continue;
+                searchedFoodAreas.add(pos);foodSearchMoves++;huntSearchTarget=pos;foodSearchUntil=now+25_000_000_000L;
+                nextHuntPath=0;huntPath(pos,now);
+                notify.accept("Local: no animals nearby; searching another area ("+foodSearchMoves+"/8).");return;
+            }
+        }
+        cancel("No loaded safe route to another food search area; bring food or explore more terrain.");
     }
     private void releaseHuntAttack(Minecraft client) {if(huntAttack) {client.options.keyAttack.consumeClick();huntAttack=false;}}
     private void releaseHunting(Minecraft client) {

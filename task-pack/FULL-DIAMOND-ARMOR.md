@@ -10,6 +10,8 @@ On the web, open Tasks, reload the folder, select the file, preview the steps an
 
 Keep survival assistance, automatic armor and shield equipment enabled. A nearby furnace can be reused for smelting. Mining needs a usable pickaxe of the required tier, reachable resources and server permissions. Task timeouts and survival interruptions remain active. Automated checks pass; the complete in-game workflow has not yet been verified.
 
+Food search moves between loaded, safe areas when no suitable animals are nearby (up to eight moves and 160 blocks from the search origin). Raw meat is kept for cooking. Automatic eating uses safe food when injured; at hunger 6/20 or lower it allows raw food, with rotten flesh as a fallback. Suitable food may be retrieved from chests within 100 blocks when no hostile mobs are nearby.
+
 ## Tiếng Việt
 
 Task `full-diamond-armor.taskbot` đã gồm **bốn món giáp và năm công cụ kim cương**: cúp, rìu, xẻng, kiếm, cuốc. Tổng nguyên liệu cho phần kim cương là **35 kim cương + 9 que**.
@@ -19,3 +21,4 @@ Task `full-diamond-armor.taskbot` đã gồm **bốn món giáp và năm công c
 Trong web, vào **Nhiệm vụ → Đọc lại thư mục**, chọn file rồi **Khởi chạy**. Nếu chơi bằng launcher, thay file trong thư mục config của đúng hồ sơ game trước. Khi nhập trên web, đổi tên nếu file đã tồn tại vì chức năng nhập không ghi đè.
 
 Đã kiểm tra tự động và build; chưa thử hoàn tất toàn bộ chuỗi trong game.
+Khi không thấy thú phù hợp, bot di chuyển tìm ở các khu vực đã tải và an toàn, tối đa tám lần và cách điểm bắt đầu 160 khối. Thịt sống được giữ để nấu. Bot ăn thức ăn an toàn khi mất máu; khi đói còn 6/20 mới dùng thịt sống và dùng thịt thối sau cùng. Có thể lấy thức ăn phù hợp từ rương trong 100 khối khi không có quái ở gần.
