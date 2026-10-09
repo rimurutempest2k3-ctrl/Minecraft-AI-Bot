@@ -40,7 +40,11 @@ import net.minecraft.world.phys.*;
 
 /** One owner for food, melee/bow defence and bounded escape. No API requests or attacks on players. */
 final class SurvivalController {
-    private enum Mode { WATCH, EAT, DEFEND, RANGED, RETREAT, CREEPER, PILLAR, EQUIP, CLEAN, LOOT }
+    private enum Mode { WATCH, EAT, DEFEND, RANGED, RETREAT, CREEPER, PILLAR, EQUIP, CLEAN, LOOT, FOOD_CHEST }
+    private final ChestController foodChest;
+    private final ChestController.MemoryObserver foodChestMemory;
+    private long nextFoodChest,foodChestUntil;
+    private boolean takingChestFood;
     private record Seen(LivingEntity entity, SurvivalPolicy.Threat threat) {}
     private static final Set<String> DEFENDABLE=Set.of("minecraft:zombie","minecraft:husk","minecraft:drowned",
             "minecraft:skeleton","minecraft:stray","minecraft:bogged","minecraft:spider",
@@ -140,8 +144,9 @@ final class SurvivalController {
     private LocalPlayer scannedPlayer;
     private ClientLevel scannedWorld;
 
-    SurvivalController(BotCore bot,BaritoneController movement,BooleanSupplier interrupt,Consumer<String> notify,BooleanSupplier idleForEquipment) {
+    SurvivalController(BotCore bot,BaritoneController movement,BooleanSupplier interrupt,Consumer<String> notify,BooleanSupplier idleForEquipment,ChestController foodChest,ChestController.MemoryObserver foodChestMemory) {
         this.bot=bot;this.movement=movement;this.interrupt=interrupt;this.notify=notify;this.idleForEquipment=idleForEquipment;
+        this.foodChest=foodChest;this.foodChestMemory=foodChestMemory;
     }
     private InventoryLayout inventoryLayout=InventoryLayout.defaults();
     void initialize(Path config) {
@@ -318,7 +323,7 @@ final class SurvivalController {
             cancel(client);
             if(deathPosition!=null && !deathScope.equals(recoveryScope(client))) clearRecovery();
             lifePlayer=client.player;lifeWorld=client.level;observedDead=false;
-            nextEquipment=nextFood=nextLoot=nextAlert=nextSurvivalAttempt=nextPillar=nextGoldenFood=0;
+            nextEquipment=nextFood=nextLoot=nextAlert=nextSurvivalAttempt=nextPillar=nextGoldenFood=nextFoodChest=0;
             lastHealth=Float.NaN;recentDamage=0;lastDamage=damageWindow=0;
             cached=List.of();scanTicks=5;skippedDrops.clear();previousAlerts=Set.of();
         }
@@ -507,23 +512,94 @@ final class SurvivalController {
             ItemStack stack=items.get(i);
             var food=stack.get(DataComponents.FOOD);var use=stack.get(DataComponents.CONSUMABLE);
             boolean golden=goldenFood(stack);
-            if(food==null || use==null || food.nutrition()<=0 || !use.onConsumeEffects().isEmpty() && !golden
+            if(food==null || use==null || food.nutrition()<=0
                     || use.consumeSeconds()>5 || usableNow && !use.canConsume(client.player,stack)) continue;
+            int preference=foodPreference(client,stack,usableNow);
+            if(preference<0)continue;
             if(golden && usableNow && (!SurvivalPolicy.emergencyFood(client.player.getHealth(),client.player.getMaxHealth(),client.player.getFoodData().getFoodLevel())
                     || System.nanoTime()<nextGoldenFood)) continue;
-            double value=SurvivalPolicy.foodScore(food.nutrition(),food.saturation(),client.player.getFoodData().getFoodLevel());
+            double value=preference*100+SurvivalPolicy.foodScore(food.nutrition(),food.saturation(),client.player.getFoodData().getFoodLevel());
             if(golden) value+=client.player.getHealth()<client.player.getMaxHealth()*0.5?(stack.is(Items.GOLDEN_APPLE)?1000:900):-100;
             if(value>score) {score=value;best=i;}
         }
         return best;
     }
     private boolean goldenFood(ItemStack stack) {return stack.is(Items.GOLDEN_APPLE) || stack.is(Items.ENCHANTED_GOLDEN_APPLE);}
+    private boolean startFoodChest(Minecraft client) {
+        nextFoodChest=System.nanoTime()+45_000_000_000L;
+        if(busy() || foodChest.busy() || client.gui.screen()!=null || client.player.containerMenu!=client.player.inventoryMenu || !client.player.containerMenu.getCarried().isEmpty())return false;
+        Map<BlockPos,Integer> candidates=new HashMap<>();
+        try {
+            for(var element:foodChestMemory.webSnapshot(client).getAsJsonArray("entries")) {
+                var entry=element.getAsJsonObject();int preference=-1;
+                for(var elementSlot:entry.getAsJsonArray("slots")) {
+                    var slot=elementSlot.getAsJsonObject();if(!slot.has("item") || !slot.has("count") || slot.get("count").getAsInt()<=0)continue;
+                    var id=net.minecraft.resources.Identifier.tryParse(slot.get("item").getAsString());
+                    var item=id==null?Optional.<net.minecraft.world.item.Item>empty():BuiltInRegistries.ITEM.getOptional(id);
+                    if(item.isPresent()) {
+                        var stack=new ItemStack(item.get());var food=stack.get(DataComponents.FOOD);
+                        if(food!=null && food.nutrition()>0)preference=Math.max(preference,foodPreference(client,stack,true));
+                    }
+                }
+                if(preference<=100)continue;
+                for(var position:entry.getAsJsonArray("positions")) {
+                    var p=position.getAsJsonObject();candidates.put(new BlockPos(p.get("x").getAsInt(),p.get("y").getAsInt(),p.get("z").getAsInt()),preference);
+                }
+            }
+        }catch(RuntimeException badMemory) { /* Loaded chest blocks can still be inspected. */ }
+        var origin=client.player.blockPosition();
+        for(int x=(origin.getX()-100)>>4;x<=(origin.getX()+100)>>4;x++)for(int z=(origin.getZ()-100)>>4;z<=(origin.getZ()+100)>>4;z++) {
+            var chunk=client.level.getChunkSource().getChunk(x,z,net.minecraft.world.level.chunk.status.ChunkStatus.FULL,false);
+            if(chunk!=null)for(var pos:chunk.getBlockEntities().keySet())
+                if(client.level.getBlockState(pos).getBlock() instanceof net.minecraft.world.level.block.ChestBlock)candidates.putIfAbsent(pos,0);
+        }
+        BlockPos target=candidates.keySet().stream().filter(p->SurvivalPolicy.foodChestWithinRange(p.distSqr(origin)) && !avoidsDestination(client,p)
+                && client.level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,new net.minecraft.world.phys.AABB(p).inflate(12),m->m instanceof net.minecraft.world.entity.monster.Enemy && m.isAlive()).isEmpty())
+                .min(Comparator.<BlockPos>comparingInt(p->-candidates.get(p)).thenComparingDouble(p->p.distSqr(origin))).orElse(null);
+        if(target==null || !claim(client))return false;
+        mode=Mode.FOOD_CHEST;takingChestFood=false;foodChestUntil=System.nanoTime()+60_000_000_000L;
+        String result=foodChest.execute("open "+target.getX()+" "+target.getY()+" "+target.getZ());
+        if(!foodChest.busy()) {finish(client,"Could not open food chest: "+result);return false;}
+        announce("Checking a food chest within 100 blocks; remembered contents will be verified.");return true;
+    }
+    private void tickFoodChest(Minecraft client) {
+        if(foodChest.busy())return;
+        if(takingChestFood) {finish(client,"Food chest transfer finished; checking inventory before eating.");nextFood=0;return;}
+        if(!(owner.containerMenu instanceof net.minecraft.world.inventory.ChestMenu menu)) {finish(client,"Food chest did not open; skipping.");return;}
+        int best=-1,preference=100;
+        for(int slot=0;slot<menu.getRowCount()*9;slot++) {
+            var stack=menu.getSlot(slot).getItem();var food=stack.get(DataComponents.FOOD);var use=stack.get(DataComponents.CONSUMABLE);
+            if(food==null || use==null || food.nutrition()<=0 || use.consumeSeconds()>5)continue;
+            int rating=foodPreference(client,stack,true);
+            if(rating>preference) {preference=rating;best=slot;}
+        }
+        if(best<0) {finish(client,"No suitable food in this chest; skipping.");return;}
+        var stack=menu.getSlot(best).getItem();int count=Math.min(4,stack.getCount());
+        String response=foodChest.execute("take "+BuiltInRegistries.ITEM.getKey(stack.getItem())+" "+count);
+        if(!foodChest.busy()) {finish(client,"Could not take chest food: "+response);return;}
+        takingChestFood=true;announce("Taking up to four food items from chest.");
+    }
+    private static boolean rawFood(ItemStack stack) {
+        return stack.is(Items.BEEF) || stack.is(Items.PORKCHOP) || stack.is(Items.MUTTON) || stack.is(Items.CHICKEN)
+                || stack.is(Items.RABBIT) || stack.is(Items.COD) || stack.is(Items.SALMON);
+    }
+    private static boolean cookedFood(ItemStack stack) {
+        return stack.is(Items.COOKED_BEEF) || stack.is(Items.COOKED_PORKCHOP) || stack.is(Items.COOKED_MUTTON) || stack.is(Items.COOKED_CHICKEN)
+                || stack.is(Items.COOKED_RABBIT) || stack.is(Items.COOKED_COD) || stack.is(Items.COOKED_SALMON);
+    }
+    private int foodPreference(Minecraft client,ItemStack stack,boolean usableNow) {
+        var use=stack.get(DataComponents.CONSUMABLE);
+        if(use==null)return -1;
+        return SurvivalPolicy.foodPreference(usableNow?client.player.getHealth():client.player.getMaxHealth()-1,client.player.getMaxHealth(),
+                usableNow?client.player.getFoodData().getFoodLevel():10,rawFood(stack),!use.onConsumeEffects().isEmpty() && !goldenFood(stack),
+                stack.is(Items.ROTTEN_FLESH),cookedFood(stack),goldenFood(stack));
+    }
     private int foodReserve(Minecraft client) {
         long nutrition=0;
         for(var stack:client.player.getInventory().getNonEquipmentItems()) {
             var food=stack.get(DataComponents.FOOD);var use=stack.get(DataComponents.CONSUMABLE);
             if(food!=null && use!=null && food.nutrition()>0 && use.consumeSeconds()<=5
-                    && (use.onConsumeEffects().isEmpty() || goldenFood(stack))) nutrition+=(long)food.nutrition()*stack.getCount();
+                    && foodPreference(client,stack,false)>100) nutrition+=(long)food.nutrition()*stack.getCount();
         }
         return (int)Math.min(4096,nutrition);
     }
@@ -612,7 +688,7 @@ final class SurvivalController {
         movement.stop();if(!select(client,slot)) {endAction(client,"Could not move food to hotbar.");return;}
         var food=owner.getMainHandItem().get(DataComponents.FOOD);
         var use=owner.getMainHandItem().get(DataComponents.CONSUMABLE);
-        if(food==null || use==null || !use.onConsumeEffects().isEmpty() && !goldenFood(owner.getMainHandItem()) || !use.canConsume(owner,owner.getMainHandItem())) {
+        if(food==null || use==null || foodPreference(client,owner.getMainHandItem(),true)<0 || !use.canConsume(owner,owner.getMainHandItem())) {
             finish(client,"Food or hunger changed; not eating yet.");nextFood=System.nanoTime()+10_000_000_000L;return;
         }
         eating=owner.getMainHandItem().copyWithCount(1);hungerBefore=owner.getFoodData().getFoodLevel();foodCountBefore=countFood();foodBefore=0;
@@ -673,6 +749,11 @@ final class SurvivalController {
             String risk=riskStatus();if(!risk.equals(previousRisk)) {previousRisk=risk;notify.accept("Danger: "+risk);}
             var decision=assessment.action();
             escapingBiome=avoidsDestination(client,client.player.blockPosition());
+            if(mode==Mode.FOOD_CHEST) {
+                if(!seen.isEmpty() || escapingBiome || now>foodChestUntil)finish(client,"Food chest search stopped; survival takes priority.");
+                else tickFoodChest(client);
+                return;
+            }
             if(busy() && (owner.containerMenu!=owner.inventoryMenu || client.gui.screen()!=null)) {endAction(client,"Menu changed during survival actions.");return;}
             if(decision==SurvivalPolicy.Action.CREEPER_SHIELD) {
                 if(mode!=Mode.CREEPER) {
@@ -691,6 +772,11 @@ final class SurvivalController {
             if(mode==Mode.RANGED && decision!=SurvivalPolicy.Action.RANGED) cancel(client);
             if(mode==Mode.EAT && emergencyEating && !creeperAlert) {tickEating(client);return;}
             boolean urgentFood=!creeperAlert && SurvivalPolicy.emergencyFood(client.player.getHealth(),client.player.getMaxHealth(),client.player.getFoodData().getFoodLevel());
+            int preferredFood=foodSlot(client);
+            if(mode!=Mode.EAT && !creeperAlert && seen.isEmpty() && now>=nextFoodChest
+                    && SurvivalPolicy.eatingNeeded(health,client.player.getMaxHealth(),client.player.getFoodData().getFoodLevel())
+                    && (preferredFood<0 || client.player.getFoodData().getFoodLevel()<=6 && foodPreference(client,client.player.getInventory().getNonEquipmentItems().get(preferredFood),true)<=100)
+                    && startFoodChest(client))return;
             if(mode!=Mode.EAT && urgentFood && System.nanoTime()>=nextFood && foodSlot(client)>=0
                     && !client.player.isPassenger() && client.player.containerMenu.getCarried().isEmpty()) {
                 cancel(client);
@@ -782,7 +868,10 @@ final class SurvivalController {
                 if(++quiet>=40) finish(client,"Nearby danger ended; old task canceled, assign it again based on progress.");
             } else if(decision==SurvivalPolicy.Action.EAT && System.nanoTime()>=nextFood && !client.player.isUsingItem() && !client.player.isPassenger()) {
                 int food=foodSlot(client);
-                if(food<0) {nextFood=System.nanoTime()+10_000_000_000L;announce("Hungry but no suitable food; will not eat food with harmful effects automatically.");return;}
+                if(client.player.getFoodData().getFoodLevel()<=6 && seen.isEmpty() && now>=nextFoodChest
+                        && (food<0 || foodPreference(client,client.player.getInventory().getNonEquipmentItems().get(food),true)<=100)
+                        && startFoodChest(client))return;
+                if(food<0) {nextFood=System.nanoTime()+10_000_000_000L;announce("No suitable food for healing; raw meat is reserved for cooking until hunger reaches 6/20.");return;}
                 if(claim(client)) eat(client,foodSlot(client));
             } else if(autoTrash && seen.isEmpty() && System.nanoTime()>=nextTrash && safeMaintenance(client)
                     && java.util.stream.IntStream.rangeClosed(9,44).filter(i->client.player.inventoryMenu.getSlot(i).getItem().isEmpty()).count()<=4) {
@@ -1362,6 +1451,10 @@ final class SurvivalController {
     }
     private void finish(Minecraft client,String message) {cancel(client);announce(message);}
     void cancel(Minecraft client) {
+        if(mode==Mode.FOOD_CHEST) {
+            if(foodChest.busy())foodChest.cancel();
+            if(client.player==owner && owner.containerMenu instanceof net.minecraft.world.inventory.ChestMenu && owner.containerMenu.getCarried().isEmpty())owner.closeContainer();
+        }
         abortBow(client);
         releaseAttack(client);
         releaseShield(client);

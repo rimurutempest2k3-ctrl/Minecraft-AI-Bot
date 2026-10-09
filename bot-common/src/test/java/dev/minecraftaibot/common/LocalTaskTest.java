@@ -33,6 +33,9 @@ public final class LocalTaskTest {
         verifyDiamondWorkflow();
         check(starter.steps().getFirst().action().equals("food"));
         check(starter.steps().getFirst().role().equals("food"));
+        check(TaskPresets.foodSearchAllowed(0,0));check(TaskPresets.foodSearchAllowed(7,160*160));
+        check(!TaskPresets.foodSearchAllowed(8,0));check(!TaskPresets.foodSearchAllowed(0,160*160+1));
+        check(!TaskPresets.foodSearchAllowed(0,Double.NaN));
         for(String mob:List.of("cow","pig","sheep","chicken")) {
             check(TaskPresets.huntable("minecraft:"+mob,false,false));
             check(!TaskPresets.huntable("minecraft:"+mob,true,false));
