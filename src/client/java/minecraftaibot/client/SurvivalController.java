@@ -143,7 +143,12 @@ final class SurvivalController {
     SurvivalController(BotCore bot,BaritoneController movement,BooleanSupplier interrupt,Consumer<String> notify,BooleanSupplier idleForEquipment) {
         this.bot=bot;this.movement=movement;this.interrupt=interrupt;this.notify=notify;this.idleForEquipment=idleForEquipment;
     }
-    void initialize(Path config) {this.config=config;}
+    private InventoryLayout inventoryLayout=InventoryLayout.defaults();
+    void initialize(Path config) {
+        this.config=config;
+        try {inventoryLayout=InventoryLayout.load(config.resolveSibling("inventory-layout.json"));}
+        catch(Exception failure) {notify.accept("Could not load inventory-layout.json; keeping current layout.");}
+    }
     String lootCommand(String input) {
         if(input.equals("off")) {autoLoot=false;if(mode==Mode.LOOT) cancel(Minecraft.getInstance());return "Proactive looting disabled.";}
         if(input.equals("status")) return "Loot "+(autoLoot?"ON":"OFF")+" | Radius "+loot.radius()+"; death recovery "+RECOVERY_RADIUS+" | bot loot list/on/off/reload. Requires survival ON and bot RUNNING.";
@@ -430,11 +435,12 @@ final class SurvivalController {
             case "on", "reload":
                 if(busy()) return "Survival action active; disable before loading configuration.";
                 try {
+                    var nextLayout=InventoryLayout.load(config.resolveSibling("inventory-layout.json"));
                     var nextSettings=SurvivalPolicy.load(config);
                     var nextBiomes=SurvivalPolicy.loadBiomes(config.resolveSibling("danger-biomes.json"));
                     var nextLootPolicy=SurvivalPolicy.loadLoot(config.resolveSibling("loot-items.json"));
                     var nextTrashPolicy=SurvivalPolicy.loadTrash(config.resolveSibling("trash-items.json"));
-                    settings=nextSettings;biomes=nextBiomes;loot=nextLootPolicy;trash=nextTrashPolicy;scanTicks=5;
+                    inventoryLayout=nextLayout;settings=nextSettings;biomes=nextBiomes;loot=nextLootPolicy;trash=nextTrashPolicy;scanTicks=5;
                     if(input.equals("on")) enabled=true;
                     status="Loaded survival.json and danger-biomes.json; monitoring while bot RUNNING.";return status();
                 }
@@ -446,6 +452,10 @@ final class SurvivalController {
             case "ranged status": return "Bow combat "+(rangedEnabled?"ON":"OFF");
             case "shield on": shieldEnabled=true;nextEquipment=0;return status();
             case "shield off": shieldEnabled=false;releaseShield(Minecraft.getInstance());return status();
+            case "equipment reload":
+                if(busy())return "Wait for survival actions to finish before reloading inventory layout.";
+                try {var next=InventoryLayout.load(config.resolveSibling("inventory-layout.json"));inventoryLayout=next;nextEquipment=0;return "Loaded inventory-layout.json.";}
+                catch(Exception failure){return "Could not load inventory-layout.json; keeping current layout.";}
             case "equipment on": autoEquipment=true;nextEquipment=0;return "Enabled auto armor equipment and hotbar sorting when appropriate.";
             case "equipment off": autoEquipment=false;if(mode==Mode.EQUIP) cancel(Minecraft.getInstance());return "Auto armor equipment disabled.";
             case "equipment status": return "Auto equip "+(autoEquipment?"ON":"OFF")+" | Alerts "+(alerts?"ON":"OFF");
@@ -953,43 +963,16 @@ final class SurvivalController {
         return new SurvivalPolicy.ArmorRating(armor,toughness,protection,special,
                 stack.getMaxDamage()-stack.getDamageValue(),stack.getMaxDamage(),binding,utility);
     }
-    private double hotbarScore(ItemStack stack,int role) {
-        if(stack.isEmpty() || role==5) return -1;
-        int tier=itemId(stack).contains("netherite_")?5:itemId(stack).contains("diamond_")?4:itemId(stack).contains("iron_")?3
-                :itemId(stack).contains("stone_")?2:1;
-        int enchantments=0;
-        boolean suitable=switch(role) {
-            case 0 -> stack.is(ItemTags.SWORDS);
-            case 1 -> stack.is(ItemTags.AXES);
-            case 2 -> stack.is(ItemTags.PICKAXES);
-            case 3 -> stack.is(Items.BOW);
-            case 4 -> stack.is(Items.COBBLESTONE) || stack.is(Items.COBBLED_DEEPSLATE) || stack.is(Items.DIRT)
-                    || stack.is(Items.STONE) || stack.is(Items.NETHERRACK) || stack.is(Items.ANDESITE)
-                    || stack.is(Items.DIORITE) || stack.is(Items.GRANITE) || stack.is(ItemTags.PLANKS);
-            case 6 -> stack.has(DataComponents.FOOD) && !goldenFood(stack) && stack.has(DataComponents.CONSUMABLE)
-                    && stack.get(DataComponents.CONSUMABLE).onConsumeEffects().isEmpty();
-            case 7 -> goldenFood(stack);
-            case 8 -> stack.is(ItemTags.ARROWS);
-            default -> false;
-        };
-        if(!suitable) return -1;
-        for(var enchantment:stack.getEnchantments().entrySet()) {
-            var key=enchantment.getKey();
-            if((role==0 && (key.is(Enchantments.SHARPNESS) || key.is(Enchantments.SMITE)))
-                    || (role==1 || role==2) && key.is(Enchantments.EFFICIENCY)
-                    || role==3 && (key.is(Enchantments.POWER) || key.is(Enchantments.INFINITY))
-                    || key.is(Enchantments.UNBREAKING) || key.is(Enchantments.MENDING)) enchantments+=enchantment.getIntValue();
-        }
-        if(role==3) tier=1;
-        if(role==4) tier=stack.is(Items.COBBLESTONE)?2:1;
-        if(role==6) {
-            var food=stack.get(DataComponents.FOOD);
-            if(food.nutrition()<=0 || stack.get(DataComponents.CONSUMABLE).consumeSeconds()>5) return -1;
-            return food.nutrition()*100+food.saturation()*10+stack.getCount();
-        }
-        if(role==7) tier=stack.is(Items.ENCHANTED_GOLDEN_APPLE)?2:1;
-        if(role==8) tier=stack.is(Items.ARROW)?2:1;
-        return SurvivalPolicy.hotbarScore(tier,enchantments,stack.getMaxDamage()-stack.getDamageValue(),stack.getMaxDamage(),stack.getCount());
+    private InventoryLayout.Facts inventoryFacts(ItemStack stack) {
+        var food=stack.get(DataComponents.FOOD);var consumable=stack.get(DataComponents.CONSUMABLE);
+        boolean regular=food!=null && consumable!=null && !goldenFood(stack) && consumable.onConsumeEffects().isEmpty()
+                && food.nutrition()>0 && consumable.consumeSeconds()<=5;
+        var tags=stack.getItem().builtInRegistryHolder().tags().map(tag->tag.location().toString()).collect(java.util.stream.Collectors.toSet());
+        var enchantments=new HashMap<String,Integer>();
+        for(var entry:stack.getEnchantments().entrySet())entry.getKey().unwrapKey()
+                .ifPresent(key->enchantments.put(key.identifier().toString(),entry.getIntValue()));
+        return new InventoryLayout.Facts(itemId(stack),tags,regular,goldenFood(stack),food==null?0:food.nutrition(),
+                food==null?0:food.saturation(),stack.getMaxDamage()-stack.getDamageValue(),stack.getMaxDamage(),stack.getCount(),enchantments);
     }
     private final class EquipmentMaintenance {
         private int source,armorSlot,staging,stable,ticks;
@@ -1038,14 +1021,22 @@ final class SurvivalController {
             if(busy() || !idleForEquipment.getAsBoolean() || recovering(client)
                     || cached.stream().anyMatch(e->e.threat.distance()<=(e.threat.ranged()?20:8))) return false;
             var menu=client.player.inventoryMenu;
-            for(int index=0;index<9;index++) {
-                int destination=36+index;var current=menu.getSlot(destination).getItem();
-                int best=-1;double bestScore=hotbarScore(current,index);
+            var facts=new InventoryLayout.Facts[45];
+            for(int slot=9;slot<=44;slot++)facts[slot]=inventoryFacts(menu.getSlot(slot).getItem());
+            for(var rule:inventoryLayout.slots()) {
+                if(rule.reserved())continue;
+                int destination=35+rule.slot();var current=menu.getSlot(destination).getItem();
+                double currentScore=rule.score(facts[destination],inventoryLayout.materials());
+                int best=-1;double bestScore=currentScore;
                 for(int slot=9;slot<=44;slot++) {
-                    double score=hotbarScore(menu.getSlot(slot).getItem(),index);
+                    if(slot>=36) {
+                        var assigned=inventoryLayout.slots().get(slot-36);
+                        if(assigned.reserved() || slot<destination && assigned.score(facts[slot],inventoryLayout.materials())>=0)continue;
+                    }
+                    double score=rule.score(facts[slot],inventoryLayout.materials());
                     if(score>=0 && score>bestScore+0.01) {best=slot;bestScore=score;}
                 }
-                if(best<0 && !current.isEmpty() && hotbarScore(current,index)<0) {
+                if(best<0 && !current.isEmpty() && currentScore<0) {
                     for(int slot=9;slot<=35;slot++) if(menu.getSlot(slot).getItem().isEmpty()) {best=slot;break;}
                 }
                 if(best>=0 && best!=destination) {

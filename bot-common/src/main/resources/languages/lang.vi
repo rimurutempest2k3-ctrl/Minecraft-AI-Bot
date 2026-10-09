@@ -1042,6 +1042,9 @@
     "Author & maintainer: ": "Tác giả & người duy trì: ",
     "Source code & community forks": "Mã nguồn & các bản fork cộng đồng",
     "Built with Fabric, Baritone and Google Gson. Minecraft by Mojang Studios.": "Sử dụng Fabric, Baritone và Google Gson. Minecraft do Mojang Studios phát triển.",
-    "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package.": "Cảm ơn người kiểm thử, dịch thuật và đóng góp. Credit đầy đủ nằm trong CREDITS.md của mod và gói phát hành."
+    "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package.": "Cảm ơn người kiểm thử, dịch thuật và đóng góp. Credit đầy đủ nằm trong CREDITS.md của mod và gói phát hành.",
+    "Could not load inventory-layout.json; keeping current layout.": "Không đọc được inventory-layout.json; giữ bố cục hiện tại.",
+    "Wait for survival actions to finish before reloading inventory layout.": "Chờ thao tác sinh tồn kết thúc trước khi nạp lại bố cục hành trang.",
+    "Loaded inventory-layout.json.": "Đã nạp inventory-layout.json."
   }
 }

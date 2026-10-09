@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "materials": {
+    "minecraft:netherite_": 5,
+    "minecraft:diamond_": 4,
+    "minecraft:iron_": 3,
+    "minecraft:stone_": 2
+  },
+  "slots": [
+    {
+      "slot": 1,
+      "tags": [
+        "minecraft:swords"
+      ],
+      "enchantments": {
+        "minecraft:unbreaking": 1,
+        "minecraft:mending": 1,
+        "minecraft:sharpness": 1,
+        "minecraft:smite": 1
+      },
+      "weights": {
+        "quality": 100,
+        "enchantments": 15,
+        "durability": 20,
+        "count": 1
+      }
+    },
+    {
+      "slot": 2,
+      "tags": [
+        "minecraft:axes"
+      ],
+      "enchantments": {
+        "minecraft:unbreaking": 1,
+        "minecraft:mending": 1,
+        "minecraft:efficiency": 1
+      },
+      "weights": {
+        "quality": 100,
+        "enchantments": 15,
+        "durability": 20,
+        "count": 1
+      }
+    },
+    {
+      "slot": 3,
+      "tags": [
+        "minecraft:pickaxes"
+      ],
+      "enchantments": {
+        "minecraft:unbreaking": 1,
+        "minecraft:mending": 1,
+        "minecraft:efficiency": 1
+      },
+      "weights": {
+        "quality": 100,
+        "enchantments": 15,
+        "durability": 20,
+        "count": 1
+      }
+    },
+    {
+      "slot": 4,
+      "items": [
+        "minecraft:bow"
+      ],
+      "enchantments": {
+        "minecraft:unbreaking": 1,
+        "minecraft:mending": 1,
+        "minecraft:power": 1,
+        "minecraft:infinity": 1
+      },
+      "weights": {
+        "quality": 100,
+        "enchantments": 15,
+        "durability": 20,
+        "count": 1
+      }
+    },
+    {
+      "slot": 5,
+      "items": [
+        "minecraft:cobblestone",
+        "minecraft:cobbled_deepslate",
+        "minecraft:dirt",
+        "minecraft:stone",
+        "minecraft:netherrack",
+        "minecraft:andesite",
+        "minecraft:diorite",
+        "minecraft:granite"
+      ],
+      "tags": [
+        "minecraft:planks"
+      ],
+      "enchantments": {
+        "minecraft:unbreaking": 1,
+        "minecraft:mending": 1
+      },
+      "weights": {
+        "quality": 100,
+        "enchantments": 15,
+        "durability": 20,
+        "count": 1
+      },
+      "preferredItems": {
+        "minecraft:cobblestone": 2
+      }
+    },
+    {
+      "slot": 6,
+      "reserved": true
+    },
+    {
+      "slot": 7,
+      "food": "regular",
+      "enchantments": {},
+      "weights": {
+        "nutrition": 100,
+        "saturation": 10,
+        "count": 1
+      }
+    },
+    {
+      "slot": 8,
+      "food": "golden",
+      "enchantments": {
+        "minecraft:unbreaking": 1,
+        "minecraft:mending": 1
+      },
+      "weights": {
+        "quality": 100,
+        "enchantments": 15,
+        "durability": 20,
+        "count": 1
+      },
+      "preferredItems": {
+        "minecraft:enchanted_golden_apple": 2
+      }
+    },
+    {
+      "slot": 9,
+      "tags": [
+        "minecraft:arrows"
+      ],
+      "enchantments": {
+        "minecraft:unbreaking": 1,
+        "minecraft:mending": 1
+      },
+      "weights": {
+        "quality": 100,
+        "enchantments": 15,
+        "durability": 20,
+        "count": 1
+      },
+      "preferredItems": {
+        "minecraft:arrow": 2
+      }
+    }
+  ]
+}

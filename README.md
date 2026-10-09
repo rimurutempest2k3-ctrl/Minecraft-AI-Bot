@@ -29,6 +29,8 @@ The optional Windows console uses `bot-console.bat` and `tools/` from the releas
 package, placed in the game directory. Run `.\bot-console.bat` in PowerShell.
 Java must be available through PATH or JAVA_HOME. The web does not require this console.
 
+Hotbar layout: edit `config/minecraft-ai-bot/inventory-layout.json` and run `bot survival equipment reload`. See [Inventory layout](INVENTORY.md) for the fields and scoring rules.
+
 ## Basic commands
 
 | Command | Purpose |

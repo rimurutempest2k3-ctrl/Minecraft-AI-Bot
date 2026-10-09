@@ -104,5 +104,6 @@ tasks.register('releaseZip', Zip) {
     from('THIRD_PARTY.md')
     from('CREDITS.md')
     from('LICENSE')
+    from('INVENTORY.md')
 }
 

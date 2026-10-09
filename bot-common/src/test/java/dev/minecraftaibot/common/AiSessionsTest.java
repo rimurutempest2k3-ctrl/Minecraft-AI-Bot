@@ -35,6 +35,7 @@ public final class AiSessionsTest {
     }
     public static void main(String[] args) throws Exception {
         I18nTest.run();
+        InventoryLayoutTest.run();
         ChestMemoryTest.run();
         ChestMemoriesTest.run();
         AgentLoopTest.run();

@@ -1042,6 +1042,9 @@
     "Author & maintainer: ": "Author & maintainer: ",
     "Source code & community forks": "Source code & community forks",
     "Built with Fabric, Baritone and Google Gson. Minecraft by Mojang Studios.": "Built with Fabric, Baritone and Google Gson. Minecraft by Mojang Studios.",
-    "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package.": "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package."
+    "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package.": "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package.",
+    "Could not load inventory-layout.json; keeping current layout.": "Could not load inventory-layout.json; keeping current layout.",
+    "Wait for survival actions to finish before reloading inventory layout.": "Wait for survival actions to finish before reloading inventory layout.",
+    "Loaded inventory-layout.json.": "Loaded inventory-layout.json."
   }
 }
