@@ -26,13 +26,24 @@ import java.util.function.*;
 /** JSON local task executor, using vanilla crafting and Baritone only. */
 final class LocalTaskRunner {
     private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot");
-    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT }
+    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT, FOOD_CHEST, FOOD_CROP }
     private final BotCore bot;
     private final BaritoneController movement;
     private final Consumer<String> notify;
     private final ProductionController crafting=new ProductionController();
     private final ProductionController.BlockPlacement placement;
     private final ProductionController.FurnaceRun furnace;
+    private final ChestController foodChest;
+    private final ChestController.MemoryObserver chestMemory;
+    private int foodFallbackStep=-1,foodFallbackStage,checkedFoodChests;
+    private final Set<BlockPos> checkedFoodSources=new HashSet<>();
+    private BlockPos foodSource,foodFallbackOrigin;
+    private Item cropItem;
+    private boolean transferringFood,cropBroken;
+    private int cropClicks;
+    private int foodTransferBefore;
+    private long sourceUntil,nextCropClick;
+    private List<BlockPos> cropCandidates=List.of();
     private Animal prey;
     private Vec3 huntOrigin,lastKill;
     private Vec3 huntSearchOrigin;
@@ -128,7 +139,7 @@ final class LocalTaskRunner {
         for(int i=0;i<initiallySatisfied.length;i++)initiallySatisfied[i]=workflowMode.equals("ensure") && supplyCount(client,starter.steps().get(i))>=starter.steps().get(i).count();
         boolean finished=workflowMode.equals("ensure") && workflow.goal()!=null && workflow.goal().satisfied(supplyCount(client,starter.steps().getLast()));
         if(finished)Arrays.fill(initiallySatisfied,true);
-        supplyIndex=finished?starter.steps().size():0;clock=batches=0;started=System.nanoTime();active=true;
+        supplyIndex=finished?starter.steps().size():0;clock=batches=0;started=System.nanoTime();active=true;foodFallbackStep=-1;
         change(Phase.PLAN,finished?"Goal already satisfied for "+workflowTitle+"; skipping all preparation steps."
                 :"Running "+workflowTitle+" ("+workflowFile+") | Mode: "+workflowMode+".");return status;
     }
@@ -190,7 +201,7 @@ final class LocalTaskRunner {
         return ownedCount(client,id)>0;
     }
     private static final List<String> WOODS=List.of("oak","birch","spruce","jungle","acacia","dark_oak","mangrove","cherry","pale_oak");
-    LocalTaskRunner(BotCore bot,BaritoneController movement,ProductionController.BlockPlacement placement,ProductionController.FurnaceRun furnace,Consumer<String> notify) { this.bot=bot;this.movement=movement;this.placement=placement;this.furnace=furnace;this.notify=notify; }
+    LocalTaskRunner(BotCore bot,BaritoneController movement,ProductionController.BlockPlacement placement,ProductionController.FurnaceRun furnace,ChestController foodChest,ChestController.MemoryObserver chestMemory,Consumer<String> notify) { this.bot=bot;this.movement=movement;this.placement=placement;this.furnace=furnace;this.foodChest=foodChest;this.chestMemory=chestMemory;this.notify=notify; }
     boolean busy() { return active; }
     String status() { return status; }
     String start(String taskName,int quantity) {
@@ -264,11 +275,17 @@ final class LocalTaskRunner {
         releaseHuntAttack(client);
         if(!active) return;
         if(client.player!=owner || client.level!=world || !owner.isAlive() || bot.state()!=BotState.RUNNING) { cancel("Local stopped: world/player changed, player died or bot state changed.");return; }
+        if(phase==Phase.HUNT && System.nanoTime()-phaseStarted>180_000_000_000L) beginFoodFallback(client,"Animal search timed out.");
         if(System.nanoTime()-started>(starter==null?900_000_000_000L:1_800_000_000_000L)
                 || System.nanoTime()-phaseStarted>(phase==Phase.SMELT?900_000_000_000L:180_000_000_000L)) { cancel("Local stopped: current step timed out.");return; }
         if(client.isPaused() || client.gui.overlay()!=null) return;
         try {
             if(phase==Phase.HUNT) {huntTick(client);return;}
+            if((phase==Phase.FOOD_CHEST || phase==Phase.FOOD_CROP) && !world.getEntitiesOfClass(Mob.class,owner.getBoundingBox().inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty()) {
+                cancel("Food gathering stopped: hostile mob nearby; survival takes priority.");return;
+            }
+            if(phase==Phase.FOOD_CHEST) {foodChestTick(client);return;}
+            if(phase==Phase.FOOD_CROP) {foodCropTick(client);return;}
             if(phase==Phase.SMELT) {
                 if(furnace.busy()) {status="Smelting: "+furnace.status();return;}
                 if(count(craftedItem)<=craftedBefore) {cancel("Smelting unsuccessful: "+furnace.status());return;}
@@ -512,7 +529,7 @@ final class LocalTaskRunner {
         return result;
     }
     void cancel(String reason) {
-        if(!active) return;active=false;if(starter!=null)workflowState="CANCELLED";releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();furnace.cancel(Minecraft.getInstance(),"Local task smelting canceled.");placement.cancel("Local task table placement canceled.");crafting.cancel(Minecraft.getInstance());
+        if(!active) return;active=false;if(starter!=null)workflowState="CANCELLED";closeFoodChest(Minecraft.getInstance());releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();furnace.cancel(Minecraft.getInstance(),"Local task smelting canceled.");placement.cancel("Local task table placement canceled.");crafting.cancel(Minecraft.getInstance());
         if(owner!=null && Minecraft.getInstance().player==owner) owner.getInventory().setSelectedSlot(oldSelected);
         status=reason+" If items remain on the crafting grid/cursor, store them; items will not be dropped automatically.";LOG.warn("{}",status);notify.accept(status);
     }
@@ -523,9 +540,11 @@ final class LocalTaskRunner {
     }
     private int rawMeat() {return count(s->MEATS.containsKey(BuiltInRegistries.ITEM.getKey(s.getItem()).toString()));}
     private void planFood(Minecraft client,TaskPresets.Supply step) {
+        if(foodFallbackStep!=supplyIndex) {foodFallbackStep=supplyIndex;foodFallbackStage=0;checkedFoodChests=0;checkedFoodSources.clear();foodSource=null;}
         int missing=step.count()-supplyProgress(client,supplyIndex);
         if(missing<=0) return;
         String raw=MEATS.keySet().stream().filter(id->count(requiredItem(id))>0).max(Comparator.comparingInt(id->count(requiredItem(id)))).orElse(null);
+        if(raw==null && count(Items.POTATO)>0)raw="minecraft:potato";
         // Cook existing meat immediately instead of requiring the entire hunting quota first.
         if(raw!=null) {
             if(count(Items.FURNACE)==0 && !furnace.nearby(client,"furnace")) {prepareRecipe(client,starter.recipes().get("furnace"),new HashSet<>());return;}
@@ -537,11 +556,16 @@ final class LocalTaskRunner {
                 if(count(stack.getItem())>=needed) {fuel=stack;break;}
             }
             if(fuel==null) {prepareRecipe(client,starter.recipes().get("planks"),new HashSet<>());return;}
-            closeForMovement();craftedItem=requiredItem(MEATS.get(raw));craftedBefore=count(craftedItem);
+            closeForMovement();craftedItem=raw.equals("minecraft:potato")?Items.BAKED_POTATO:requiredItem(MEATS.get(raw));craftedBefore=count(craftedItem);
             String response=furnace.start(client,"furnace",raw,batch,BuiltInRegistries.ITEM.getKey(fuel.getItem()).toString());
             if(!furnace.busy()) throw new IllegalArgumentException(response);
             change(Phase.SMELT,"Cook food before going underground: "+response);return;
         }
+        if(count(Items.WHEAT)>=3) {
+            var bread=starter.recipes().values().stream().filter(r->r.output().equals("minecraft:bread")).findFirst().orElseThrow(()->new IllegalArgumentException("No bread recipe in task recipes."));
+            prepareRecipe(client,bread,new HashSet<>());return;
+        }
+        if(foodFallbackStage>0) {nextFoodSource(client);return;}
         if(huntWeapon()<0) {prepareRecipe(client,starter.recipes().get("wooden_sword"),new HashSet<>());return;}
         closeForMovement();movement.stop();restoreShallow();
         prey=null;lastKill=null;skippedPrey.clear();huntOrigin=owner.position();nextHuntPath=killUntil=0;huntAligned=0;
@@ -573,7 +597,7 @@ final class LocalTaskRunner {
     }
     private void huntTick(Minecraft client) {
         long now=System.nanoTime();
-        if(owner.position().distanceToSqr(huntSearchOrigin)>160*160) {cancel("Food search stopped at the 160-block exploration limit.");return;}
+        if(owner.position().distanceToSqr(huntSearchOrigin)>160*160) {beginFoodFallback(client,"Animal search reached its exploration limit.");return;}
         if(!world.getEntitiesOfClass(Mob.class,owner.getBoundingBox().inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty()) {
             cancel("Hunting stopped: hostile mob nearby; survival takes priority.");return;
         }
@@ -622,7 +646,7 @@ final class LocalTaskRunner {
         }
     }
     private void searchFoodArea(long now) {
-        if(!TaskPresets.foodSearchAllowed(foodSearchMoves,owner.position().distanceToSqr(huntSearchOrigin))) {cancel("No animals found after checking eight areas; food search stopped.");return;}
+        if(!TaskPresets.foodSearchAllowed(foodSearchMoves,owner.position().distanceToSqr(huntSearchOrigin))) {beginFoodFallback(Minecraft.getInstance(),"No animals found after eight search areas.");return;}
         var origin=owner.blockPosition();
         int[][] offsets={{32,0},{23,23},{0,32},{-23,23},{-32,0},{-23,-23},{0,-32},{23,-23}};
         for(int i=0;i<offsets.length;i++) {
@@ -642,9 +666,130 @@ final class LocalTaskRunner {
                 notify.accept("Local: no animals nearby; searching another area ("+foodSearchMoves+"/8).");return;
             }
         }
-        cancel("No loaded safe route to another food search area; bring food or explore more terrain.");
+        beginFoodFallback(Minecraft.getInstance(),"No safe loaded route to another animal search area.");
     }
     private void releaseHuntAttack(Minecraft client) {if(huntAttack) {client.options.keyAttack.consumeClick();huntAttack=false;}}
+    private void beginFoodFallback(Minecraft client,String reason) {
+        releaseHunting(client);movement.stop();foodFallbackStage=1;foodFallbackOrigin=owner.blockPosition();
+        change(Phase.PLAN,reason+" Checking food chests within 100 blocks, then mature crops.");
+    }
+    private boolean safeFoodSource(BlockPos pos) {
+        return world.hasChunkAt(pos) && SurvivalPolicy.foodChestWithinRange(pos.distSqr(owner.blockPosition()))
+                && SurvivalPolicy.foodChestWithinRange(pos.distSqr(foodFallbackOrigin))
+                && !world.getBiome(pos).unwrapKey().map(k->k.identifier().toString().equals("minecraft:deep_dark")).orElse(false)
+                && world.getEntitiesOfClass(Mob.class,new AABB(pos).inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty();
+    }
+    private boolean usableTaskFood(ItemStack stack) {
+        var food=stack.get(net.minecraft.core.component.DataComponents.FOOD);
+        var use=stack.get(net.minecraft.core.component.DataComponents.CONSUMABLE);
+        return food!=null && food.nutrition()>=4 && use!=null && use.onConsumeEffects().isEmpty();
+    }
+    private boolean convertibleFood(ItemStack stack) {return MEATS.containsKey(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString()) || stack.is(Items.POTATO) || stack.is(Items.WHEAT);}
+    private void nextFoodSource(Minecraft client) {
+        closeForMovement();
+        if(foodFallbackStage==1) {
+            var candidates=new HashMap<BlockPos,Integer>();
+            for(var element:chestMemory.webSnapshot(client).getAsJsonArray("entries")) {
+                var entry=element.getAsJsonObject();int known=0;
+                for(var slotElement:entry.getAsJsonArray("slots")) {
+                    var slot=slotElement.getAsJsonObject();if(!slot.has("item") || !slot.has("count") || slot.get("count").getAsInt()<=0)continue;
+                    var id=net.minecraft.resources.Identifier.tryParse(slot.get("item").getAsString());
+                    var item=id==null?Optional.<Item>empty():BuiltInRegistries.ITEM.getOptional(id);
+                    if(item.isPresent()) {var stack=new ItemStack(item.get());if(usableTaskFood(stack))known=2;else if(convertibleFood(stack))known=Math.max(known,1);}
+                }
+                if(known==0)continue;
+                for(var position:entry.getAsJsonArray("positions")) {var p=position.getAsJsonObject();candidates.put(new BlockPos(p.get("x").getAsInt(),p.get("y").getAsInt(),p.get("z").getAsInt()),known);}
+            }
+            var origin=owner.blockPosition();
+            for(int x=(origin.getX()-100)>>4;x<=(origin.getX()+100)>>4;x++)for(int z=(origin.getZ()-100)>>4;z<=(origin.getZ()+100)>>4;z++) {
+                var chunk=world.getChunkSource().getChunk(x,z,net.minecraft.world.level.chunk.status.ChunkStatus.FULL,false);
+                if(chunk!=null)for(var pos:chunk.getBlockEntities().keySet())if(world.getBlockState(pos).getBlock() instanceof net.minecraft.world.level.block.ChestBlock)candidates.putIfAbsent(pos,0);
+            }
+            foodSource=checkedFoodChests>=8?null:candidates.keySet().stream().filter(p->!checkedFoodSources.contains(p) && safeFoodSource(p))
+                    .min(Comparator.<BlockPos>comparingInt(p->-candidates.get(p)).thenComparingDouble(p->p.distSqr(origin))).orElse(null);
+            if(foodSource!=null) {
+                checkedFoodSources.add(foodSource);checkedFoodChests++;transferringFood=false;sourceUntil=System.nanoTime()+30_000_000_000L;
+                var state=world.getBlockState(foodSource);
+                if(state.hasProperty(net.minecraft.world.level.block.ChestBlock.TYPE) && state.getValue(net.minecraft.world.level.block.ChestBlock.TYPE)!=net.minecraft.world.level.block.state.properties.ChestType.SINGLE)
+                    checkedFoodSources.add(foodSource.relative(net.minecraft.world.level.block.ChestBlock.getConnectedDirection(state)));
+                String response=foodChest.execute("open "+foodSource.getX()+" "+foodSource.getY()+" "+foodSource.getZ());
+                change(Phase.FOOD_CHEST,"Local: checking a fallback food chest. "+response);return;
+            }
+            foodFallbackStage=2;
+            var crops=new ArrayList<BlockPos>();
+            for(var pos:BlockPos.betweenClosed(origin.offset(-32,-6,-32),origin.offset(32,6,32)))
+                if(world.hasChunkAt(pos) && matureFoodCrop(pos))crops.add(pos.immutable());
+            cropCandidates=crops.stream().sorted(Comparator.comparingDouble(p->p.distSqr(origin))).limit(64).toList();
+            notify.accept("Local: no more suitable food chests; checking mature wheat and potatoes.");
+        }
+        foodSource=cropCandidates.stream().filter(p->!checkedFoodSources.contains(p) && matureFoodCrop(p) && safeFoodSource(p)).findFirst().orElse(null);
+        if(foodSource==null) {
+            cancel("Food sources exhausted: animals, nearby chests and mature crops could not supply enough food. Bring food or move to another area, then run the task again. Survival remains active.");return;
+        }
+        checkedFoodSources.add(foodSource);cropItem=world.getBlockState(foodSource).is(Blocks.WHEAT)?Items.WHEAT:Items.POTATO;
+        cropBroken=false;cropClicks=0;nextCropClick=0;sourceUntil=System.nanoTime()+25_000_000_000L;
+        var settings=baritone.api.BaritoneAPI.getSettings();huntBreak=settings.allowBreak.value;huntPlace=settings.allowPlace.value;settings.allowBreak.value=false;settings.allowPlace.value=false;
+        movement.approachBlock(foodSource,"mature food crop");change(Phase.FOOD_CROP,"Local: approaching a mature food crop.");
+    }
+    private boolean matureFoodCrop(BlockPos pos) {
+        var state=world.getBlockState(pos);
+        return (state.is(Blocks.WHEAT) || state.is(Blocks.POTATOES)) && ((net.minecraft.world.level.block.CropBlock)state.getBlock()).isMaxAge(state);
+    }
+    private void closeFoodChest(Minecraft client) {
+        if(phase!=Phase.FOOD_CHEST)return;
+        if(foodChest.busy())foodChest.cancel();
+        if(client.player==owner && owner.containerMenu instanceof ChestMenu && owner.containerMenu.getCarried().isEmpty())owner.closeContainer();
+    }
+    private void foodChestTick(Minecraft client) {
+        if(System.nanoTime()>sourceUntil) {closeFoodChest(client);change(Phase.PLAN,"Food chest timed out; checking another source.");return;}
+        if(foodChest.busy())return;
+        if(transferringFood) {
+            int actual=count(s->usableTaskFood(s) || convertibleFood(s));
+            boolean progress=actual>foodTransferBefore;
+            if(progress && rawMeat()==0 && count(Items.POTATO)==0 && count(Items.WHEAT)<3
+                    && supplyProgress(client,supplyIndex)<starter.steps().get(supplyIndex).count()) {transferringFood=false;sourceUntil=System.nanoTime()+30_000_000_000L;}
+            else {
+                if(progress)checkedFoodSources.removeIf(p->p.distSqr(foodSource)<=1);
+                closeFoodChest(client);change(Phase.PLAN,"Food transfer finished; checking actual inventory.");return;
+            }
+        }
+        if(!(owner.containerMenu instanceof ChestMenu menu)) {change(Phase.PLAN,"Food chest unavailable; checking another source.");return;}
+        int best=-1,score=0;
+        for(int i=0;i<menu.getRowCount()*9;i++) {var stack=menu.getSlot(i).getItem();int rating=usableTaskFood(stack)?2:convertibleFood(stack)?1:0;if(rating>score) {best=i;score=rating;}}
+        if(best<0) {closeFoodChest(client);change(Phase.PLAN,"No suitable food in chest; checking another source.");return;}
+        var stack=menu.getSlot(best).getItem();int missing=starter.steps().get(supplyIndex).count()-supplyProgress(client,supplyIndex);
+        int requested=stack.is(Items.WHEAT)?Math.min(64,missing*3):missing;
+        foodTransferBefore=count(s->usableTaskFood(s) || convertibleFood(s));
+        String response=foodChest.execute("take "+BuiltInRegistries.ITEM.getKey(stack.getItem())+" "+Math.min(stack.getCount(),requested));
+        transferringFood=foodChest.busy();
+        if(!transferringFood) {closeFoodChest(client);change(Phase.PLAN,"Food transfer unavailable; checking another source. "+response);}
+    }
+    private void foodCropTick(Minecraft client) {
+        long now=System.nanoTime();
+        if(now>sourceUntil) {releaseHunting(client);movement.stop();change(Phase.PLAN,"Crop harvest timed out; checking another source.");return;}
+        if(client.gui.screen()!=null || owner.containerMenu!=owner.inventoryMenu || owner.isUsingItem())return;
+        if(cropBroken) {
+            var drop=world.getEntitiesOfClass(ItemEntity.class,new AABB(foodSource).inflate(6),e->e.isAlive() && e.getItem().is(cropItem)).stream().min(Comparator.comparingDouble(owner::distanceToSqr)).orElse(null);
+            if(drop!=null) {huntPath(drop.blockPosition(),now);return;}
+            if(now<nextCropClick)return;
+            releaseHunting(client);movement.stop();change(Phase.PLAN,"Crop harvest finished; checking collected ingredients.");return;
+        }
+        if(!matureFoodCrop(foodSource)) {
+            cropBroken=true;movement.stop();sourceUntil=Math.min(sourceUntil,now+8_000_000_000L);nextCropClick=now+2_000_000_000L;return;
+        }
+        if(client.getCameraEntity()!=owner || client.options.keyAttack.isUnbound() || client.options.keyAttack.isDown())return;
+        Vec3 delta=Vec3.atCenterOf(foodSource).subtract(owner.getEyePosition());
+        float yaw=(float)Math.toDegrees(Math.atan2(delta.z,delta.x))-90,pitch=(float)-Math.toDegrees(Math.atan2(delta.y,Math.hypot(delta.x,delta.z)));
+        owner.setYRot(owner.getYRot()+Mth.clamp(Mth.wrapDegrees(yaw-owner.getYRot()),-15f,15f));owner.setXRot(Mth.clamp(owner.getXRot()+Mth.clamp(pitch-owner.getXRot(),-10f,10f),-90f,90f));
+        var hit=reachable(foodSource);
+        if(hit!=null) {
+            movement.stop();
+            if(now>=nextCropClick && client.hitResult instanceof BlockHitResult pointed && pointed.getBlockPos().equals(foodSource)) {
+                if(cropClicks++>=3) {releaseHunting(client);change(Phase.PLAN,"Crop harvest was not confirmed; skipping this crop.");return;}
+                KeyMapping.click(InputConstants.getKey(client.options.keyAttack.saveString()));huntAttack=true;nextCropClick=now+1_000_000_000L;
+            }
+        } else if(now>=nextHuntPath) {movement.approachBlock(foodSource,"mature food crop");nextHuntPath=now+2_000_000_000L;}
+    }
     private void releaseHunting(Minecraft client) {
         releaseHuntAttack(client);prey=null;
         if(huntBreak!=null) {var settings=baritone.api.BaritoneAPI.getSettings();settings.allowBreak.value=huntBreak;settings.allowPlace.value=huntPlace;huntBreak=huntPlace=null;}

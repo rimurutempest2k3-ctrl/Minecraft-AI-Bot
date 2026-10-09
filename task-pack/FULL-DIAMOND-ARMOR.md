@@ -10,7 +10,7 @@ On the web, open Tasks, reload the folder, select the file, preview the steps an
 
 Keep survival assistance, automatic armor and shield equipment enabled. A nearby furnace can be reused for smelting. Mining needs a usable pickaxe of the required tier, reachable resources and server permissions. Task timeouts and survival interruptions remain active. Automated checks pass; the complete in-game workflow has not yet been verified.
 
-Food search moves between loaded, safe areas when no suitable animals are nearby (up to eight moves and 160 blocks from the search origin). Raw meat is kept for cooking. Automatic eating uses safe food when injured; at hunger 6/20 or lower it allows raw food, with rotten flesh as a fallback. Suitable food may be retrieved from chests within 100 blocks when no hostile mobs are nearby.
+Food search moves between loaded, safe areas when no suitable animals are nearby (up to eight moves and 160 blocks from the search origin). Raw meat is kept for cooking. Automatic eating uses safe food when injured; at hunger 6/20 or lower it allows raw food, with rotten flesh as a fallback. Suitable food may be retrieved from chests within 100 blocks when no hostile mobs are nearby. After animal search is exhausted, the task checks up to eight chest approaches, then up to 64 mature wheat/potato crops within 32 blocks in loaded terrain. Wheat is crafted into bread using task recipes; potatoes are cooked using furnace rules. If food is still missing, the task stops with a message while enabled survival assistance continues. Run the task again after supplying food or changing area.
 
 ## Tiếng Việt
 
@@ -22,3 +22,5 @@ Trong web, vào **Nhiệm vụ → Đọc lại thư mục**, chọn file rồi 
 
 Đã kiểm tra tự động và build; chưa thử hoàn tất toàn bộ chuỗi trong game.
 Khi không thấy thú phù hợp, bot di chuyển tìm ở các khu vực đã tải và an toàn, tối đa tám lần và cách điểm bắt đầu 160 khối. Thịt sống được giữ để nấu. Bot ăn thức ăn an toàn khi mất máu; khi đói còn 6/20 mới dùng thịt sống và dùng thịt thối sau cùng. Có thể lấy thức ăn phù hợp từ rương trong 100 khối khi không có quái ở gần.
+
+Nếu tìm thú thất bại, nhiệm vụ thử rương trong 100 khối (tối đa tám lần tiếp cận), rồi tìm tối đa 64 cây lúa mì/khoai tây đã chín trong 32 khối ở địa hình đã tải. Bot chế bánh mì theo công thức của task hoặc nấu khoai theo dữ liệu lò nung. Nếu vẫn thiếu, nhiệm vụ báo lý do và dừng, bộ sinh tồn đang bật tiếp tục hoạt động. Mang thêm thức ăn hoặc chuyển khu vực rồi chạy lại task.
