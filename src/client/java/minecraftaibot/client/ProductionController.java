@@ -162,7 +162,7 @@ final class ProductionController {
         }
         private void attempt(Minecraft client) {
             target=null;stableTicks=0;BlockHitResult hit=null;BlockPos origin=owner.blockPosition();double best=Double.MAX_VALUE;
-            for(BlockPos pos:BlockPos.betweenClosed(origin.offset(-2,-1,-2),origin.offset(2,0,2))) {
+            for(BlockPos pos:BlockPos.betweenClosed(origin.offset(-2,-2,-2),origin.offset(2,1,2))) {
                 if(attempted.contains(pos)) continue;
                 BlockHitResult candidate=placementHit(pos);double distance=owner.position().distanceToSqr(Vec3.atCenterOf(pos));
                 if(candidate!=null && distance<best) {target=pos.immutable();hit=candidate;best=distance;}
@@ -201,19 +201,33 @@ final class ProductionController {
         }
         private boolean safeStanding(PlacementRecovery.Cell cell) {
             BlockPos pos=new BlockPos(cell.x(),cell.y(),cell.z());
-            if(!world.hasChunkAt(pos) || !world.getBlockState(pos).isAir() || !world.getBlockState(pos.above()).isAir()) return false;
+            if(!world.hasChunkAt(pos) || !world.getFluidState(pos).isEmpty() || !world.getFluidState(pos.above()).isEmpty()) return false;
             var floor=world.getBlockState(pos.below());
             if(!floor.isCollisionShapeFullBlock(world,pos.below()) || floor.getBlock() instanceof EntityBlock || floor.is(Blocks.MAGMA_BLOCK)) return false;
-            Vec3 delta=new Vec3(pos.getX()+0.5-owner.getX(),0,pos.getZ()+0.5-owner.getZ());
-            return world.noCollision(owner,owner.getBoundingBox().expandTowards(delta));
+            if(world.getBiome(pos).unwrapKey().map(k->k.identifier().toString().equals("minecraft:deep_dark")).orElse(false)
+                    || !world.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,new AABB(pos).inflate(12),m->m instanceof net.minecraft.world.entity.monster.Enemy && m.isAlive()).isEmpty())return false;
+            Vec3 delta=new Vec3(pos.getX()+0.5-owner.getX(),pos.getY()-owner.getY(),pos.getZ()+0.5-owner.getZ());
+            // Validate the destination body; Baritone owns the route around trees and steps.
+            return world.noCollision(owner,owner.getBoundingBox().move(delta)) && hasPlacementCell(pos);
+        }
+        private boolean hasPlacementCell(BlockPos origin) {
+            for(var pos:BlockPos.betweenClosed(origin.offset(-2,-1,-2),origin.offset(2,0,2))) {
+                var floor=world.getBlockState(pos.below());
+                if(world.hasChunkAt(pos) && world.getBlockState(pos).isAir() && !pos.equals(origin)
+                        && floor.isCollisionShapeFullBlock(world,pos.below()) && !(floor.getBlock() instanceof EntityBlock)
+                        && !floor.is(Blocks.MAGMA_BLOCK))return true;
+            }
+            return world.noCollision(owner,new AABB(origin.getX()+0.2,origin.getY(),origin.getZ()+0.2,origin.getX()+0.8,origin.getY()+3.1,origin.getZ()+0.8));
         }
         private void relocate(Minecraft client) {
             BlockPos origin=owner.blockPosition();
-            var chosen=recovery.choose(new PlacementRecovery.Cell(origin.getX(),origin.getY(),origin.getZ()),this::safeStanding);
-            if(chosen.isEmpty()) {cancel("No suitable position 1–2 blocks away to retry placement.");return;}
+            var center=new PlacementRecovery.Cell(origin.getX(),origin.getY(),origin.getZ());
+            var chosen=recovery.choose(center,this::safeStanding,2,2);
+            if(chosen.isEmpty())chosen=recovery.choose(center,this::safeStanding,8,3);
+            if(chosen.isEmpty()) {cancel("No safe loaded placement position within eight blocks; move to open ground and retry.");return;}
             var cell=chosen.get();destination=new BlockPos(cell.x(),cell.y(),cell.z());movement.execute("goto "+cell.x()+" "+cell.y()+" "+cell.z());
             if(!movement.busy()) {cancel("Could not start approaching the placement position.");return;}
-            begin(Phase.MOVE,15);announce("Block placement relocation attempt "+recovery.moves()+"/2: Baritone approaching "+destination.toShortString()+" (1–2 blocks away).");
+            begin(Phase.MOVE,20);announce("Block placement relocation attempt "+recovery.moves()+"/2: Baritone approaching "+destination.toShortString()+"; checking nearby elevations and routes around obstacles.");
         }
         void tick(Minecraft client) {
             if(!busy()) return;

@@ -2,6 +2,8 @@
   "version": 1,
   "language": "en",
   "messages": {
+    "No safe loaded placement position within eight blocks; move to open ground and retry.": "No safe loaded placement position within eight blocks; move to open ground and retry.",
+    "; checking nearby elevations and routes around obstacles.": "; checking nearby elevations and routes around obstacles.",
     " Checking food chests within 100 blocks, then mature crops.": " Checking food chests within 100 blocks, then mature crops.",
     "Animal search timed out.": "Animal search timed out.",
     "Animal search reached its exploration limit.": "Animal search reached its exploration limit.",

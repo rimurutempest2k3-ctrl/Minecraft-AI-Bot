@@ -2,6 +2,8 @@
   "version": 1,
   "language": "vi",
   "messages": {
+    "No safe loaded placement position within eight blocks; move to open ground and retry.": "Không có chỗ đặt an toàn đã tải trong tám khối; chuyển tới nơi thoáng rồi thử lại.",
+    "; checking nearby elevations and routes around obstacles.": "; kiểm tra bậc cao/thấp và đường vòng quanh vật cản.",
     " Checking food chests within 100 blocks, then mature crops.": " Kiểm tra rương thức ăn trong 100 khối, sau đó tìm cây trồng đã chín.",
     "Animal search timed out.": "Đã hết thời gian tìm thú.",
     "Animal search reached its exploration limit.": "Tìm thú đã đạt giới hạn khoảng cách.",
