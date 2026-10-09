@@ -42,8 +42,30 @@ public final class TaskPresets {
         workflowCache.clear();
         for(String name:List.of("minecraft-recipes-26.2.json","furnace-rules-26.2.json","task-recipes.json","mining-rules.json"))
             installCoreData(path.toAbsolutePath().getParent(),name);
+        installDefault(path,"local-tasks.json");
         ProductionPlan.initialize(path.resolveSibling("production-tasks.json"));
         Path directory=workflowDirectory();Files.createDirectories(directory);
+        try(InputStream in=TaskPresets.class.getResourceAsStream("/defaults/task-files.txt")) {
+            if(in==null)throw new IOException("Missing bundled task index");
+            for(String name:new String(in.readAllBytes(),StandardCharsets.UTF_8).split("\\R")) {
+                if(name.isBlank())continue;
+                if(!workflowFilename(name) || !name.endsWith(".taskbot"))throw new IOException("Invalid bundled task filename");
+                Path legacy=directory.resolve(name.substring(0,name.length()-8)+".json");
+                if(!Files.exists(legacy,LinkOption.NOFOLLOW_LINKS))installDefault(directory.resolve(name),"tasks/"+name);
+            }
+        }
+    }
+    /** Seed absent files only; keep customized, malformed and legacy files untouched. */
+    static void installDefault(Path target,String resource) throws IOException {
+        if(Files.exists(target,LinkOption.NOFOLLOW_LINKS))return;
+        try(InputStream in=TaskPresets.class.getResourceAsStream("/defaults/"+resource)) {
+            if(in==null)throw new IOException("Missing bundled default: "+resource);
+            Path temporary=Files.createTempFile(target.toAbsolutePath().getParent(),".default-",".tmp");
+            try {
+                Files.copy(in,temporary,StandardCopyOption.REPLACE_EXISTING);
+                try {Files.move(temporary,target);}catch(FileAlreadyExistsException concurrentInstall) { /* Preserve existing data. */ }
+            }finally {Files.deleteIfExists(temporary);}
+        }
     }
     /** Preserve user data when upgrading; bundled defaults are only for missing core data. */
     private static void installCoreData(Path config,String name) throws IOException {

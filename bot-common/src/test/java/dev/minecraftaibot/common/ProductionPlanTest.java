@@ -41,8 +41,8 @@ public final class ProductionPlanTest {
         }
         var folder=java.nio.file.Files.createTempDirectory("production-task-test");
         var file=folder.resolve("production-tasks.json");
-        ProductionPlan.initialize(file);check(!java.nio.file.Files.exists(file));
-        try {ProductionPlan.tasks();throw new AssertionError("Missing tasks silently restored");}catch(IllegalArgumentException expected) {}
+        ProductionPlan.initialize(file);check(java.nio.file.Files.exists(file));
+        check(!ProductionPlan.tasks().isEmpty());
         java.nio.file.Files.writeString(file,json);ProductionPlan.initialize(file);
         check(ProductionPlan.tasks().containsKey("smelt_custom"));
         java.nio.file.Files.writeString(file,new com.google.gson.Gson().toJson(Map.of("version",1,"tasks",defaults)));

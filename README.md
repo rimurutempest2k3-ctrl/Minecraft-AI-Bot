@@ -18,8 +18,8 @@ Use `baritone-api-fabric-1.19.0.jar`. Remove older Baritone JARs from the active
 
 1. Create a Fabric 26.2 profile in your launcher and locate its game directory.
 2. Copy the bot JAR, Fabric API and Baritone into its `mods/` folder.
-3. Copy the release package's `config/` folder into the game directory.
-   Preserve your customized files when upgrading.
+3. The mod creates missing default configuration and task files on startup.
+   The ZIP includes an editable copy too; preserve customized files when upgrading.
 4. Start Minecraft and enter a world.
 5. Open the address in `bot-web-url.txt` in your browser.
    It is usually `http://127.0.0.1:8765`.
@@ -74,7 +74,7 @@ AI tùy chọn và điều khiển trên web local.
 
 1. Cài Minecraft 26.2 với Fabric Loader 0.19.5+, Java 25+, Fabric API và [Baritone API Fabric 1.19.0](https://github.com/cabaletta/baritone/releases/download/v1.19.0/baritone-api-fabric-1.19.0.jar).
 2. Chép các JAR vào `mods/` của đúng thư mục game trong launcher.
-3. Chép `config/` từ gói phát hành vào thư mục game; giữ cấu hình riêng khi nâng cấp.
+3. Mod tự tạo cấu hình và nhiệm vụ mặc định còn thiếu khi khởi động. ZIP cũng có bản để chỉnh sửa; giữ cấu hình riêng khi nâng cấp.
 4. Vào thế giới, mở địa chỉ trong `bot-web-url.txt`, bật bot và chọn nhiệm vụ trên web.
 
 Nhiệm vụ ở `config/minecraft-ai-bot/tasks/`. Bấm Duyệt file nhiệm vụ trên web để nhập `.taskbot` hoặc `.json` cũ (tối đa 256 KB); file được kiểm tra, lưu thành `.taskbot`, không ghi đè và không tự chạy. Nội dung vẫn là JSON; công thức và cấu hình khác giữ đuôi `.json`. Chọn file, xem trước rồi bấm Khởi chạy.
