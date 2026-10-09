@@ -232,7 +232,9 @@ public final class LocalTaskTest {
             String json=new String(source.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
             var workflow=TaskPresets.parseWorkflow("full-diamond-armor.taskbot",json);
             var steps=workflow.plan().steps();
-            check(steps.stream().filter(s->s.item().equals("minecraft:diamond") && s.action().equals("mine")).mapToInt(TaskPresets.Supply::count).sum()==24);
+            check(workflow.mode().equals("collect"));
+            check(steps.stream().allMatch(s->s.skipIf()==null));
+            check(steps.stream().filter(s->s.item().equals("minecraft:diamond") && s.action().equals("mine")).mapToInt(TaskPresets.Supply::count).sum()==35);
             var smelt=steps.stream().filter(s->s.action().equals("smelt")).findFirst().orElseThrow();
             check(smelt.item().equals("minecraft:iron_ingot") && smelt.input().equals("minecraft:raw_iron") && smelt.count()==30);
             int cost=0;
@@ -241,9 +243,17 @@ public final class LocalTaskTest {
                 var recipe=workflow.plan().recipes().values().stream().filter(r->r.output().equals(armor)).findFirst().orElseThrow();
                 cost+=recipe.cells().size();check(recipe.cells().stream().allMatch(c->c.ingredient().equals("minecraft:diamond")));
                 check(steps.stream().anyMatch(s->s.item().equals(armor) && s.action().equals("craft")));
-                check(steps.stream().anyMatch(s->s.item().equals("minecraft:diamond") && s.skipIf().equals(List.of(armor))));
             }
             check(cost==24);
+            int sticks=0;
+            for(String tool:List.of("pickaxe","axe","shovel","sword","hoe")) {
+                String item="minecraft:diamond_"+tool;
+                var recipe=workflow.plan().recipes().values().stream().filter(r->r.output().equals(item)).findFirst().orElseThrow();
+                cost+=recipe.cells().stream().filter(c->c.ingredient().equals("minecraft:diamond")).count();
+                sticks+=recipe.cells().stream().filter(c->c.ingredient().equals("minecraft:stick")).count();
+                check(steps.stream().anyMatch(s->s.item().equals(item) && s.action().equals("craft") && s.count()==1));
+            }
+            check(cost==35 && sticks==9);
             check(TaskPresets.miningBlock("minecraft:diamond").equals("minecraft:diamond_ore"));
             check(TaskPresets.miningBlock("minecraft:raw_iron").equals("minecraft:iron_ore"));
             check(TaskPresets.toolTier("minecraft:stone_pickaxe")<TaskPresets.toolTier("minecraft:iron_pickaxe"));

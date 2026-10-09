@@ -1,20 +1,14 @@
 {
-  "mode": "ensure",
+  "mode": "collect",
   "version": 1,
-  "title": "Full diamond armor - from basic resources",
-  "description": "Prepare food, wood, stone tools, a furnace, iron equipment and torches. Mine 24 diamonds in four batches and craft all four armor pieces. Existing worn armor is counted; each diamond batch is skipped when its armor piece is already owned. Requires a mod build supporting smelt and skipIf. Survival assistance should stay enabled. Stops safely if mining or crafting cannot progress.",
+  "title": "Full diamond equipment - armor and tools",
+  "description": "Collect additional materials and craft one new diamond helmet, chestplate, leggings, boots, pickaxe, axe, shovel, sword and hoe. Requires 35 additional diamonds plus sticks. Existing items do not skip steps in collect mode. Prepare food, stone tools, a furnace and iron equipment first. Keep survival assistance enabled; the task stops if an action cannot progress.",
   "steps": [
     {
-      "label": "Hunt and cook 16 nourishing food portions",
+      "label": "Hunt and cook 16 additional food portions",
       "action": "food",
       "item": "minecraft:bread",
       "count": 16,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ],
       "role": "food"
     },
     {
@@ -22,259 +16,211 @@
       "action": "mine",
       "item": "minecraft:oak_log",
       "count": 12,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ],
       "role": "logs"
     },
     {
       "label": "Prepare a wooden pickaxe if needed and collect cobblestone",
       "action": "mine",
       "item": "minecraft:cobblestone",
-      "count": 32,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ]
+      "count": 32
     },
     {
-      "label": "Craft a stone pickaxe, or reuse a better usable pickaxe",
+      "label": "Craft 1 additional stone pickaxe",
       "action": "craft",
       "item": "minecraft:stone_pickaxe",
       "count": 1,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ],
       "role": "pickaxe"
     },
     {
-      "label": "Prepare a stone sword, or reuse a better weapon",
+      "label": "Craft 1 additional stone sword",
       "action": "craft",
       "item": "minecraft:stone_sword",
       "count": 1,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ],
       "role": "sword"
     },
     {
-      "label": "Reuse or craft a furnace",
+      "label": "Craft 1 additional furnace",
       "action": "craft",
       "item": "minecraft:furnace",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ]
+      "count": 1
     },
     {
       "label": "Collect coal for iron smelting and torches",
       "action": "mine",
       "item": "minecraft:coal",
-      "count": 12,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ]
+      "count": 12
     },
     {
-      "label": "Collect only missing raw iron, then smelt up to 30 iron ingots",
+      "label": "Collect raw iron as needed and smelt 30 additional iron ingots",
       "action": "smelt",
       "item": "minecraft:iron_ingot",
       "count": 30,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ],
       "input": "minecraft:raw_iron"
     },
     {
-      "label": "Craft an iron pickaxe for diamond ore; reuse a better pickaxe",
+      "label": "Craft 1 additional iron pickaxe",
       "action": "craft",
       "item": "minecraft:iron_pickaxe",
       "count": 1,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ],
       "role": "pickaxe"
     },
     {
-      "label": "Craft an iron sword; reuse a better sword",
+      "label": "Craft 1 additional iron sword",
       "action": "craft",
       "item": "minecraft:iron_sword",
       "count": 1,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ],
       "role": "sword"
     },
     {
-      "label": "Craft a shield before deep mining",
+      "label": "Craft 1 additional shield",
       "action": "craft",
       "item": "minecraft:shield",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ]
+      "count": 1
     },
     {
-      "label": "Craft an iron chestplate if this diamond armor piece is missing",
+      "label": "Craft 1 additional iron chestplate",
       "action": "craft",
       "item": "minecraft:iron_chestplate",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_chestplate"
-      ]
+      "count": 1
     },
     {
-      "label": "Craft an iron helmet if this diamond armor piece is missing",
+      "label": "Craft 1 additional iron helmet",
       "action": "craft",
       "item": "minecraft:iron_helmet",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_helmet"
-      ]
+      "count": 1
     },
     {
-      "label": "Craft an iron leggings if this diamond armor piece is missing",
+      "label": "Craft 1 additional iron leggings",
       "action": "craft",
       "item": "minecraft:iron_leggings",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_leggings"
-      ]
+      "count": 1
     },
     {
-      "label": "Craft an iron boots if this diamond armor piece is missing",
+      "label": "Craft 1 additional iron boots",
       "action": "craft",
       "item": "minecraft:iron_boots",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_boots"
-      ]
+      "count": 1
     },
     {
-      "label": "Craft 32 torches for underground visibility",
+      "label": "Craft 32 additional torch",
       "action": "craft",
       "item": "minecraft:torch",
-      "count": 32,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ]
+      "count": 32
     },
     {
-      "label": "Replenish food before deep mining",
+      "label": "Hunt and cook 16 additional food portions",
       "action": "food",
       "item": "minecraft:bread",
       "count": 16,
-      "skipIf": [
-        "minecraft:diamond_helmet",
-        "minecraft:diamond_chestplate",
-        "minecraft:diamond_leggings",
-        "minecraft:diamond_boots"
-      ],
       "role": "food"
     },
     {
-      "label": "Collect 8 diamonds for the chestplate; skip if already owned",
+      "label": "Collect 8 additional diamonds for the next armor piece",
       "action": "mine",
       "item": "minecraft:diamond",
-      "count": 8,
-      "skipIf": [
-        "minecraft:diamond_chestplate"
-      ]
+      "count": 8
     },
     {
-      "label": "Craft the diamond chestplate; count equipped armor too",
+      "label": "Craft 1 additional diamond chestplate",
       "action": "craft",
       "item": "minecraft:diamond_chestplate",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_chestplate"
-      ]
+      "count": 1
     },
     {
-      "label": "Collect 5 diamonds for the helmet; skip if already owned",
+      "label": "Collect 5 additional diamonds for the next armor piece",
       "action": "mine",
       "item": "minecraft:diamond",
-      "count": 5,
-      "skipIf": [
-        "minecraft:diamond_helmet"
-      ]
+      "count": 5
     },
     {
-      "label": "Craft the diamond helmet; count equipped armor too",
+      "label": "Craft 1 additional diamond helmet",
       "action": "craft",
       "item": "minecraft:diamond_helmet",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_helmet"
-      ]
+      "count": 1
     },
     {
-      "label": "Collect 7 diamonds for the leggings; skip if already owned",
+      "label": "Collect 7 additional diamonds for the next armor piece",
       "action": "mine",
       "item": "minecraft:diamond",
-      "count": 7,
-      "skipIf": [
-        "minecraft:diamond_leggings"
-      ]
+      "count": 7
     },
     {
-      "label": "Craft the diamond leggings; count equipped armor too",
+      "label": "Craft 1 additional diamond leggings",
       "action": "craft",
       "item": "minecraft:diamond_leggings",
-      "count": 1,
-      "skipIf": [
-        "minecraft:diamond_leggings"
-      ]
+      "count": 1
     },
     {
-      "label": "Collect 4 diamonds for the boots; skip if already owned",
+      "label": "Collect 4 additional diamonds for the next armor piece",
       "action": "mine",
       "item": "minecraft:diamond",
-      "count": 4,
-      "skipIf": [
-        "minecraft:diamond_boots"
-      ]
+      "count": 4
     },
     {
-      "label": "Craft the diamond boots; count equipped armor too",
+      "label": "Craft 1 additional diamond boots",
       "action": "craft",
       "item": "minecraft:diamond_boots",
+      "count": 1
+    },
+    {
+      "action": "mine",
+      "count": 3,
+      "item": "minecraft:diamond",
+      "label": "Collect 3 additional diamonds for the pickaxe"
+    },
+    {
+      "action": "craft",
       "count": 1,
-      "skipIf": [
-        "minecraft:diamond_boots"
-      ]
+      "item": "minecraft:diamond_pickaxe",
+      "label": "Craft one additional diamond pickaxe"
+    },
+    {
+      "action": "mine",
+      "count": 3,
+      "item": "minecraft:diamond",
+      "label": "Collect 3 additional diamonds for the axe"
+    },
+    {
+      "action": "craft",
+      "count": 1,
+      "item": "minecraft:diamond_axe",
+      "label": "Craft one additional diamond axe"
+    },
+    {
+      "action": "mine",
+      "count": 1,
+      "item": "minecraft:diamond",
+      "label": "Collect 1 additional diamonds for the shovel"
+    },
+    {
+      "action": "craft",
+      "count": 1,
+      "item": "minecraft:diamond_shovel",
+      "label": "Craft one additional diamond shovel"
+    },
+    {
+      "action": "mine",
+      "count": 2,
+      "item": "minecraft:diamond",
+      "label": "Collect 2 additional diamonds for the sword"
+    },
+    {
+      "action": "craft",
+      "count": 1,
+      "item": "minecraft:diamond_sword",
+      "label": "Craft one additional diamond sword"
+    },
+    {
+      "action": "mine",
+      "count": 2,
+      "item": "minecraft:diamond",
+      "label": "Collect 2 additional diamonds for the hoe"
+    },
+    {
+      "action": "craft",
+      "count": 1,
+      "item": "minecraft:diamond_hoe",
+      "label": "Craft one additional diamond hoe"
     }
   ],
   "recipes": {
@@ -931,6 +877,141 @@
         }
       ],
       "output": "minecraft:diamond_boots"
+    },
+    "diamond_pickaxe": {
+      "width": 3,
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 2,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "column": 1,
+          "row": 2,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "count": 1,
+      "output": "minecraft:diamond_pickaxe"
+    },
+    "diamond_axe": {
+      "width": 3,
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 0,
+          "row": 1,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "column": 1,
+          "row": 2,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "count": 1,
+      "output": "minecraft:diamond_axe"
+    },
+    "diamond_shovel": {
+      "width": 3,
+      "cells": [
+        {
+          "column": 1,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "column": 1,
+          "row": 2,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "count": 1,
+      "output": "minecraft:diamond_shovel"
+    },
+    "diamond_sword": {
+      "width": 3,
+      "cells": [
+        {
+          "column": 1,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 1,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 2,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "count": 1,
+      "output": "minecraft:diamond_sword"
+    },
+    "diamond_hoe": {
+      "width": 3,
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "column": 1,
+          "row": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "column": 1,
+          "row": 2,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "count": 1,
+      "output": "minecraft:diamond_hoe"
     }
   }
 }

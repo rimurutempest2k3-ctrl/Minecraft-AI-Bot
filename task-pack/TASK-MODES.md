@@ -28,4 +28,4 @@ Thêm một dòng ở đầu file:
 
 Mốc đếm của `collect` được chốt khi bắt đầu từng bước. Đồ bị dùng hoặc mất trong bước đó sẽ làm giảm tiến độ; công thức tạo theo bó có thể cho dư một ít. Khởi chạy lại task sẽ yêu cầu một đợt mới.
 
-File cũ không ghi `mode` vẫn chạy như `ensure`. Task giáp kim cương dùng `ensure` để tránh chế lại đồ đã có. File mẫu `collect-wood.taskbot` dùng `collect` để thu thêm 16 gỗ.
+File cũ không ghi `mode` vẫn chạy như `ensure`. Task bộ giáp và công cụ kim cương dùng `collect` để chế thêm một bộ mới. File mẫu `collect-wood.taskbot` dùng `collect` để thu thêm 16 gỗ.
