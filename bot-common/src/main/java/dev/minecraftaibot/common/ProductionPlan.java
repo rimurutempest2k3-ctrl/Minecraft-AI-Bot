@@ -22,6 +22,7 @@ public final class ProductionPlan {
     public record Task(String machine, String input, String fuel, int quantity) {}
     public static void initialize(Path path) throws IOException {
         Files.createDirectories(path.toAbsolutePath().getParent());
+        TaskPresets.installDefault(path,"production-tasks.json");
         tasksFile=path;
     }
     public static Map<String,Task> tasks() {

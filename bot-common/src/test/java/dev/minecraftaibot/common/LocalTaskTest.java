@@ -9,12 +9,20 @@ public final class LocalTaskTest {
         try {
             var empty=java.nio.file.Files.createTempDirectory("bot-no-embedded-tasks");
             TaskPresets.initialize(empty.resolve("local-tasks.json"));
-            check(TaskPresets.workflows().isEmpty());
-            check(!java.nio.file.Files.exists(empty.resolve("local-tasks.json")));
-            check(!java.nio.file.Files.exists(empty.resolve("production-tasks.json")));
-            check(!java.nio.file.Files.exists(empty.resolve("tasks/starter-kit.json")));
-            try {TaskPresets.catalog();throw new AssertionError("Missing catalog fell back to embedded task");}catch(IllegalArgumentException expected) {}
-            try {ProductionPlan.tasks();throw new AssertionError("Missing production tasks fell back");}catch(IllegalArgumentException expected) {}
+            check(TaskPresets.workflows().size()==7);
+            check(java.nio.file.Files.exists(empty.resolve("local-tasks.json")));
+            check(java.nio.file.Files.exists(empty.resolve("production-tasks.json")));
+            check(java.nio.file.Files.exists(empty.resolve("tasks/starter-kit.taskbot")));
+            check(!TaskPresets.catalog().tasks().isEmpty());check(!ProductionPlan.tasks().isEmpty());
+            var customized=empty.resolve("tasks/full-diamond-armor.taskbot");
+            java.nio.file.Files.writeString(customized,"custom content");
+            java.nio.file.Files.writeString(empty.resolve("local-tasks.json"),"invalid custom catalog");
+            TaskPresets.initialize(empty.resolve("local-tasks.json"));
+            check(java.nio.file.Files.readString(customized).equals("custom content"));
+            check(java.nio.file.Files.readString(empty.resolve("local-tasks.json")).equals("invalid custom catalog"));
+            java.nio.file.Files.delete(customized);java.nio.file.Files.delete(empty.resolve("local-tasks.json"));
+            TaskPresets.initialize(empty.resolve("local-tasks.json"));
+            check(TaskPresets.workflow("full-diamond-armor.taskbot").mode().equals("collect"));
             installFixtures(empty);
             TaskPresets.initialize(empty.resolve("local-tasks.json"));
         } catch(java.io.IOException e) {throw new AssertionError(e);}
@@ -122,7 +130,7 @@ public final class LocalTaskTest {
             check(TaskPresets.miningCommand("extra_wood").equals("bot mine minecraft:spruce_log 9"));
             TaskPresets.initialize(file);check(TaskPresets.catalog().require("extra_wood").quantity()==9);
             var workflowFolder=TaskPresets.workflowDirectory();
-            check(TaskPresets.workflows().stream().filter(w->w.error()==null).count()==5);
+            check(TaskPresets.workflows().stream().filter(w->w.error()==null).count()==7);
             var furnaceTask=TaskPresets.workflow("furnace.json");
             check(furnaceTask.goal().item().equals("minecraft:furnace"));
             check(!furnaceTask.goal().satisfied(0) && furnaceTask.goal().satisfied(1) && furnaceTask.goal().satisfied(3));
@@ -131,7 +139,7 @@ public final class LocalTaskTest {
             var furnaceRecipe=furnaceTask.plan().recipes().get("furnace");
             check(furnaceRecipe.count()==1 && furnaceRecipe.width()==3 && furnaceRecipe.cells().size()==8);
             check(furnaceRecipe.cells().stream().allMatch(c->c.ingredient().equals("minecraft:cobblestone") && !(c.row()==1 && c.column()==1)));
-            String furnaceJson=java.nio.file.Files.readString(workflowFolder.resolve("furnace.json"));
+            String furnaceJson=java.nio.file.Files.readString(workflowFolder.resolve(furnaceTask.filename()));
             var invalidCount=com.google.gson.JsonParser.parseString(furnaceJson).getAsJsonObject();
             invalidCount.getAsJsonObject("goal").addProperty("count",0);
             var invalidItem=com.google.gson.JsonParser.parseString(furnaceJson).getAsJsonObject();
@@ -140,11 +148,13 @@ public final class LocalTaskTest {
                 try {TaskPresets.parseWorkflow("furnace.json",bad);throw new AssertionError("Invalid final goal accepted");}catch(IllegalArgumentException expected) {}
             }
             check(TaskPresets.workflow("food.json").plan().steps().getFirst().action().equals("food"));
-            // Removing a task remains effective across engine initialization.
-            java.nio.file.Files.delete(workflowFolder.resolve("wood.json"));TaskPresets.initialize(file);
-            check(!java.nio.file.Files.exists(workflowFolder.resolve("wood.json")));
+            // Missing defaults are restored, but a legacy JSON task prevents a duplicate default.
+            java.nio.file.Files.delete(workflowFolder.resolve("wood.taskbot"));TaskPresets.initialize(file);
+            check(java.nio.file.Files.exists(workflowFolder.resolve("wood.taskbot")));
+            java.nio.file.Files.move(workflowFolder.resolve("wood.taskbot"),workflowFolder.resolve("wood.json"));
+            TaskPresets.initialize(file);check(!java.nio.file.Files.exists(workflowFolder.resolve("wood.taskbot")));
             // Shared recipes do not depend on the starter mission existing.
-            java.nio.file.Files.delete(workflowFolder.resolve("starter-kit.json"));
+            java.nio.file.Files.delete(workflowFolder.resolve("starter-kit.taskbot"));
             check(TaskPresets.workflow("food.json").plan().recipes().containsKey("furnace"));
             String custom="{\"version\":1,\"title\":\"Gỗ tùy chỉnh\",\"steps\":[{\"label\":\"Gỗ\",\"item\":\"minecraft:birch_log\",\"count\":7,\"action\":\"mine\"}]}";
             java.nio.file.Files.writeString(workflowFolder.resolve("custom.json"),custom);
@@ -267,8 +277,8 @@ public final class LocalTaskTest {
     }
     static void installFixtures(java.nio.file.Path directory) throws java.io.IOException {
         for(String name:List.of("local-tasks.json","production-tasks.json","core-data/task-recipes.json","core-data/mining-rules.json","tasks/starter-kit.json","tasks/food.json","tasks/wood.json","tasks/cobblestone.json","tasks/furnace.json")) {
-            var target=directory.resolve(name);java.nio.file.Files.createDirectories(target.getParent());
             String resource=name.startsWith("tasks/")?name.replace(".json",".taskbot"):name;
+            var target=directory.resolve(resource);java.nio.file.Files.createDirectories(target.getParent());
             try(var source=LocalTaskTest.class.getResourceAsStream("/task-fixtures/"+resource)) {
                 if(source==null)throw new java.io.IOException("Missing test fixture: "+name);
                 java.nio.file.Files.copy(source,target,java.nio.file.StandardCopyOption.REPLACE_EXISTING);

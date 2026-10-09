@@ -4,14 +4,26 @@ plugins {
 
 repositories { mavenCentral() }
 dependencies { implementation 'com.google.code.gson:gson:2.14.0' }
+def bundledTaskDirectory = rootProject.file('task-pack/config/minecraft-ai-bot/tasks')
 
 tasks.named('processResources') {
     exclude '**/secrets.properties'
     exclude 'tasks/local-tasks.json', 'tasks/production-tasks.json', 'tasks/starter-kit.json', 'tasks/workflows/**'
     from(rootProject.file('ai/SYSTEM_PROMPT.vi.md')) { into 'ai' }
+    from(rootProject.file('task-pack/config/minecraft-ai-bot')) {
+        include 'local-tasks.json', 'production-tasks.json', 'tasks/*.taskbot'
+        into 'defaults'
+    }
+    doLast {
+        def names = bundledTaskDirectory.listFiles()
+            .findAll { it.name.endsWith('.taskbot') }.collect { it.name }.sort()
+        def index = new File(destinationDir, 'defaults/task-files.txt')
+        index.parentFile.mkdirs()
+        index.setText(names.join('\n') + '\n', 'UTF-8')
+    }
 }
 
-// Task definitions ship separately from the engine JAR. Tests explicitly install this pack.
+// The same editable JSON defaults ship in the JAR and standalone task pack.
 tasks.named('processTestResources') {
     from(rootProject.file('task-pack/config/minecraft-ai-bot')) { into 'task-fixtures' }
 }
