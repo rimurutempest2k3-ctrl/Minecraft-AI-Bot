@@ -22,6 +22,21 @@ public final class PlacementRecoveryTest {
         recovery=new PlacementRecovery();
         check(recovery.choose(origin,cell->false).isEmpty() && recovery.moves()==0);
         check(recovery.choose(origin,cell->true).isPresent() && recovery.moves()==1);
+        var uphill=new PlacementRecovery.Cell(11,65,-10);
+        recovery=new PlacementRecovery();
+        check(recovery.choose(origin,cell->cell.equals(uphill),2,2).orElseThrow().equals(uphill));
+        var downhill=new PlacementRecovery.Cell(9,62,-10);
+        recovery=new PlacementRecovery();
+        check(recovery.choose(origin,cell->cell.equals(downhill),2,2).orElseThrow().equals(downhill));
+        var clearing=new PlacementRecovery.Cell(16,65,-10);
+        recovery=new PlacementRecovery();
+        check(recovery.choose(origin,cell->cell.equals(clearing),2,2).isEmpty() && recovery.moves()==0);
+        check(recovery.choose(origin,cell->cell.equals(clearing),8,3).orElseThrow().equals(clearing));
+        check(recovery.moves()==1);
+        for(var cell:PlacementRecovery.candidates(origin,8,3)) {
+            int x=cell.x()-origin.x(),z=cell.z()-origin.z();
+            check(x*x+z*z<=64 && Math.abs(cell.y()-origin.y())<=3);
+        }
         System.out.println("All short placement relocation distance, closest-first, valid-position filtering, no-revisit and two-move limit checks passed.");
     }
     private static void check(boolean condition) {if(!condition)throw new AssertionError("Placement relocation check failed");}
