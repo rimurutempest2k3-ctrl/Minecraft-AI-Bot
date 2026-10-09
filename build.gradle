@@ -64,7 +64,8 @@ java {
 }
 
 jar {
-    from('CREDITS.md')
+    from('CREDITS.md', 'THIRD_PARTY.md')
+    from('LICENSES') { into 'LICENSES' }
 	def projectName = project.name
 	inputs.property "projectName", projectName
 
@@ -104,6 +105,7 @@ tasks.register('releaseZip', Zip) {
     from('THIRD_PARTY.md')
     from('CREDITS.md')
     from('LICENSE')
+    from('LICENSES') { into 'LICENSES' }
     from('INVENTORY.md')
 }
 

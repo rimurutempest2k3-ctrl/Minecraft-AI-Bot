@@ -11,7 +11,7 @@
     "issues": "https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot/issues",
     "sources": "https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot"
   },
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "assets/minecraft-ai-bot/icon.png",
   "environment": "client",
   "entrypoints": {

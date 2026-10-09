@@ -41,6 +41,10 @@ application {
 
 tasks.named('jar') {
     archiveFileName = 'bot-common.jar'
+    from(rootProject.file('LICENSE'))
+    from(rootProject.file('CREDITS.md'))
+    from(rootProject.file('THIRD_PARTY.md'))
+    from(rootProject.file('LICENSES')) { into 'LICENSES' }
 }
 
 tasks.withType(JavaCompile).configureEach {

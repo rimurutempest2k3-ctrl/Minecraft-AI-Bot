@@ -58,7 +58,7 @@ Place task files under `run/config/minecraft-ai-bot/tasks/`.
 Author: **rimurutempest2k3-ctrl**.
 [Source](https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot) ·
 [Credits](CREDITS.md) · [Third-party software](THIRD_PARTY.md).
-The project license is in LICENSE.
+Licensed under [MIT](LICENSE). Forks and redistribution are welcome; retain the copyright and license notices. Previously published CC0 material remains available under CC0; see [Third-party software](THIRD_PARTY.md).
 
 ## Hướng dẫn tiếng Việt
 
@@ -78,3 +78,5 @@ Console là tùy chọn: đặt `bot-console.bat` và `tools/` vào thư mục g
 `.\bot-console.bat`. Bản đã đóng gói không cần IntelliJ hay Gradle.
 Để build từ mã nguồn, dùng JDK 25, đặt `baritone-api-fabric-1.19.0.jar` vào
 `libs/`, rồi chạy `.\gradlew.bat releaseZip`.
+
+Giấy phép [MIT](LICENSE) cho phép fork và phân phối lại khi giữ thông báo bản quyền và giấy phép. Phần đã công bố theo CC0 vẫn giữ quyền sử dụng CC0.
