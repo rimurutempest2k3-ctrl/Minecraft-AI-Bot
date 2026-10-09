@@ -525,6 +525,9 @@ final class ProductionController {
 
     /** Read-only furnace eligibility and planning; live game rules take priority over vanilla JSON. */
     static final class FurnaceLogic {
+        static com.google.gson.JsonObject rules() {
+            try {return load();}catch(java.io.IOException e) {throw new IllegalArgumentException("Cannot read furnace rules.",e);}
+        }
         static int cookingTicks(String type,String input) {
             try {
                 var root=load();var matches=root.getAsJsonObject("acceptedInputs").getAsJsonObject(type).getAsJsonArray(input);

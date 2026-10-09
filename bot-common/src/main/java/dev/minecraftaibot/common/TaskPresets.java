@@ -68,7 +68,21 @@ public final class TaskPresets {
             if(in==null) throw new IOException("Missing core data: "+name);Files.copy(in,path);
         }
     }
-    public record Supply(String label,String item,int count,String action,String role) {}
+    public record Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf) {
+        public Supply(String label,String item,int count,String action,String role) {this(label,item,count,action,role,null,null);}
+    }
+    public static String miningBlock(String item) {
+        return switch(item) {
+            case "minecraft:cobblestone" -> "minecraft:stone";
+            case "minecraft:coal" -> "minecraft:coal_ore";
+            case "minecraft:raw_iron" -> "minecraft:iron_ore";
+            case "minecraft:diamond" -> "minecraft:diamond_ore";
+            default -> item;
+        };
+    }
+    public static int toolTier(String id) {
+        return id.contains(":netherite_")?5:id.contains(":diamond_")?4:id.contains(":iron_")?3:id.contains(":stone_")?2:1;
+    }
     public record Starter(List<Supply> steps,Map<String,Recipe> recipes) {}
     public record Goal(String item,int count) {
         public boolean satisfied(int present) {return present>=count;}
@@ -206,11 +220,17 @@ public final class TaskPresets {
             // Reuse the existing strict recipe validator.
             var wrapper=JsonParser.parseString("{\"version\":1,\"tasks\":{\"kit\":{\"label\":\"kit\",\"goal\":\"minecraft:stone\",\"resultItem\":\"minecraft:cobblestone\",\"quantity\":1}},\"preparations\":{}}").getAsJsonObject();
             wrapper.add("recipes",root.get("recipes"));parse(wrapper.toString());
-            for(var step:root.getAsJsonArray("steps")) validateKeys(step.getAsJsonObject(),Set.of("label","item","count","action","role"));
+            for(var step:root.getAsJsonArray("steps")) validateKeys(step.getAsJsonObject(),Set.of("label","item","count","action","role","input","skipIf"));
             for(Supply step:s.steps()) {
                 item(step.item());
                 if(step.label()==null || step.label().isBlank() || step.label().length()>160 || step.count()<1 || step.count()>64
-                        || !Set.of("mine","craft","food").contains(step.action()) || step.role()!=null && !Set.of("logs","pickaxe","axe","sword","food").contains(step.role())) throw invalid("Invalid starter step");
+                        || !Set.of("mine","craft","food","smelt").contains(step.action()) || step.role()!=null && !Set.of("logs","pickaxe","axe","sword","food").contains(step.role())) throw invalid("Invalid starter step");
+                if(step.action().equals("smelt")) {if(step.input()==null || step.role()!=null)throw invalid("Smelting requires input and no role");item(step.input());}
+                else if(step.input()!=null) throw invalid("Only smelting accepts input");
+                if(step.skipIf()!=null) {
+                    if(step.skipIf().isEmpty() || step.skipIf().size()>16)throw invalid("skipIf must contain 1-16 item IDs");
+                    for(String id:step.skipIf())item(id);
+                }
                 if(step.action().equals("food") && !"food".equals(step.role())) throw invalid("Hunt/cook steps require role food");
                 if(step.action().equals("craft") && s.recipes().values().stream().noneMatch(r->r.output().equals(step.item()))) throw invalid("Missing starter recipe: "+step.item());
             }

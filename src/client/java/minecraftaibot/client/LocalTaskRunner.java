@@ -94,10 +94,12 @@ final class LocalTaskRunner {
         for(var step:workflow.plan().steps()) {
             requiredItem(step.item());
             if(step.action().equals("mine")) {
-                String goal=step.item().equals("minecraft:cobblestone")?"minecraft:stone":step.item().equals("minecraft:coal")?"minecraft:coal_ore":step.item();
+                String goal=TaskPresets.miningBlock(step.item());
                 if(BuiltInRegistries.BLOCK.getOptional(net.minecraft.resources.Identifier.parse(goal)).filter(b->!b.defaultBlockState().isAir()).isEmpty())
                     throw new IllegalArgumentException("Mining step has no valid block: "+step.item());
             }
+            if(step.input()!=null)requiredItem(step.input());
+            if(step.skipIf()!=null)for(String id:step.skipIf())requiredItem(id);
         }
         for(var recipe:workflow.plan().recipes().values()) {
             if(!recipe.output().equals("$log_planks"))requiredItem(recipe.output());
@@ -137,8 +139,9 @@ final class LocalTaskRunner {
         data.add("steps",steps);return data;
     }
     private int supplyCount(Minecraft client,TaskPresets.Supply step) {
+        if(step.skipIf()!=null && step.skipIf().stream().allMatch(id->ownedRequirement(client,id))) return step.count();
         if(step.item().equals("minecraft:furnace") && furnace.nearby(client,"furnace")) return 1;
-        return client.player.getInventory().getNonEquipmentItems().stream().filter(s->{
+        return ownedItems(client).stream().filter(s->{
             if(s.isEmpty()) return false;
             if("logs".equals(step.role())) return logType(s)!=null;
             if("food".equals(step.role())) {
@@ -148,12 +151,29 @@ final class LocalTaskRunner {
             }
             if(step.role()!=null) {
                 String id=BuiltInRegistries.ITEM.getKey(s.getItem()).toString();
-                return id.endsWith("_"+step.role()) && (id.contains("stone_") || id.contains("iron_") || id.contains("diamond_") || id.contains("netherite_"))
+                return id.endsWith("_"+step.role()) && TaskPresets.toolTier(id)>=TaskPresets.toolTier(step.item())
                         && (!step.role().equals("pickaxe") || !BaritoneController.silkTouch(s))
                         && (!s.isDamageableItem() || s.getMaxDamage()-s.getDamageValue()>10);
             }
             return BuiltInRegistries.ITEM.getKey(s.getItem()).toString().equals(step.item());
         }).mapToInt(ItemStack::getCount).sum();
+    }
+    private List<ItemStack> ownedItems(Minecraft client) {
+        var items=new ArrayList<>(client.player.getInventory().getNonEquipmentItems());
+        for(var slot:List.of(net.minecraft.world.entity.EquipmentSlot.HEAD,net.minecraft.world.entity.EquipmentSlot.CHEST,net.minecraft.world.entity.EquipmentSlot.LEGS,net.minecraft.world.entity.EquipmentSlot.FEET,net.minecraft.world.entity.EquipmentSlot.OFFHAND))
+            items.add(client.player.getItemBySlot(slot));
+        return items;
+    }
+    private int ownedCount(Minecraft client,String id) {return ownedItems(client).stream().filter(s->BuiltInRegistries.ITEM.getKey(s.getItem()).toString().equals(id)).mapToInt(ItemStack::getCount).sum();}
+    private boolean ownedRequirement(Minecraft client,String id) {
+        if(id.endsWith("_pickaxe") || id.endsWith("_sword") || id.endsWith("_axe")) {
+            String suffix=id.substring(id.lastIndexOf('_'));
+            return ownedItems(client).stream().anyMatch(s->!s.isEmpty() && BuiltInRegistries.ITEM.getKey(s.getItem()).toString().endsWith(suffix)
+                    && TaskPresets.toolTier(BuiltInRegistries.ITEM.getKey(s.getItem()).toString())>=TaskPresets.toolTier(id)
+                    && (!s.isDamageableItem() || s.getMaxDamage()-s.getDamageValue()>10)
+                    && (!suffix.equals("_pickaxe") || !BaritoneController.silkTouch(s)));
+        }
+        return ownedCount(client,id)>0;
     }
     private static final List<String> WOODS=List.of("oak","birch","spruce","jungle","acacia","dark_oak","mangrove","cherry","pale_oak");
     LocalTaskRunner(BotCore bot,BaritoneController movement,ProductionController.BlockPlacement placement,ProductionController.FurnaceRun furnace,Consumer<String> notify) { this.bot=bot;this.movement=movement;this.placement=placement;this.furnace=furnace;this.notify=notify; }
@@ -191,7 +211,7 @@ final class LocalTaskRunner {
     private void change(Phase value,String message) { phase=value;phaseStarted=System.nanoTime();status=message;LOG.info("Local phase {}: {}",value,message);notify.accept(message); }
     private List<ItemStack> inventory() { return owner.getInventory().getNonEquipmentItems(); }
     private int count(Predicate<ItemStack> filter) { return inventory().stream().filter(filter).mapToInt(ItemStack::getCount).sum(); }
-    private int count(Item item) { return count(s->s.is(item)); }
+    private int count(Item item) { return ownedItems(Minecraft.getInstance()).stream().filter(s->s.is(item)).mapToInt(ItemStack::getCount).sum(); }
     private int resultCount() { return count(s->BuiltInRegistries.ITEM.getKey(s.getItem()).toString().equals(definition.resultItem())); }
     private int pickaxe() {
         for(int i=0;i<inventory().size();i++) {
@@ -236,9 +256,9 @@ final class LocalTaskRunner {
         try {
             if(phase==Phase.HUNT) {huntTick(client);return;}
             if(phase==Phase.SMELT) {
-                if(furnace.busy()) {status="Food preparation: "+furnace.status();return;}
-                if(count(craftedItem)<=craftedBefore) {cancel("Food cooking unsuccessful: "+furnace.status());return;}
-                change(Phase.PLAN,"Food cooked and collected; checking remaining needs.");return;
+                if(furnace.busy()) {status="Smelting: "+furnace.status();return;}
+                if(count(craftedItem)<=craftedBefore) {cancel("Smelting unsuccessful: "+furnace.status());return;}
+                change(Phase.PLAN,"Smelted output collected; checking remaining needs.");return;
             }
             if(phase==Phase.CRAFT) {
                 crafting.tick(client);
@@ -305,6 +325,15 @@ final class LocalTaskRunner {
         switch(step.action()) {
             case "mine_goal" -> {
                 closeForMovement();
+                if(definition.resultItem().equals("minecraft:raw_iron") || definition.resultItem().equals("minecraft:diamond")) {
+                    int tier=definition.resultItem().equals("minecraft:diamond")?3:2,best=-1;
+                    for(int i=0;i<inventory().size();i++) {
+                        var stack=inventory().get(i);
+                        if(stack.is(ItemTags.PICKAXES) && TaskPresets.toolTier(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())>=tier
+                                && !BaritoneController.silkTouch(stack) && (!stack.isDamageableItem() || stack.getMaxDamage()-stack.getDamageValue()>10)) {best=i;break;}
+                    }
+                    if(best<0 || !select(client,best))throw new IllegalArgumentException("Missing usable pickaxe of required tier for "+definition.resultItem());
+                }
                 if(preparation!=null && !select(client,pickaxe())) throw new IllegalArgumentException("Could not move pickaxe to hotbar.");
                 String response=movement.execute("mine "+definition.goal()+" "+(quantity-Math.max(0,resultCount()-initialResult)));
                 if(!movement.busy()) throw new IllegalArgumentException(response);
@@ -335,12 +364,13 @@ final class LocalTaskRunner {
         }
         var step=starter.steps().get(supplyIndex);
         if(step.action().equals("food")) {planFood(client,step);return true;}
+        if(step.action().equals("smelt")) {planSmelt(client,step);return true;}
         if(step.action().equals("craft")) {prepareRecipe(client,starter.recipes().values().stream().filter(r->r.output().equals(step.item())).findFirst().orElseThrow(),new HashSet<>());return true;}
         String item="logs".equals(step.role())?"minecraft:"+nearestWood()+"_log":step.item();
         configureMine(item,step.count()-supplyCount(client,step));return false;
     }
     private void configureMine(String item,int missing) {
-        String goal=item.equals("minecraft:coal")?"minecraft:coal_ore":item;
+        String goal=TaskPresets.miningBlock(item);
         definition=new TaskPresets.Task("Survival preparation",goal,item,missing,null);
         preparation=item.equals("minecraft:cobblestone")?catalog.preparations().get("wooden_pickaxe"):null;
         initialResult=resultCount();quantity=missing;
@@ -348,6 +378,30 @@ final class LocalTaskRunner {
             shallowMinimum=baritone.api.BaritoneAPI.getSettings().minYLevelWhileMining.value;
             baritone.api.BaritoneAPI.getSettings().minYLevelWhileMining.value=Math.max(shallowMinimum,owner.blockPosition().getY()-3);
         }
+    }
+    private void planSmelt(Minecraft client,TaskPresets.Supply step) {
+        int missing=step.count()-ownedCount(client,step.item());
+        var rules=ProductionController.FurnaceLogic.rules();
+        var matches=rules.getAsJsonObject("acceptedInputs").getAsJsonObject("furnace").getAsJsonArray(step.input());
+        if(matches==null || matches.size()!=1)throw new IllegalArgumentException("No unique furnace recipe for "+step.input());
+        var recipe=rules.getAsJsonObject("recipes").getAsJsonObject(matches.get(0).getAsString());
+        var result=recipe.getAsJsonObject("result");
+        if(!result.get("id").getAsString().equals(step.item()) || result.has("count") && result.get("count").getAsInt()!=1)
+            throw new IllegalArgumentException("Task smelting output does not match furnace rules.");
+        if(count(requiredItem(step.input()))<missing) {configureMine(step.input(),missing-count(requiredItem(step.input())));planMining(client);return;}
+        if(count(Items.FURNACE)==0 && !furnace.nearby(client,"furnace")) {prepareRecipe(client,starter.recipes().get("furnace"),new HashSet<>());return;}
+        int cook=recipe.has("cookingtime")?recipe.get("cookingtime").getAsInt():200;
+        String fuel=null;
+        for(var stack:inventory()) {
+            int burn=world.fuelValues().burnDuration(stack);
+            if(burn>0 && (stack.is(Items.COAL) || stack.is(Items.CHARCOAL) || stack.is(ItemTags.PLANKS) || stack.is(Items.STICK))
+                    && !stack.is(requiredItem(step.input())) && count(stack.getItem())>=new ProductionPlan.Smelt(missing,1,cook,burn).fuelCount()) {fuel=BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();break;}
+        }
+        if(fuel==null) {configureMine("minecraft:coal",new ProductionPlan.Smelt(missing,1,cook,1600).fuelCount());planMining(client);return;}
+        closeForMovement();movement.stop();craftedItem=requiredItem(step.item());craftedBefore=count(craftedItem);
+        String response=furnace.start(client,"furnace",step.input(),missing,fuel);
+        if(!furnace.busy())throw new IllegalArgumentException(response);
+        change(Phase.SMELT,response);
     }
     private void prepareRecipe(Minecraft client,TaskPresets.Recipe recipe,Set<String> visiting) {
         if(!visiting.add(recipe.output()) || visiting.size()>12) throw new IllegalArgumentException("Starter recipe contains a cycle.");

@@ -21,6 +21,7 @@ public final class LocalTaskTest {
         verifyCoreMigration();
         var starter=TaskPresets.starter();
         check(starter.steps().size()==10);
+        verifyDiamondWorkflow();
         check(starter.steps().getFirst().action().equals("food"));
         check(starter.steps().getFirst().role().equals("food"));
         for(String mob:List.of("cow","pig","sheep","chicken")) {
@@ -201,6 +202,35 @@ public final class LocalTaskTest {
         try { CraftingPlan.create(full,List.of(5),List.of(1,2,3,4),Map.of(1,Set.of("log")),0,new Stack("planks",4,64));throw new AssertionError(); }
         catch(IllegalArgumentException expected) {check(full.get(5).count()==64);}
         System.out.println("All JSON task loading, custom task, live reload, malformed definition rejection, prerequisite skips, minimal wood, recipe consumption and capacity checks passed.");
+    }
+    private static void verifyDiamondWorkflow() {
+        try(var source=LocalTaskTest.class.getResourceAsStream("/task-fixtures/tasks/full-diamond-armor.taskbot")) {
+            check(source!=null);
+            String json=new String(source.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
+            var workflow=TaskPresets.parseWorkflow("full-diamond-armor.taskbot",json);
+            var steps=workflow.plan().steps();
+            check(steps.stream().filter(s->s.item().equals("minecraft:diamond") && s.action().equals("mine")).mapToInt(TaskPresets.Supply::count).sum()==24);
+            var smelt=steps.stream().filter(s->s.action().equals("smelt")).findFirst().orElseThrow();
+            check(smelt.item().equals("minecraft:iron_ingot") && smelt.input().equals("minecraft:raw_iron") && smelt.count()==30);
+            int cost=0;
+            for(String part:List.of("helmet","chestplate","leggings","boots")) {
+                String armor="minecraft:diamond_"+part;
+                var recipe=workflow.plan().recipes().values().stream().filter(r->r.output().equals(armor)).findFirst().orElseThrow();
+                cost+=recipe.cells().size();check(recipe.cells().stream().allMatch(c->c.ingredient().equals("minecraft:diamond")));
+                check(steps.stream().anyMatch(s->s.item().equals(armor) && s.action().equals("craft")));
+                check(steps.stream().anyMatch(s->s.item().equals("minecraft:diamond") && s.skipIf().equals(List.of(armor))));
+            }
+            check(cost==24);
+            check(TaskPresets.miningBlock("minecraft:diamond").equals("minecraft:diamond_ore"));
+            check(TaskPresets.miningBlock("minecraft:raw_iron").equals("minecraft:iron_ore"));
+            check(TaskPresets.toolTier("minecraft:stone_pickaxe")<TaskPresets.toolTier("minecraft:iron_pickaxe"));
+            var root=JsonParser.parseString(json).getAsJsonObject();
+            var smelting=root.getAsJsonArray("steps").asList().stream().map(JsonElement::getAsJsonObject).filter(s->s.get("action").getAsString().equals("smelt")).findFirst().orElseThrow();
+            smelting.remove("input");
+            try {TaskPresets.parseWorkflow("bad.taskbot",root.toString());throw new AssertionError("Smelting without input accepted");}catch(IllegalArgumentException expected) {}
+            smelting.addProperty("input","../../secrets.properties");
+            try {TaskPresets.parseWorkflow("bad.taskbot",root.toString());throw new AssertionError("Invalid smelting input accepted");}catch(IllegalArgumentException expected) {}
+        }catch(java.io.IOException e) {throw new AssertionError(e);}
     }
     static void installFixtures(java.nio.file.Path directory) throws java.io.IOException {
         for(String name:List.of("local-tasks.json","production-tasks.json","core-data/task-recipes.json","core-data/mining-rules.json","tasks/starter-kit.json","tasks/food.json","tasks/wood.json","tasks/cobblestone.json","tasks/furnace.json")) {

@@ -1,0 +1,935 @@
+{
+  "version": 1,
+  "title": "Full diamond armor - from basic resources",
+  "description": "Prepare food, wood, stone tools, a furnace, iron equipment and torches. Mine 24 diamonds in four batches and craft all four armor pieces. Existing worn armor is counted; each diamond batch is skipped when its armor piece is already owned. Requires a mod build supporting smelt and skipIf. Survival assistance should stay enabled. Stops safely if mining or crafting cannot progress.",
+  "steps": [
+    {
+      "label": "Hunt and cook 16 nourishing food portions",
+      "action": "food",
+      "item": "minecraft:bread",
+      "count": 16,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ],
+      "role": "food"
+    },
+    {
+      "label": "Collect wood for tables, sticks and cooking fuel",
+      "action": "mine",
+      "item": "minecraft:oak_log",
+      "count": 12,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ],
+      "role": "logs"
+    },
+    {
+      "label": "Prepare a wooden pickaxe if needed and collect cobblestone",
+      "action": "mine",
+      "item": "minecraft:cobblestone",
+      "count": 32,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ]
+    },
+    {
+      "label": "Craft a stone pickaxe, or reuse a better usable pickaxe",
+      "action": "craft",
+      "item": "minecraft:stone_pickaxe",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ],
+      "role": "pickaxe"
+    },
+    {
+      "label": "Prepare a stone sword, or reuse a better weapon",
+      "action": "craft",
+      "item": "minecraft:stone_sword",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ],
+      "role": "sword"
+    },
+    {
+      "label": "Reuse or craft a furnace",
+      "action": "craft",
+      "item": "minecraft:furnace",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ]
+    },
+    {
+      "label": "Collect coal for iron smelting and torches",
+      "action": "mine",
+      "item": "minecraft:coal",
+      "count": 12,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ]
+    },
+    {
+      "label": "Collect only missing raw iron, then smelt up to 30 iron ingots",
+      "action": "smelt",
+      "item": "minecraft:iron_ingot",
+      "count": 30,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ],
+      "input": "minecraft:raw_iron"
+    },
+    {
+      "label": "Craft an iron pickaxe for diamond ore; reuse a better pickaxe",
+      "action": "craft",
+      "item": "minecraft:iron_pickaxe",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ],
+      "role": "pickaxe"
+    },
+    {
+      "label": "Craft an iron sword; reuse a better sword",
+      "action": "craft",
+      "item": "minecraft:iron_sword",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ],
+      "role": "sword"
+    },
+    {
+      "label": "Craft a shield before deep mining",
+      "action": "craft",
+      "item": "minecraft:shield",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ]
+    },
+    {
+      "label": "Craft an iron chestplate if this diamond armor piece is missing",
+      "action": "craft",
+      "item": "minecraft:iron_chestplate",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_chestplate"
+      ]
+    },
+    {
+      "label": "Craft an iron helmet if this diamond armor piece is missing",
+      "action": "craft",
+      "item": "minecraft:iron_helmet",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_helmet"
+      ]
+    },
+    {
+      "label": "Craft an iron leggings if this diamond armor piece is missing",
+      "action": "craft",
+      "item": "minecraft:iron_leggings",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_leggings"
+      ]
+    },
+    {
+      "label": "Craft an iron boots if this diamond armor piece is missing",
+      "action": "craft",
+      "item": "minecraft:iron_boots",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_boots"
+      ]
+    },
+    {
+      "label": "Craft 32 torches for underground visibility",
+      "action": "craft",
+      "item": "minecraft:torch",
+      "count": 32,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ]
+    },
+    {
+      "label": "Replenish food before deep mining",
+      "action": "food",
+      "item": "minecraft:bread",
+      "count": 16,
+      "skipIf": [
+        "minecraft:diamond_helmet",
+        "minecraft:diamond_chestplate",
+        "minecraft:diamond_leggings",
+        "minecraft:diamond_boots"
+      ],
+      "role": "food"
+    },
+    {
+      "label": "Collect 8 diamonds for the chestplate; skip if already owned",
+      "action": "mine",
+      "item": "minecraft:diamond",
+      "count": 8,
+      "skipIf": [
+        "minecraft:diamond_chestplate"
+      ]
+    },
+    {
+      "label": "Craft the diamond chestplate; count equipped armor too",
+      "action": "craft",
+      "item": "minecraft:diamond_chestplate",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_chestplate"
+      ]
+    },
+    {
+      "label": "Collect 5 diamonds for the helmet; skip if already owned",
+      "action": "mine",
+      "item": "minecraft:diamond",
+      "count": 5,
+      "skipIf": [
+        "minecraft:diamond_helmet"
+      ]
+    },
+    {
+      "label": "Craft the diamond helmet; count equipped armor too",
+      "action": "craft",
+      "item": "minecraft:diamond_helmet",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_helmet"
+      ]
+    },
+    {
+      "label": "Collect 7 diamonds for the leggings; skip if already owned",
+      "action": "mine",
+      "item": "minecraft:diamond",
+      "count": 7,
+      "skipIf": [
+        "minecraft:diamond_leggings"
+      ]
+    },
+    {
+      "label": "Craft the diamond leggings; count equipped armor too",
+      "action": "craft",
+      "item": "minecraft:diamond_leggings",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_leggings"
+      ]
+    },
+    {
+      "label": "Collect 4 diamonds for the boots; skip if already owned",
+      "action": "mine",
+      "item": "minecraft:diamond",
+      "count": 4,
+      "skipIf": [
+        "minecraft:diamond_boots"
+      ]
+    },
+    {
+      "label": "Craft the diamond boots; count equipped armor too",
+      "action": "craft",
+      "item": "minecraft:diamond_boots",
+      "count": 1,
+      "skipIf": [
+        "minecraft:diamond_boots"
+      ]
+    }
+  ],
+  "recipes": {
+    "table": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "#minecraft:planks"
+        }
+      ],
+      "output": "minecraft:crafting_table",
+      "width": 2,
+      "count": 1
+    },
+    "sticks": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        }
+      ],
+      "output": "minecraft:stick",
+      "width": 2,
+      "count": 4
+    },
+    "bread": {
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "minecraft:wheat"
+        },
+        {
+          "column": 1,
+          "row": 0,
+          "ingredient": "minecraft:wheat"
+        },
+        {
+          "column": 2,
+          "row": 0,
+          "ingredient": "minecraft:wheat"
+        }
+      ],
+      "output": "minecraft:bread",
+      "width": 3,
+      "count": 1
+    },
+    "furnace": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 2,
+          "column": 2,
+          "ingredient": "minecraft:cobblestone"
+        }
+      ],
+      "output": "minecraft:furnace",
+      "width": 3,
+      "count": 1
+    },
+    "wheat": {
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "minecraft:hay_block"
+        }
+      ],
+      "output": "minecraft:wheat",
+      "width": 2,
+      "count": 9
+    },
+    "planks": {
+      "cells": [
+        {
+          "column": 0,
+          "row": 0,
+          "ingredient": "$log"
+        }
+      ],
+      "output": "$log_planks",
+      "width": 2,
+      "count": 4
+    },
+    "pickaxe": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:stone_pickaxe",
+      "width": 3,
+      "count": 1
+    },
+    "axe": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:stone_axe",
+      "width": 3,
+      "count": 1
+    },
+    "sword": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:cobblestone"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:stone_sword",
+      "width": 3,
+      "count": 1
+    },
+    "torch": {
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:coal"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:torch",
+      "width": 2,
+      "count": 4
+    },
+    "wooden_sword": {
+      "output": "minecraft:wooden_sword",
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:stick"
+        }
+      ]
+    },
+    "iron_pickaxe": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:iron_pickaxe"
+    },
+    "iron_sword": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:stick"
+        }
+      ],
+      "output": "minecraft:iron_sword"
+    },
+    "shield": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "#minecraft:planks"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "#minecraft:planks"
+        }
+      ],
+      "output": "minecraft:shield"
+    },
+    "iron_helmet": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        }
+      ],
+      "output": "minecraft:iron_helmet"
+    },
+    "iron_chestplate": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 2,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        }
+      ],
+      "output": "minecraft:iron_chestplate"
+    },
+    "iron_leggings": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 2,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        }
+      ],
+      "output": "minecraft:iron_leggings"
+    },
+    "iron_boots": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:iron_ingot"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:iron_ingot"
+        }
+      ],
+      "output": "minecraft:iron_boots"
+    },
+    "diamond_helmet": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        }
+      ],
+      "output": "minecraft:diamond_helmet"
+    },
+    "diamond_chestplate": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 1,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 2,
+          "column": 1,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 2,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        }
+      ],
+      "output": "minecraft:diamond_chestplate"
+    },
+    "diamond_leggings": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 0,
+          "column": 1,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 2,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 2,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        }
+      ],
+      "output": "minecraft:diamond_leggings"
+    },
+    "diamond_boots": {
+      "count": 1,
+      "width": 3,
+      "cells": [
+        {
+          "row": 0,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 0,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 0,
+          "ingredient": "minecraft:diamond"
+        },
+        {
+          "row": 1,
+          "column": 2,
+          "ingredient": "minecraft:diamond"
+        }
+      ],
+      "output": "minecraft:diamond_boots"
+    }
+  }
+}
