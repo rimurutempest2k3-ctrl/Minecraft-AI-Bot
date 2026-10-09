@@ -9,7 +9,10 @@ assistance, chest memory, optional AI control and a local web dashboard.
 
 - Minecraft Java 26.2 and Java 25+.
 - Fabric Loader 0.19.5+, Fabric API for 26.2.
-- Baritone Fabric 1.19.0 for 26.2, installed separately.
+- [Download Baritone API Fabric 1.19.0](https://github.com/cabaletta/baritone/releases/download/v1.19.0/baritone-api-fabric-1.19.0.jar) for Minecraft 26.2, installed separately.
+
+
+Use `baritone-api-fabric-1.19.0.jar`. Remove older Baritone JARs from the active profile's `mods/` folder before installing it; keep only one Baritone version.
 
 ## Install and run
 
@@ -65,7 +68,7 @@ Licensed under [MIT](LICENSE). Forks and redistribution are welcome; retain the 
 Mod hỗ trợ nhiệm vụ JSON, di chuyển/đào bằng Baritone, sinh tồn, bộ nhớ rương,
 AI tùy chọn và điều khiển trên web local.
 
-1. Cài Minecraft 26.2 với Fabric Loader 0.19.5+, Java 25+, Fabric API và Baritone 1.19.0.
+1. Cài Minecraft 26.2 với Fabric Loader 0.19.5+, Java 25+, Fabric API và [Baritone API Fabric 1.19.0](https://github.com/cabaletta/baritone/releases/download/v1.19.0/baritone-api-fabric-1.19.0.jar).
 2. Chép các JAR vào `mods/` của đúng thư mục game trong launcher.
 3. Chép `config/` từ gói phát hành vào thư mục game; giữ cấu hình riêng khi nâng cấp.
 4. Vào thế giới, mở địa chỉ trong `bot-web-url.txt`, bật bot và chọn nhiệm vụ trên web.
@@ -80,3 +83,5 @@ Console là tùy chọn: đặt `bot-console.bat` và `tools/` vào thư mục g
 `libs/`, rồi chạy `.\gradlew.bat releaseZip`.
 
 Giấy phép [MIT](LICENSE) cho phép fork và phân phối lại khi giữ thông báo bản quyền và giấy phép. Phần đã công bố theo CC0 vẫn giữ quyền sử dụng CC0.
+
+Nếu gặp lỗi phiên bản Baritone: chuyển JAR Baritone cũ ra khỏi `mods/` của hồ sơ đang chạy, rồi cài đúng `baritone-api-fabric-1.19.0.jar`. Chỉ giữ một bản Baritone.
