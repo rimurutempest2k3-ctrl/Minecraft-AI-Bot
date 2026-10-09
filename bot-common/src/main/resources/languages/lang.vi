@@ -2,6 +2,10 @@
   "version": 1,
   "language": "vi",
   "messages": {
+    " Checking remembered and nearby mature crops.": " Kiểm tra cây trồng đã chín quanh mình và trong bộ nhớ.",
+    "Local: checking remembered and nearby mature wheat and potatoes.": "Local: kiểm tra lúa mì/khoai tây đã chín quanh mình và trong bộ nhớ.",
+    "Cannot read food plant memory; existing file preserved.": "Không đọc được bộ nhớ cây trồng; giữ nguyên file cũ.",
+    "Food sources exhausted: animals and mature crops could not supply enough food. Bring food or move to another area, then run the task again. Survival remains active.": "Không đủ thức ăn từ thú và cây trồng đã chín. Mang thức ăn hoặc chuyển khu vực rồi chạy lại nhiệm vụ. Bộ sinh tồn vẫn hoạt động.",
     "No safe loaded placement position within eight blocks; move to open ground and retry.": "Không có chỗ đặt an toàn đã tải trong tám khối; chuyển tới nơi thoáng rồi thử lại.",
     "; checking nearby elevations and routes around obstacles.": "; kiểm tra bậc cao/thấp và đường vòng quanh vật cản.",
     " Checking food chests within 100 blocks, then mature crops.": " Kiểm tra rương thức ăn trong 100 khối, sau đó tìm cây trồng đã chín.",

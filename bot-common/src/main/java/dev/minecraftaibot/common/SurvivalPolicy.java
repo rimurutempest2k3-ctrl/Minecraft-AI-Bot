@@ -21,7 +21,7 @@ public final class SurvivalPolicy {
         if(hunger>6 && (raw || harmful || rotten))return -1;
         return raw?100:harmful&&!rotten?0:rotten?10:cooked?400:300;
     }
-    public static boolean foodChestWithinRange(double distanceSquared) {return Double.isFinite(distanceSquared) && distanceSquared>=0 && distanceSquared<=100*100;}
+    public static boolean foodSourceWithinRange(double distanceSquared) {return Double.isFinite(distanceSquared) && distanceSquared>=0 && distanceSquared<=100*100;}
     public static boolean emergencyFood(double health,double maximum,int hunger) {
         return maximum>0 && Double.isFinite(maximum) && Double.isFinite(health) && (health<maximum*0.5 || hunger<=6);
     }

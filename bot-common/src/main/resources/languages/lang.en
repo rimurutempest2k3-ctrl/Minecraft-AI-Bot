@@ -2,6 +2,10 @@
   "version": 1,
   "language": "en",
   "messages": {
+    " Checking remembered and nearby mature crops.": " Checking remembered and nearby mature crops.",
+    "Local: checking remembered and nearby mature wheat and potatoes.": "Local: checking remembered and nearby mature wheat and potatoes.",
+    "Cannot read food plant memory; existing file preserved.": "Cannot read food plant memory; existing file preserved.",
+    "Food sources exhausted: animals and mature crops could not supply enough food. Bring food or move to another area, then run the task again. Survival remains active.": "Food sources exhausted: animals and mature crops could not supply enough food. Bring food or move to another area, then run the task again. Survival remains active.",
     "No safe loaded placement position within eight blocks; move to open ground and retry.": "No safe loaded placement position within eight blocks; move to open ground and retry.",
     "; checking nearby elevations and routes around obstacles.": "; checking nearby elevations and routes around obstacles.",
     " Checking food chests within 100 blocks, then mature crops.": " Checking food chests within 100 blocks, then mature crops.",
