@@ -13,6 +13,7 @@ public final class WebConsoleTest {
         Path directory=Files.createTempDirectory("bot-web-test"),endpoint=directory.resolve("url.txt");
         var client=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).build();
         var calls=new java.util.concurrent.atomic.AtomicInteger();
+        TaskPresets.initialize(Files.createTempDirectory("bot-web-task-import").resolve("local-tasks.json"));
         try(var server=new WebConsole(endpoint,0,command->{calls.incrementAndGet();if(command.equals("fail")) throw new IllegalStateException("private diagnostic");return "Đã nhận: "+command;})) {
             String url=server.url();
             check(Files.readString(endpoint).trim().equals(url));
@@ -43,6 +44,25 @@ public final class WebConsoleTest {
             check(invalid.statusCode()==400 && calls.get()==2);
             var large=client.send(command(url,cookie,"x".repeat(4097)),HttpResponse.BodyHandlers.ofString());
             check(large.statusCode()==413 && calls.get()==2);
+            String task="{\"version\":1,\"title\":\"Imported task\",\"steps\":[{\"label\":\"Wood\",\"item\":\"minecraft:oak_log\",\"count\":4,\"action\":\"mine\"}]}";
+            var deniedImport=client.send(importTask(url,"","test.json",task),HttpResponse.BodyHandlers.ofString());
+            check(deniedImport.statusCode()==401);
+            var imported=client.send(importTask(url,cookie,"test.json",task),HttpResponse.BodyHandlers.ofString());
+            check(imported.statusCode()==201 && imported.body().contains("test.taskbot") && calls.get()==2);
+            check(TaskPresets.workflow("test.taskbot").plan().steps().getFirst().count()==4);
+            var duplicate=client.send(importTask(url,cookie,"test.taskbot",task.replace("4","8")),HttpResponse.BodyHandlers.ofString());
+            check(duplicate.statusCode()==400 && TaskPresets.workflow("test.taskbot").plan().steps().getFirst().count()==4);
+            for(String name:java.util.List.of("../escaped.taskbot","bad.exe")) {
+                var unsafe=client.send(importTask(url,cookie,name,task),HttpResponse.BodyHandlers.ofString());check(unsafe.statusCode()==400);
+            }
+            var badTask=client.send(importTask(url,cookie,"invalid.taskbot",task.replace("mine","shell")),HttpResponse.BodyHandlers.ofString());
+            check(badTask.statusCode()==400 && !Files.exists(TaskPresets.workflowDirectory().resolve("invalid.taskbot")));
+            var hugeTask=client.send(importTask(url,cookie,"huge.taskbot"," ".repeat(262145)),HttpResponse.BodyHandlers.ofString());
+            check(hugeTask.statusCode()==413);
+            var crossImport=client.send(HttpRequest.newBuilder(URI.create(url+"/tasks/import")).header("Cookie",cookie)
+                    .header("Origin","http://example.com").header("Content-Type","application/json").header("X-Bot-Request","1")
+                    .header("X-Bot-Filename","cross.taskbot").POST(HttpRequest.BodyPublishers.ofString(task)).build(),HttpResponse.BodyHandlers.ofString());
+            check(crossImport.statusCode()==403 && !Files.exists(TaskPresets.workflowDirectory().resolve("cross.taskbot")));
             var stream=client.send(HttpRequest.newBuilder(URI.create(url+"/events")).header("Cookie",cookie).GET().build(),HttpResponse.BodyHandlers.ofInputStream());
             check(stream.statusCode()==200);
             try(var input=stream.body();var reader=new BufferedReader(new InputStreamReader(input,StandardCharsets.UTF_8));var worker=Executors.newVirtualThreadPerTaskExecutor()) {
@@ -91,6 +111,12 @@ public final class WebConsoleTest {
         return HttpRequest.newBuilder(URI.create(url+"/command")).header("Cookie",cookie).header("Origin",url)
                 .header("Content-Type","application/json").header("X-Bot-Request","1")
                 .POST(HttpRequest.BodyPublishers.ofString(body)).build();
+    }
+    private static HttpRequest importTask(String url,String cookie,String filename,String body) {
+        return HttpRequest.newBuilder(URI.create(url+"/tasks/import")).header("Cookie",cookie).header("Origin",url)
+                .header("Content-Type","application/json").header("X-Bot-Request","1")
+                .header("X-Bot-Filename",java.net.URLEncoder.encode(filename,StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(body,StandardCharsets.UTF_8)).build();
     }
     private static void check(boolean condition) {if(!condition) throw new AssertionError("Web console check failed");}
 }

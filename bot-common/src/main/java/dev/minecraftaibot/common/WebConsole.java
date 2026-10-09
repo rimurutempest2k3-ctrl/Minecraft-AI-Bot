@@ -97,6 +97,28 @@ public final class WebConsole implements AutoCloseable {
                 catch(RuntimeException failure) {reply(exchange,503,"Game state not available yet.");}
                 return;
             }
+            if(method.equals("POST") && path.equals("/tasks/import")) {
+                if(!url().equals(headers.getFirst("Origin")) || !"1".equals(headers.getFirst("X-Bot-Request"))
+                        || !"application/json".equals(headers.getFirst("Content-Type"))) {reply(exchange,403,"Invalid request origin.");return;}
+                byte[] body=exchange.getRequestBody().readNBytes(262145);
+                if(body.length>262144) {reply(exchange,413,"Task file exceeds 256 KB");return;}
+                String filename;
+                try {filename=URLDecoder.decode(Objects.requireNonNull(headers.getFirst("X-Bot-Filename")),StandardCharsets.UTF_8);}
+                catch(RuntimeException invalid) {reply(exchange,400,"Invalid task filename.");return;}
+                if(!commands.tryAcquire()) {reply(exchange,429,"Previous command is processing; this command was not sent.");return;}
+                try {
+                    TaskPresets.Workflow imported;
+                    try {imported=TaskPresets.importWorkflow(filename,new String(body,StandardCharsets.UTF_8));}
+                    catch(IllegalArgumentException invalid) {reply(exchange,400,invalid.getMessage());return;}
+                    catch(IOException failure) {reply(exchange,503,"Cannot save task file. Check the task directory.");return;}
+                    String message="Task imported: "+imported.filename()+". Select it and click Run when ready.";
+                    publish(message,Channel.RESPONSE);
+                    byte[] response=json.toJson(Map.of("filename",imported.filename(),"message",message)).getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type","application/json; charset=utf-8");
+                    exchange.sendResponseHeaders(201,response.length);exchange.getResponseBody().write(response);
+                } finally {commands.release();}
+                return;
+            }
             if(method.equals("POST") && path.equals("/command")) {
                 if(!url().equals(headers.getFirst("Origin")) || !"1".equals(headers.getFirst("X-Bot-Request"))
                         || !"application/json".equals(headers.getFirst("Content-Type"))) {reply(exchange,403,"Invalid request origin.");return;}

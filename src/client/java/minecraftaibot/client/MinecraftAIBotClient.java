@@ -128,11 +128,11 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         if(normalized.equals("bot language") || normalized.startsWith("bot language "))return commands.execute(input);
         if(normalized.startsWith("bot workflow run "))return runWorkflow(normalized.substring(17));
         if(normalized.equals("bot workflow list") || normalized.equals("bot workflow reload")) {
-            try {return "File JSON: "+TaskPresets.workflows().stream().map(w->w.filename()+(w.error()==null?"":" (error)")).collect(Collectors.joining(", "));}
+            try {return "Task files: "+TaskPresets.workflows().stream().map(w->w.filename()+(w.error()==null?"":" (error)")).collect(Collectors.joining(", "));}
             catch(RuntimeException e){return e.getMessage();}
         }
         if(normalized.equals("bot help") || normalized.equals("bot task list"))
-            return commands.execute(input)+"\nLocal files: bot workflow list/reload; bot workflow run <name.json>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.";
+            return commands.execute(input)+"\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.";
         if(normalized.startsWith("bot starter ")) {
             String option=normalized.substring(12);
             if(option.equals("start") || option.equals("food") || option.startsWith("food ")) {

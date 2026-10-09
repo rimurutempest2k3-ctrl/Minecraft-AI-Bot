@@ -47,7 +47,11 @@ public final class I18n {
             Path file=languages.resolve("lang."+language);
             if(!Files.exists(file))try(var in=I18n.class.getResourceAsStream("/languages/lang."+language)){Files.copy(in,file);}
             if(Files.size(file)>1048576)throw new IOException("Language file exceeds 1 MB");
-            try {catalogs.put(language,parse(Files.readString(file,StandardCharsets.UTF_8),language));}
+            try {
+                var messages=new HashMap<>(catalogs.get(language).messages());
+                messages.putAll(parse(Files.readString(file,StandardCharsets.UTF_8),language).messages());
+                catalogs.put(language,parse(JSON.toJson(Map.of("version",1,"language",language,"messages",messages)),language));
+            }
             catch(RuntimeException failure) {throw new IOException("Invalid lang."+language,failure);}
         }
         if(!catalogs.get("vi").messages().keySet().equals(catalogs.get("en").messages().keySet()))throw new IOException("Language keys do not match");

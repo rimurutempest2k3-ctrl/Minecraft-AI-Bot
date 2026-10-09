@@ -85,6 +85,16 @@ public final class TaskPresets {
         catch(RuntimeException e) {throw invalid(filename+": "+e.getMessage());}
     }
     private static Workflow parseWorkflowContent(String filename,String json) {
+        int depth=0;boolean quoted=false,escaped=false;
+        for(char c:json.toCharArray()) {
+            if(quoted) {
+                if(escaped) escaped=false;
+                else if(c=='\\') escaped=true;
+                else if(c=='"') quoted=false;
+            } else if(c=='"') quoted=true;
+            else if(c=='{' || c=='[') {if(++depth>32)throw invalid("Task JSON nesting exceeds 32 levels");}
+            else if(c=='}' || c==']') depth--;
+        }
         var root=JsonParser.parseString(json).getAsJsonObject();validateKeys(root,Set.of("version","title","description","steps","recipes","goal"));
         Goal goal=null;
         if(root.has("goal")) {
@@ -105,9 +115,13 @@ public final class TaskPresets {
         return new Workflow(filename,title,description,plan,null,goal);
     }
     public static Workflow workflow(String filename) {
-        if(filename==null || !filename.matches("[a-z0-9][a-z0-9_-]{0,63}\\.json")) throw invalid("Filename must use lowercase letters, digits, -/_ and end in .json");
+        if(!workflowFilename(filename)) throw invalid("Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json");
         try {
             Path directory=workflowDirectory();Path path=directory.resolve(filename);
+            if(!Files.exists(path,LinkOption.NOFOLLOW_LINKS)) {
+                String alternate=filename.endsWith(".json")?filename.substring(0,filename.length()-5)+".taskbot":filename.substring(0,filename.length()-8)+".json";
+                if(Files.exists(directory.resolve(alternate),LinkOption.NOFOLLOW_LINKS)) {filename=alternate;path=directory.resolve(filename);}
+            }
             if(!directory.toRealPath().startsWith(directory.getParent().toRealPath()) || !Files.isRegularFile(path,LinkOption.NOFOLLOW_LINKS)
                     || !path.toRealPath().getParent().equals(directory.toRealPath())) throw invalid("File is outside the task directory");
             if(Files.size(path)>262144) throw invalid("Task file exceeds 256 KB");
@@ -119,7 +133,7 @@ public final class TaskPresets {
             var result=new ArrayList<Workflow>();
             Path sharedFile=file.resolveSibling("core-data").resolve("task-recipes.json");
             String shared=Files.exists(sharedFile)?Files.getLastModifiedTime(sharedFile).toString()+Files.size(sharedFile):"absent";
-            for(Path path:paths.filter(p->p.getFileName().toString().endsWith(".json")).sorted().limit(64).toList()) {
+            for(Path path:paths.filter(p->p.getFileName().toString().endsWith(".json") || p.getFileName().toString().endsWith(".taskbot")).sorted().limit(64).toList()) {
                 String filename=path.getFileName().toString();
                 try {
                     String stamp=shared+Files.getLastModifiedTime(path,LinkOption.NOFOLLOW_LINKS)+Files.size(path);
@@ -133,6 +147,32 @@ public final class TaskPresets {
             return List.copyOf(result);
         } catch(IOException e) {throw invalid("Cannot read task directory");}
     }
+    private static boolean workflowFilename(String name) {
+        return name!=null && name.matches("[a-z0-9][a-z0-9_-]{0,63}\\.(?:taskbot|json)");
+    }
+    /** Import data only: validate the existing task schema before creating a new library file. */
+    public static synchronized Workflow importWorkflow(String uploadedName,String content) throws IOException {
+        String name=uploadedName==null?null:uploadedName.toLowerCase(Locale.ROOT);
+        if(!workflowFilename(name)) throw invalid("Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json");
+        if(content==null || content.getBytes(StandardCharsets.UTF_8).length>262144) throw invalid("Task file exceeds 256 KB");
+        if(name.endsWith(".json")) name=name.substring(0,name.length()-5)+".taskbot";
+        Workflow parsed=parseWorkflow(name,content.startsWith("\uFEFF")?content.substring(1):content);
+        Path directory=workflowDirectory();
+        if(!directory.toRealPath().startsWith(directory.getParent().toRealPath())) throw invalid("File is outside the task directory");
+        try(var entries=Files.list(directory)) {
+            if(entries.filter(p->workflowFilename(p.getFileName().toString())).count()>=64) throw invalid("Task library is full (64 files).");
+        }
+        // Write a complete temporary file before publishing it; never replace an existing task/symlink.
+        Path target=directory.resolve(name);
+        Path temporary=Files.createTempFile(directory,".import-",".tmp");
+        try {
+            Files.writeString(temporary,content.startsWith("\uFEFF")?content.substring(1):content,StandardCharsets.UTF_8);
+            Files.move(temporary,target);
+        } catch(FileAlreadyExistsException exists) {throw invalid("Task file already exists. Rename the imported file first.");}
+        finally {Files.deleteIfExists(temporary);}
+        workflowCache.remove(name);
+        return parsed;
+    }
     public static boolean huntable(String entity,boolean baby,boolean named) {
         return !baby && !named && Set.of("minecraft:cow","minecraft:pig","minecraft:sheep","minecraft:chicken").contains(entity);
     }
@@ -141,7 +181,7 @@ public final class TaskPresets {
         return Math.min(64,Math.min(missing,available));
     }
     public static Starter starter() {
-        return workflow("starter-kit.json").plan();
+        return workflow("starter-kit.taskbot").plan();
     }
     /** Optional external recipe library. A workflow can also supply its own recipes. */
     private static JsonObject sharedRecipes() {

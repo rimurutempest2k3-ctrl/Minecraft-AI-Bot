@@ -24,7 +24,7 @@ function append(message,channel='ERROR'){
 const events=new EventSource('/events');events.onopen=()=>text('#connection','Connected');events.onerror=()=>text('#connection','Disconnected · retrying');
 events.onmessage=e=>{try{const data=JSON.parse(e.data);append(typeof data==='string'?data:data.text,typeof data==='string'?'RESPONSE':data.channel);}catch{append('Could not read a log entry.');}};
 async function request(command){const response=await fetch('/command',{method:'POST',headers:{'Content-Type':'application/json','X-Bot-Request':'1'},body:JSON.stringify({command})});const data=await response.json();if(!response.ok)throw new Error(data.message||'Request incomplete.');text('#settings-feedback',data.message);return data.message;}
-function lock(value){sending=value;document.querySelectorAll('[data-command],.switch,#save-api,#save-ai,#send-command,#baritone-form button').forEach(el=>el.disabled=value||!snapshot);const selected=snapshot?.workflows?.files?.find(f=>f.filename===selectedWorkflow);$('#run-workflow').disabled=value||!snapshot?.inWorld||!selected||!!selected.error;}
+function lock(value){sending=value;document.querySelectorAll('[data-command],.switch,#save-api,#save-ai,#send-command,#baritone-form button,#browse-workflow').forEach(el=>el.disabled=value||!snapshot);const selected=snapshot?.workflows?.files?.find(f=>f.filename===selectedWorkflow);$('#run-workflow').disabled=value||!snapshot?.inWorld||!selected||!!selected.error;}
 async function action(work){if(sending)return;lock(true);try{await work();}catch(error){text('#settings-feedback',error.message);append(error.message+' Commands are not retried automatically; check state before resubmitting.');}finally{lock(false);await refresh();}}
 async function send(command){if(command.trim())return action(()=>request(command));}
 function apiStatus(){const config=snapshot?.ai?.providers?.[$('#api-provider').value];text('#api-status',config?(config.configured?'Configured':'No key')+(config.source==='ENVIRONMENT'?' · from environment variable':''):'Configuration not loaded');}
@@ -51,7 +51,7 @@ $("#command-input").addEventListener("input",()=>{$("#command-input").type=/^\s*
 function renderSupplies(plan){
     $('#starter-auto').setAttribute('aria-checked',String(!!plan?.automatic));
     text('#starter-status',plan?.status||'No task.');
-    text('#running-workflow-title',plan?.title?(plan.title+' · '+plan.file):'No JSON task running');
+    text('#running-workflow-title',plan?.title?(plan.title+' · '+plan.file):'No task file running');
     const states={RUNNING:'Running',COMPLETED:'Completed',CANCELLED:'Stopped',IDLE:'Not started'};
     const done=(plan?.steps||[]).filter(s=>['COMPLETED','SKIPPED'].includes(s.state)).length;
     text('#workflow-summary',(states[plan?.state]||'Not started')+' · '+done+' / '+(plan?.steps?.length||0)+' steps finished');
@@ -63,7 +63,7 @@ function renderSupplies(plan){
 }
 function previewWorkflow(){
     const file=snapshot?.workflows?.files?.find(f=>f.filename===selectedWorkflow);
-    text('#workflow-title',file?.title||'Select a JSON file');text('#workflow-description',file?(file.description+' · '+file.filename):'');
+    text('#workflow-title',file?.title||'Select a task file');text('#workflow-description',file?(file.description+' · '+file.filename):'');
     $('#workflow-error').hidden=!file?.error;text('#workflow-error',file?.error||'');
     const box=$('#workflow-preview');box.replaceChildren();
     const actions={mine:'Gather materials',craft:'Craft',food:'Hunt and cook food'};
@@ -87,6 +87,23 @@ function renderLibrary(library,force=false){
 const workflowTabs=[...document.querySelectorAll('[data-workflow-tab]')];
 function showWorkflowTab(id){workflowTabs.forEach(b=>{const active=b.dataset.workflowTab===id;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;$('#'+b.dataset.workflowTab).hidden=!active;});}
 workflowTabs.forEach((b,i)=>{b.addEventListener('click',()=>showWorkflowTab(b.dataset.workflowTab));b.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?1:1-i;showWorkflowTab(workflowTabs[next].dataset.workflowTab);workflowTabs[next].focus();});});
+$('#browse-workflow').addEventListener('click',()=>$('#import-workflow-file').click());
+$('#import-workflow-file').addEventListener('change',()=>{
+    const input=$('#import-workflow-file'),file=input.files?.[0];input.value='';if(!file)return;
+    action(async()=>{
+        const feedback=$('#task-import-feedback');feedback.hidden=false;
+        try {
+            if(!/\.(taskbot|json)$/i.test(file.name))throw new Error('Choose a .taskbot or .json task file.');
+            if(file.size>262144)throw new Error('Task file exceeds 256 KB');
+            text('#task-import-feedback','Checking and importing task file…');
+            const response=await fetch('/tasks/import',{method:'POST',headers:{'Content-Type':'application/json','X-Bot-Request':'1','X-Bot-Filename':encodeURIComponent(file.name)},body:await file.text()});
+            const data=await response.json();if(!response.ok)throw new Error(data.message||'Task import failed.');
+            selectedWorkflow=data.filename;librarySignature='';$('#workflow-search').value='';
+            text('#task-import-feedback',data.message);append(data.message,'RESPONSE');
+        } catch(error){text('#task-import-feedback',error.message);throw error;}
+        finally{input.value='';}
+    });
+});
 $('#workflow-search').addEventListener('input',()=>renderLibrary(snapshot?.workflows,true));
 $('#run-workflow').addEventListener('click',()=>action(async()=>{const message=await request('bot workflow run '+selectedWorkflow);if(!message.startsWith('Previous task stopped.'))throw new Error(message);showWorkflowTab('workflow-progress');}));
 $('#starter-auto').addEventListener('click',()=>send('bot starter auto '+(snapshot?.starter?.automatic?'off':'on')));

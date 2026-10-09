@@ -1045,6 +1045,26 @@
     "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package.": "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package.",
     "Could not load inventory-layout.json; keeping current layout.": "Could not load inventory-layout.json; keeping current layout.",
     "Wait for survival actions to finish before reloading inventory layout.": "Wait for survival actions to finish before reloading inventory layout.",
-    "Loaded inventory-layout.json.": "Loaded inventory-layout.json."
+    "Loaded inventory-layout.json.": "Loaded inventory-layout.json.",
+    "Task files (.taskbot)": "Task files (.taskbot)",
+    "Browse task file": "Browse task file",
+    "No task file running": "No task file running",
+    "Select a file in the Task files tab.": "Select a file in the Task files tab.",
+    "Search task name or .taskbot file…": "Search task name or .taskbot file…",
+    "Select a task file": "Select a task file",
+    "Browse to import a .taskbot or legacy .json file, or edit tasks in the directory above. Imported files are saved as .taskbot. Preview the steps before running; invalid files cannot run.": "Browse to import a .taskbot or legacy .json file, or edit tasks in the directory above. Imported files are saved as .taskbot. Preview the steps before running; invalid files cannot run.",
+    "Choose a .taskbot or .json task file.": "Choose a .taskbot or .json task file.",
+    "Checking and importing task file…": "Checking and importing task file…",
+    "Task import failed.": "Task import failed.",
+    "Invalid task filename.": "Invalid task filename.",
+    "Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json": "Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json",
+    "Task library is full (64 files).": "Task library is full (64 files).",
+    "Task file already exists. Rename the imported file first.": "Task file already exists. Rename the imported file first.",
+    "Cannot save task file. Check the task directory.": "Cannot save task file. Check the task directory.",
+    "Task imported: ": "Task imported: ",
+    ". Select it and click Run when ready.": ". Select it and click Run when ready.",
+    "Task JSON nesting exceeds 32 levels": "Task JSON nesting exceeds 32 levels",
+    "Task files: ": "Task files: ",
+    "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.": "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off."
   }
 }

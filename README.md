@@ -25,7 +25,7 @@ Use `baritone-api-fabric-1.19.0.jar`. Remove older Baritone JARs from the active
    It is usually `http://127.0.0.1:8765`.
 6. Start the bot on the web, select a task and click Run.
 
-Task files are in `config/minecraft-ai-bot/tasks/`. Edit or add JSON there,
+Task files are in `config/minecraft-ai-bot/tasks/`. Use Browse task file on the web to import `.taskbot` or legacy `.json` files (up to 256 KB). Imports are validated, saved as `.taskbot` and never overwrite existing files or start automatically. Rename a file before importing if its name already exists. The content remains JSON; only task files use `.taskbot`, while recipes and other configuration keep `.json`. Edit or add tasks there,
 then reload the task list on the web. Local tasks do not require an AI key.
 Use Settings to select English/Vietnamese and configure optional AI providers.
 Keep API keys in the game's `config/minecraft-ai-bot/secrets.properties` private.
@@ -45,7 +45,7 @@ Hotbar layout: edit `config/minecraft-ai-bot/inventory-layout.json` and run `bot
 | `bot info` | View player and bot status |
 | `bot inventory` | View inventory |
 | `bot workflow list` | List JSON tasks |
-| `bot workflow run furnace.json` | Run the furnace task |
+| `bot workflow run furnace.taskbot` | Run the furnace task |
 | `bot stop` | Stop the bot and cancel its current task |
 
 ## Build from source
@@ -73,7 +73,7 @@ AI tùy chọn và điều khiển trên web local.
 3. Chép `config/` từ gói phát hành vào thư mục game; giữ cấu hình riêng khi nâng cấp.
 4. Vào thế giới, mở địa chỉ trong `bot-web-url.txt`, bật bot và chọn nhiệm vụ trên web.
 
-Nhiệm vụ ở `config/minecraft-ai-bot/tasks/`; sửa JSON rồi đọc lại danh sách trên web.
+Nhiệm vụ ở `config/minecraft-ai-bot/tasks/`. Bấm Duyệt file nhiệm vụ trên web để nhập `.taskbot` hoặc `.json` cũ (tối đa 256 KB); file được kiểm tra, lưu thành `.taskbot`, không ghi đè và không tự chạy. Nội dung vẫn là JSON; công thức và cấu hình khác giữ đuôi `.json`. Chọn file, xem trước rồi bấm Khởi chạy.
 Nhiệm vụ local không cần API. Đổi ngôn ngữ và lưu API key trong Cài đặt.
 Có thể dùng các lệnh trong bảng trên. Dùng `bot stop` để hủy nhiệm vụ.
 

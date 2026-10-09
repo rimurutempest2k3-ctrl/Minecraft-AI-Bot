@@ -80,7 +80,7 @@ final class LocalTaskRunner {
         if(!input.equals("start") && !foodOnly) return "Commands: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.";
         if(active) return "Local task active. Use bot stop first.";
         TaskPresets.Workflow workflow;
-        try { workflow=TaskPresets.workflow(foodOnly?"food.json":"starter-kit.json"); } catch(IllegalArgumentException e) {return e.getMessage();}
+        try { workflow=TaskPresets.workflow(foodOnly?"food.taskbot":"starter-kit.taskbot"); } catch(IllegalArgumentException e) {return e.getMessage();}
         TaskPresets.Starter plan=workflow.plan();
         if(foodOnly && input.startsWith("food ")) {
             int target=foodTarget;

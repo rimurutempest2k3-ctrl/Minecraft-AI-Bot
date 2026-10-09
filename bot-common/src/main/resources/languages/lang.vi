@@ -1045,6 +1045,26 @@
     "Thanks to testers, translators and contributors. Full credits are included in CREDITS.md inside the mod and release package.": "Cảm ơn người kiểm thử, dịch thuật và đóng góp. Credit đầy đủ nằm trong CREDITS.md của mod và gói phát hành.",
     "Could not load inventory-layout.json; keeping current layout.": "Không đọc được inventory-layout.json; giữ bố cục hiện tại.",
     "Wait for survival actions to finish before reloading inventory layout.": "Chờ thao tác sinh tồn kết thúc trước khi nạp lại bố cục hành trang.",
-    "Loaded inventory-layout.json.": "Đã nạp inventory-layout.json."
+    "Loaded inventory-layout.json.": "Đã nạp inventory-layout.json.",
+    "Task files (.taskbot)": "File nhiệm vụ (.taskbot)",
+    "Browse task file": "Duyệt file nhiệm vụ",
+    "No task file running": "Chưa có file nhiệm vụ đang chạy",
+    "Select a file in the Task files tab.": "Chọn một file trong tab File nhiệm vụ.",
+    "Search task name or .taskbot file…": "Tìm tên nhiệm vụ hoặc file .taskbot…",
+    "Select a task file": "Chọn một file nhiệm vụ",
+    "Browse to import a .taskbot or legacy .json file, or edit tasks in the directory above. Imported files are saved as .taskbot. Preview the steps before running; invalid files cannot run.": "Duyệt để nhập file .taskbot hoặc .json cũ, hoặc sửa nhiệm vụ trong thư mục trên. File nhập được lưu dưới đuôi .taskbot. Xem trước các bước rồi khởi chạy; file lỗi không được chạy.",
+    "Choose a .taskbot or .json task file.": "Chọn file nhiệm vụ .taskbot hoặc .json.",
+    "Checking and importing task file…": "Đang kiểm tra và nhập file nhiệm vụ…",
+    "Task import failed.": "Không nhập được nhiệm vụ.",
+    "Invalid task filename.": "Tên file nhiệm vụ không hợp lệ.",
+    "Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json": "Tên file phải dùng chữ thường, số, -/_ và đuôi .taskbot hoặc .json",
+    "Task library is full (64 files).": "Thư viện nhiệm vụ đã đầy (64 file).",
+    "Task file already exists. Rename the imported file first.": "File nhiệm vụ đã tồn tại. Hãy đổi tên file cần nhập trước.",
+    "Cannot save task file. Check the task directory.": "Không lưu được file nhiệm vụ. Kiểm tra thư mục nhiệm vụ.",
+    "Task imported: ": "Đã nhập nhiệm vụ: ",
+    ". Select it and click Run when ready.": ". Chọn file và bấm Khởi chạy khi sẵn sàng.",
+    "Task JSON nesting exceeds 32 levels": "JSON nhiệm vụ lồng nhau vượt quá 32 cấp",
+    "Task files: ": "File nhiệm vụ: ",
+    "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.": "\nFile local: bot workflow list/reload; bot workflow run <tên.json>. Chuẩn bị: bot starter start/status; bot starter food [1-64]; bot starter auto on/off."
   }
 }
