@@ -147,6 +147,22 @@ public final class LocalTaskTest {
             String custom="{\"version\":1,\"title\":\"Gỗ tùy chỉnh\",\"steps\":[{\"label\":\"Gỗ\",\"item\":\"minecraft:birch_log\",\"count\":7,\"action\":\"mine\"}]}";
             java.nio.file.Files.writeString(workflowFolder.resolve("custom.json"),custom);
             check(TaskPresets.workflow("custom.json").plan().steps().getFirst().count()==7);
+            var imported=TaskPresets.importWorkflow("Collected-Wood.json",custom);
+            check(imported.filename().equals("collected-wood.taskbot"));
+            check(TaskPresets.workflow("collected-wood.taskbot").plan().steps().getFirst().count()==7);
+            check(TaskPresets.workflows().stream().anyMatch(w->w.filename().equals("collected-wood.taskbot") && w.error()==null));
+            // Compatibility aliases allow old command names to find renamed task files.
+            check(TaskPresets.workflow("collected-wood.json").filename().equals("collected-wood.taskbot"));
+            for(String unsafe:List.of("../outside.taskbot","C:\\outside.taskbot","bad.exe","bad.taskbot/extra","has space.taskbot")) {
+                try {TaskPresets.importWorkflow(unsafe,custom);throw new AssertionError("Unsafe import filename accepted");}catch(IllegalArgumentException expected) {}
+            }
+            String saved=java.nio.file.Files.readString(workflowFolder.resolve("collected-wood.taskbot"));
+            try {TaskPresets.importWorkflow("Collected-Wood.taskbot",custom.replace("7","12"));throw new AssertionError("Import overwrote task");}catch(IllegalArgumentException expected) {}
+            check(java.nio.file.Files.readString(workflowFolder.resolve("collected-wood.taskbot")).equals(saved));
+            for(String bad:List.of("{broken",custom.replace("\"mine\"","\"shell\"")," ".repeat(262145),"{\"version\":"+"[".repeat(33)+"1"+"]".repeat(33)+"}")) {
+                try {TaskPresets.importWorkflow("rejected.taskbot",bad);throw new AssertionError("Invalid task imported");}catch(IllegalArgumentException expected) {}
+                check(!java.nio.file.Files.exists(workflowFolder.resolve("rejected.taskbot")));
+            }
             check(TaskPresets.workflows().stream().anyMatch(w->w.filename().equals("custom.json") && w.error()==null));
             java.nio.file.Files.writeString(workflowFolder.resolve("custom.json"),custom.replace("7","12"));
             check(TaskPresets.workflows().stream().filter(w->w.filename().equals("custom.json")).findFirst().orElseThrow().plan().steps().getFirst().count()==12);
@@ -189,7 +205,8 @@ public final class LocalTaskTest {
     static void installFixtures(java.nio.file.Path directory) throws java.io.IOException {
         for(String name:List.of("local-tasks.json","production-tasks.json","core-data/task-recipes.json","core-data/mining-rules.json","tasks/starter-kit.json","tasks/food.json","tasks/wood.json","tasks/cobblestone.json","tasks/furnace.json")) {
             var target=directory.resolve(name);java.nio.file.Files.createDirectories(target.getParent());
-            try(var source=LocalTaskTest.class.getResourceAsStream("/task-fixtures/"+name)) {
+            String resource=name.startsWith("tasks/")?name.replace(".json",".taskbot"):name;
+            try(var source=LocalTaskTest.class.getResourceAsStream("/task-fixtures/"+resource)) {
                 if(source==null)throw new java.io.IOException("Missing test fixture: "+name);
                 java.nio.file.Files.copy(source,target,java.nio.file.StandardCopyOption.REPLACE_EXISTING);
             }

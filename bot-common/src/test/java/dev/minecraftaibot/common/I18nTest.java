@@ -29,8 +29,11 @@ public final class I18nTest {
         // JSON escapes, literal replacement characters and markup must remain text.
         Path file=config.resolve("languages/lang.en");var root=JsonParser.parseString(Files.readString(file)).getAsJsonObject();
         root.getAsJsonObject("messages").addProperty("Chest memory","Chest $1 \\ <script>literal</script>");
+        root.getAsJsonObject("messages").remove("Browse task file");
         Files.writeString(file,new Gson().toJson(root),StandardCharsets.UTF_8);
         commands.execute("bot language reload");check(I18n.text("Chest memory").equals("Chest $1 \\ <script>literal</script>"));
+        check(JsonParser.parseString(I18n.catalogJson("en")).getAsJsonObject().getAsJsonObject("messages").has("Browse task file"));
+        check(!JsonParser.parseString(Files.readString(file)).getAsJsonObject().getAsJsonObject("messages").has("Browse task file"));
         Files.writeString(file,"broken",StandardCharsets.UTF_8);
         check(commands.execute("bot language reload").startsWith("Cannot load language files"));
         check(I18n.language().equals("en") && I18n.text("Chest memory").contains("Chest $1"));
