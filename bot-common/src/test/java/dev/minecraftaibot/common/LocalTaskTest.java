@@ -6,6 +6,7 @@ import com.google.gson.*;
 
 public final class LocalTaskTest {
     public static void run() {
+        plantMemoryChecks();
         try {
             var empty=java.nio.file.Files.createTempDirectory("bot-no-embedded-tasks");
             TaskPresets.initialize(empty.resolve("local-tasks.json"));
@@ -216,6 +217,27 @@ public final class LocalTaskTest {
         try { CraftingPlan.create(full,List.of(5),List.of(1,2,3,4),Map.of(1,Set.of("log")),0,new Stack("planks",4,64));throw new AssertionError(); }
         catch(IllegalArgumentException expected) {check(full.get(5).count()==64);}
         System.out.println("All JSON task loading, custom task, live reload, malformed definition rejection, prerequisite skips, minimal wood, recipe consumption and capacity checks passed.");
+    }
+    private static void plantMemoryChecks() {
+        try {
+            var directory=java.nio.file.Files.createTempDirectory("bot-food-plants");
+            var path=directory.resolve("server-a.json");var memory=new FoodPlantMemory(path,"server:a");
+            check(memory.observe(new FoodPlantMemory.Plant("minecraft:overworld",1,64,2,"minecraft:wheat","minecraft:bread",true,1000)));
+            check(memory.observe(new FoodPlantMemory.Plant("minecraft:the_nether",1,64,2,"minecraft:potatoes","minecraft:baked_potato",false,1000)));
+            memory.save();memory=new FoodPlantMemory(path,"server:a");
+            check(memory.plants("minecraft:overworld").size()==1 && memory.plants("minecraft:the_nether").size()==1);
+            check(memory.observe(new FoodPlantMemory.Plant("minecraft:overworld",1,64,2,"minecraft:wheat","minecraft:bread",false,2000)));
+            memory.save();check(!new FoodPlantMemory(path,"server:a").plants("minecraft:overworld").getFirst().ready());
+            check(memory.remove("minecraft:overworld",1,64,2));memory.save();
+            check(new FoodPlantMemory(path,"server:a").plants("minecraft:overworld").isEmpty());
+            check(new FoodPlantMemory(directory.resolve("server-b.json"),"server:b").plants("minecraft:the_nether").isEmpty());
+            String saved=java.nio.file.Files.readString(path);
+            try {new FoodPlantMemory(path,"server:b");throw new AssertionError("World mismatch accepted");}catch(java.io.IOException expected) {}
+            check(java.nio.file.Files.readString(path).equals(saved));
+            java.nio.file.Files.writeString(path,"broken custom data");
+            try {new FoodPlantMemory(path,"server:a");throw new AssertionError("Corrupt data accepted");}catch(java.io.IOException expected) {}
+            check(java.nio.file.Files.readString(path).equals("broken custom data"));
+        }catch(java.io.IOException e) {throw new AssertionError(e);}
     }
     private static void verifySupplyModes() {
         String task="{\"version\":1,\"steps\":[{\"label\":\"Wood\",\"action\":\"mine\",\"item\":\"minecraft:oak_log\",\"count\":16}]}";

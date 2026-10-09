@@ -26,8 +26,8 @@ public class MinecraftAIBotClient implements ClientModInitializer {
     private final ChestController chest = new ChestController(bot, movement, chestMemory, this::notifyConsole);
     private final ProductionController.BlockPlacement placement = new ProductionController.BlockPlacement(movement,this::notifyConsole);
     private final ProductionController.FurnaceRun furnace = new ProductionController.FurnaceRun(bot, movement, placement, this::notifyConsole);
-    private final LocalTaskRunner localTasks = new LocalTaskRunner(bot, movement, placement, furnace, chest, chestMemory, this::notifyConsole);
-    private final SurvivalController survival = new SurvivalController(bot,movement,this::interruptForSurvival,this::notifyConsole,this::idleForEquipment,chest,chestMemory);
+    private final LocalTaskRunner localTasks = new LocalTaskRunner(bot, movement, placement, furnace, this::notifyConsole);
+    private final SurvivalController survival = new SurvivalController(bot,movement,this::interruptForSurvival,this::notifyConsole,this::idleForEquipment);
     private final CommandDispatcher commands = new CommandDispatcher(bot, this::describeGame,
             this::executeAction, this::describeInventory, this::askAi,
             this::assignAiKey, this::executeChest);
@@ -388,6 +388,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         ClientTickEvents.START_CLIENT_TICK.register(localTasks::tick);
         ClientTickEvents.START_CLIENT_TICK.register(furnace::tick);
         ClientTickEvents.END_CLIENT_TICK.register(client -> chestMemory.tick(client, chest.busy()));
+        ClientTickEvents.END_CLIENT_TICK.register(localTasks::plantMemoryTick);
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickQueuedWorkflow(client);
             localTasks.autoTick(client,idleForEquipment() && !survival.busy());
@@ -441,6 +442,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
                 placement.cancel("Game closed; pending table placement canceled.");
                 if (ai != null) ai.close();
                 chestMemory.close();
+                localTasks.closePlantMemory();
                 movement.stop();
                 bot.stop();
                 Logging.close();

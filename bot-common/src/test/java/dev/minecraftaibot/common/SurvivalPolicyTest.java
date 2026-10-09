@@ -26,9 +26,9 @@ public final class SurvivalPolicyTest {
         int harmful=SurvivalPolicy.foodPreference(20,20,6,false,true,false,false,false);
         check(cooked>raw && raw>rotten && rotten>harmful && harmful>=0);
         check(SurvivalPolicy.foodPreference(9,20,20,false,false,false,false,true)>cooked);
-        check(SurvivalPolicy.foodChestWithinRange(100*100));
-        check(!SurvivalPolicy.foodChestWithinRange(100*100+1));
-        check(!SurvivalPolicy.foodChestWithinRange(Double.NaN));
+        check(SurvivalPolicy.foodSourceWithinRange(100*100));
+        check(!SurvivalPolicy.foodSourceWithinRange(100*100+1));
+        check(!SurvivalPolicy.foodSourceWithinRange(Double.NaN));
         check(SurvivalPolicy.lootPriority(true,true,true,true,true)==0);
         check(SurvivalPolicy.lootPriority(false,true,false,false,false)==100);
         check(SurvivalPolicy.lootPriority(false,false,true,false,false)>SurvivalPolicy.lootPriority(false,false,false,true,false));
