@@ -1,4 +1,5 @@
 {
+  "mode": "ensure",
   "version": 1,
   "title": "Hunt and cook food",
   "steps": [

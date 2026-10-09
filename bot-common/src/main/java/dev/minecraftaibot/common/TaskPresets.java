@@ -87,8 +87,15 @@ public final class TaskPresets {
     public record Goal(String item,int count) {
         public boolean satisfied(int present) {return present>=count;}
     }
-    public record Workflow(String filename,String title,String description,Starter plan,String error,Goal goal) {
-        public Workflow(String filename,String title,String description,Starter plan,String error) {this(filename,title,description,plan,error,null);}
+    public record Workflow(String filename,String title,String description,Starter plan,String error,Goal goal,String mode) {
+        public Workflow(String filename,String title,String description,Starter plan,String error) {this(filename,title,description,plan,error,null,"ensure");}
+        public Workflow(String filename,String title,String description,Starter plan,String error,Goal goal) {this(filename,title,description,plan,error,goal,"ensure");}
+        public Workflow {if(!Set.of("ensure","collect").contains(mode))throw invalid("Task mode must be ensure or collect");}
+    }
+    /** Collect measures net additions since entering a step; ensure measures current stock. */
+    public static int supplyProgress(String mode,int present,int baseline) {
+        if(present<0 || baseline<0)throw invalid("Negative supply count");
+        return switch(mode) {case "ensure" -> present;case "collect" -> Math.max(0,present-baseline);default -> throw invalid("Task mode must be ensure or collect");};
     }
     public static Path workflowDirectory() {
         if(file==null) throw invalid("Task directory not initialized");
@@ -109,7 +116,9 @@ public final class TaskPresets {
             else if(c=='{' || c=='[') {if(++depth>32)throw invalid("Task JSON nesting exceeds 32 levels");}
             else if(c=='}' || c==']') depth--;
         }
-        var root=JsonParser.parseString(json).getAsJsonObject();validateKeys(root,Set.of("version","title","description","steps","recipes","goal"));
+        var root=JsonParser.parseString(json).getAsJsonObject();validateKeys(root,Set.of("version","mode","title","description","steps","recipes","goal"));
+        String mode=root.has("mode")?root.remove("mode").getAsString():"ensure";
+        if(!Set.of("ensure","collect").contains(mode))throw invalid("Task mode must be ensure or collect");
         Goal goal=null;
         if(root.has("goal")) {
             var target=root.remove("goal").getAsJsonObject();validateKeys(target,Set.of("item","count"));exactNumbers(target);
@@ -126,7 +135,7 @@ public final class TaskPresets {
         var last=plan.steps().getLast();
         if(goal!=null && (!goal.item().equals(last.item()) || goal.count()!=last.count() || last.role()!=null))
             throw invalid("Goal must match the last step's item and count, without a role");
-        return new Workflow(filename,title,description,plan,null,goal);
+        return new Workflow(filename,title,description,plan,null,goal,mode);
     }
     public static Workflow workflow(String filename) {
         if(!workflowFilename(filename)) throw invalid("Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json");

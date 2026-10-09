@@ -21,6 +21,7 @@ public final class LocalTaskTest {
         verifyCoreMigration();
         var starter=TaskPresets.starter();
         check(starter.steps().size()==10);
+        verifySupplyModes();
         verifyDiamondWorkflow();
         check(starter.steps().getFirst().action().equals("food"));
         check(starter.steps().getFirst().role().equals("food"));
@@ -202,6 +203,28 @@ public final class LocalTaskTest {
         try { CraftingPlan.create(full,List.of(5),List.of(1,2,3,4),Map.of(1,Set.of("log")),0,new Stack("planks",4,64));throw new AssertionError(); }
         catch(IllegalArgumentException expected) {check(full.get(5).count()==64);}
         System.out.println("All JSON task loading, custom task, live reload, malformed definition rejection, prerequisite skips, minimal wood, recipe consumption and capacity checks passed.");
+    }
+    private static void verifySupplyModes() {
+        String task="{\"version\":1,\"steps\":[{\"label\":\"Wood\",\"action\":\"mine\",\"item\":\"minecraft:oak_log\",\"count\":16}]}";
+        check(TaskPresets.parseWorkflow("legacy.taskbot",task).mode().equals("ensure"));
+        var root=JsonParser.parseString(task).getAsJsonObject();root.addProperty("mode","collect");
+        check(TaskPresets.parseWorkflow("collect.taskbot",root.toString()).mode().equals("collect"));
+        root.addProperty("mode","ensure");
+        check(TaskPresets.parseWorkflow("ensure.taskbot",root.toString()).mode().equals("ensure"));
+        root.addProperty("mode","unknown");
+        try {TaskPresets.parseWorkflow("bad.taskbot",root.toString());throw new AssertionError("Unknown task mode accepted");}catch(IllegalArgumentException expected) {}
+        check(TaskPresets.supplyProgress("ensure",10,10)==10);
+        check(TaskPresets.supplyProgress("collect",10,10)==0);
+        check(TaskPresets.supplyProgress("ensure",16,10)==16);
+        check(TaskPresets.supplyProgress("collect",16,10)==6);
+        check(TaskPresets.supplyProgress("collect",26,10)==16);
+        check(TaskPresets.supplyProgress("collect",3,10)==0);
+        // A later step snapshots current stock after earlier ingredients have been consumed.
+        check(TaskPresets.supplyProgress("collect",20,4)==16);
+        for(int initial=0;initial<=64;initial++)for(int requested=1;requested<=64;requested++) {
+            check(TaskPresets.supplyProgress("collect",initial+requested,initial)==requested);
+            check(TaskPresets.supplyProgress("collect",initial+requested-1,initial)<requested);
+        }
     }
     private static void verifyDiamondWorkflow() {
         try(var source=LocalTaskTest.class.getResourceAsStream("/task-fixtures/tasks/full-diamond-armor.taskbot")) {

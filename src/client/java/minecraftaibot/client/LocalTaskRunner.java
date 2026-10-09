@@ -58,6 +58,8 @@ final class LocalTaskRunner {
     private TaskPresets.Starter starter;
     private String workflowFile="",workflowTitle="",workflowState="IDLE";
     private boolean[] initiallySatisfied=new boolean[0];
+    private String workflowMode="ensure";
+    private int[] supplyBaselines=new int[0];
     private int supplyIndex;
     private boolean automatic;
     private final Set<String> automaticWorlds=new HashSet<>();
@@ -86,7 +88,7 @@ final class LocalTaskRunner {
             int target=foodTarget;
             plan=new TaskPresets.Starter(plan.steps().stream().map(s->"food".equals(s.role())?new TaskPresets.Supply(s.label(),s.item(),target,s.action(),s.role()):s).toList(),plan.recipes());
         }
-        return startWorkflow(new TaskPresets.Workflow(workflow.filename(),workflow.title(),workflow.description(),plan,null,workflow.goal()));
+        return startWorkflow(new TaskPresets.Workflow(workflow.filename(),workflow.title(),workflow.description(),plan,null,workflow.goal(),workflow.mode()));
     }
     void validateWorkflow(TaskPresets.Workflow workflow) {
         var client=Minecraft.getInstance();
@@ -115,32 +117,34 @@ final class LocalTaskRunner {
                 || client.player.containerMenu!=client.player.inventoryMenu || !client.player.containerMenu.getCarried().isEmpty())return "Close menus, store cursor items and let the game run first.";
         catalog=TaskPresets.catalog();owner=client.player;world=client.level;oldSelected=owner.getInventory().getSelectedSlot();
         starter=workflow.plan();workflowFile=workflow.filename();workflowTitle=workflow.title();workflowState="RUNNING";
+        workflowMode=workflow.mode();supplyBaselines=new int[starter.steps().size()];Arrays.fill(supplyBaselines,-1);
         initiallySatisfied=new boolean[starter.steps().size()];
-        for(int i=0;i<initiallySatisfied.length;i++)initiallySatisfied[i]=supplyCount(client,starter.steps().get(i))>=starter.steps().get(i).count();
-        boolean finished=workflow.goal()!=null && workflow.goal().satisfied(supplyCount(client,starter.steps().getLast()));
+        for(int i=0;i<initiallySatisfied.length;i++)initiallySatisfied[i]=workflowMode.equals("ensure") && supplyCount(client,starter.steps().get(i))>=starter.steps().get(i).count();
+        boolean finished=workflowMode.equals("ensure") && workflow.goal()!=null && workflow.goal().satisfied(supplyCount(client,starter.steps().getLast()));
         if(finished)Arrays.fill(initiallySatisfied,true);
         supplyIndex=finished?starter.steps().size():0;clock=batches=0;started=System.nanoTime();active=true;
         change(Phase.PLAN,finished?"Goal already satisfied for "+workflowTitle+"; skipping all preparation steps."
-                :"Running "+workflowTitle+" ("+workflowFile+"); checked existing items, only collecting what is missing.");return status;
+                :"Running "+workflowTitle+" ("+workflowFile+") | Mode: "+workflowMode+".");return status;
     }
     com.google.gson.JsonObject starterSnapshot(Minecraft client) {
         var data=new com.google.gson.JsonObject();data.addProperty("automatic",automatic);data.addProperty("active",active && starter!=null);
         data.addProperty("status",status);data.addProperty("step",supplyIndex);
         data.addProperty("file",workflowFile);data.addProperty("title",workflowTitle);data.addProperty("state",workflowState);
+        data.addProperty("mode",workflowMode);
         data.addProperty("phase",phase==null?"":phase.name());
         var steps=new com.google.gson.JsonArray();
         int index=0;
         if(starter!=null) for(var step:starter.steps()) {
             var row=new com.google.gson.JsonObject();row.addProperty("label",step.label());row.addProperty("item",step.item());row.addProperty("target",step.count());
             row.addProperty("action",step.action());
-            row.addProperty("state",index<supplyIndex?(initiallySatisfied[index]?"SKIPPED":"COMPLETED"):index==supplyIndex && workflowState.equals("CANCELLED")?"STOPPED":index==supplyIndex && active?"RUNNING":"WAITING");index++;
-            row.addProperty("present",client.player==null?0:supplyCount(client,step));steps.add(row);
+            row.addProperty("state",index<supplyIndex?(initiallySatisfied[index]?"SKIPPED":"COMPLETED"):index==supplyIndex && workflowState.equals("CANCELLED")?"STOPPED":index==supplyIndex && active?"RUNNING":"WAITING");
+            row.addProperty("present",client.player==null?0:supplyProgress(client,index));index++;steps.add(row);
         }
         data.add("steps",steps);return data;
     }
     private int supplyCount(Minecraft client,TaskPresets.Supply step) {
-        if(step.skipIf()!=null && step.skipIf().stream().allMatch(id->ownedRequirement(client,id))) return step.count();
-        if(step.item().equals("minecraft:furnace") && furnace.nearby(client,"furnace")) return 1;
+        if(workflowMode.equals("ensure") && step.skipIf()!=null && step.skipIf().stream().allMatch(id->ownedRequirement(client,id))) return step.count();
+        if(workflowMode.equals("ensure") && step.item().equals("minecraft:furnace") && furnace.nearby(client,"furnace")) return 1;
         return ownedItems(client).stream().filter(s->{
             if(s.isEmpty()) return false;
             if("logs".equals(step.role())) return logType(s)!=null;
@@ -157,6 +161,10 @@ final class LocalTaskRunner {
             }
             return BuiltInRegistries.ITEM.getKey(s.getItem()).toString().equals(step.item());
         }).mapToInt(ItemStack::getCount).sum();
+    }
+    private int supplyProgress(Minecraft client,int index) {
+        if(workflowMode.equals("collect") && supplyBaselines[index]<0)return 0;
+        return TaskPresets.supplyProgress(workflowMode,supplyCount(client,starter.steps().get(index)),Math.max(0,supplyBaselines[index]));
     }
     private List<ItemStack> ownedItems(Minecraft client) {
         var items=new ArrayList<>(client.player.getInventory().getNonEquipmentItems());
@@ -358,7 +366,11 @@ final class LocalTaskRunner {
     }
     /** Returns false only when the existing mining prerequisite interpreter should run. */
     private boolean planStarter(Minecraft client) {
-        while(supplyIndex<starter.steps().size() && supplyCount(client,starter.steps().get(supplyIndex))>=starter.steps().get(supplyIndex).count()) supplyIndex++;
+        while(supplyIndex<starter.steps().size()) {
+            if(supplyBaselines[supplyIndex]<0)supplyBaselines[supplyIndex]=supplyCount(client,starter.steps().get(supplyIndex));
+            if(supplyProgress(client,supplyIndex)<starter.steps().get(supplyIndex).count())break;
+            supplyIndex++;
+        }
         if(supplyIndex==starter.steps().size()) {
             closeForMovement();finish("Task "+workflowTitle+" completed. Checked "+supplyIndex+" steps; no AI calls.");return true;
         }
@@ -367,7 +379,7 @@ final class LocalTaskRunner {
         if(step.action().equals("smelt")) {planSmelt(client,step);return true;}
         if(step.action().equals("craft")) {prepareRecipe(client,starter.recipes().values().stream().filter(r->r.output().equals(step.item())).findFirst().orElseThrow(),new HashSet<>());return true;}
         String item="logs".equals(step.role())?"minecraft:"+nearestWood()+"_log":step.item();
-        configureMine(item,step.count()-supplyCount(client,step));return false;
+        configureMine(item,step.count()-supplyProgress(client,supplyIndex));return false;
     }
     private void configureMine(String item,int missing) {
         String goal=TaskPresets.miningBlock(item);
@@ -380,7 +392,7 @@ final class LocalTaskRunner {
         }
     }
     private void planSmelt(Minecraft client,TaskPresets.Supply step) {
-        int missing=step.count()-ownedCount(client,step.item());
+        int missing=step.count()-supplyProgress(client,supplyIndex);
         var rules=ProductionController.FurnaceLogic.rules();
         var matches=rules.getAsJsonObject("acceptedInputs").getAsJsonObject("furnace").getAsJsonArray(step.input());
         if(matches==null || matches.size()!=1)throw new IllegalArgumentException("No unique furnace recipe for "+step.input());
@@ -505,7 +517,7 @@ final class LocalTaskRunner {
     }
     private int rawMeat() {return count(s->MEATS.containsKey(BuiltInRegistries.ITEM.getKey(s.getItem()).toString()));}
     private void planFood(Minecraft client,TaskPresets.Supply step) {
-        int missing=step.count()-supplyCount(client,step);
+        int missing=step.count()-supplyProgress(client,supplyIndex);
         if(missing<=0) return;
         String raw=MEATS.keySet().stream().filter(id->count(requiredItem(id))>0).max(Comparator.comparingInt(id->count(requiredItem(id)))).orElse(null);
         // Cook existing meat immediately instead of requiring the entire hunting quota first.

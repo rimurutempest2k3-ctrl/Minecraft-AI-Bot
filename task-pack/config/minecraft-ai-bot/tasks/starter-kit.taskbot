@@ -1,4 +1,5 @@
 {
+  "mode": "ensure",
   "steps": [
     {
       "action": "food",

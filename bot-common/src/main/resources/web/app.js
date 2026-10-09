@@ -58,15 +58,15 @@ function renderSupplies(plan){
     const labels={COMPLETED:'Done',SKIPPED:'Already available · skipped',RUNNING:'In progress',STOPPED:'Stopped here',WAITING:'Pending'};
     const box=$('#supply-list');box.replaceChildren();
     (plan?.steps||[]).forEach((s,i)=>{const row=node('div',undefined,'step '+(s.state==='RUNNING'?'current':['COMPLETED','SKIPPED'].includes(s.state)?'completed':s.state==='STOPPED'?'stopped':'waiting')),content=node('div');
-        row.append(node('span',String(i+1),'num'));content.append(node('b',s.label),node('small',(labels[s.state]||'Pending')+' · Target '+s.target+' · Present '+s.present));row.append(content);box.append(row);
+        row.append(node('span',String(i+1),'num'));content.append(node('b',s.label),node('small',(labels[s.state]||'Pending')+' · Target '+s.target+' · '+(plan?.mode==='collect'?'Added':'Present')+' '+s.present));row.append(content);box.append(row);
     });
 }
 function previewWorkflow(){
     const file=snapshot?.workflows?.files?.find(f=>f.filename===selectedWorkflow);
-    text('#workflow-title',file?.title||'Select a task file');text('#workflow-description',file?(file.description+' · '+file.filename):'');
+    text('#workflow-title',file?.title||'Select a task file');text('#workflow-description',file?(file.description+' · '+file.filename+' · '+(file.mode==='collect'?'Collect requested quantity':'Ensure required stock')):'');
     $('#workflow-error').hidden=!file?.error;text('#workflow-error',file?.error||'');
     const box=$('#workflow-preview');box.replaceChildren();
-    const actions={mine:'Gather materials',craft:'Craft',food:'Hunt and cook food'};
+    const actions={mine:'Gather materials',craft:'Craft',food:'Hunt and cook food',smelt:'Smelt'};
     (file?.steps||[]).forEach((s,i)=>{const row=node('div',undefined,'step'),content=node('div');row.append(node('span',String(i+1),'num'));
         content.append(node('b',s.label),node('small',(actions[s.action]||s.action)+' · '+s.item+' ×'+s.count));
         const ingredients=Object.entries(s.ingredients||{}).map(([item,count])=>item+' ×'+count).join(', ');
