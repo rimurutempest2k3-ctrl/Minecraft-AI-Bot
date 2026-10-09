@@ -14,6 +14,15 @@ repositories {
 loom {
 	splitEnvironmentSourceSets()
 
+    runs {
+        consoleClient {
+            client()
+            name 'Minecraft AI Bot (console only)'
+            runDir 'run'
+            vmArg '-Dminecraftaibot.consoleOnly=true'
+        }
+    }
+
 	mods {
 		"minecraft-ai-bot" {
 			sourceSet sourceSets.main

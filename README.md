@@ -1,9 +1,16 @@
-# Minecraft AI Bot
+# Minecraft AI Bot — Console-only development
 
 <p align="center"><img src="assets/minecraft-ai-bot-logo.png" alt="Minecraft AI Bot logo" width="320"></p>
 
 A Minecraft Java client mod with Baritone navigation, JSON tasks, survival
 assistance, chest memory, optional AI control and a local web dashboard.
+
+## Development tracks
+
+- **Standard client:** the published [v1.0.0 release](https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot/releases/tag/v1.0.0), with the game window and local web dashboard; maintained through main/dev.
+- **Console-only client:** this branch, `console-only`, version `1.0.0-console-dev`. It shares the bot engine, tasks and configuration format, but starts with the game window hidden and scene drawing disabled.
+
+Install only one bot JAR in a Minecraft profile. Use separate game directories for testing the two tracks so settings, server/chest memory and task files stay independent.
 
 ## Requirements
 
@@ -45,6 +52,36 @@ Hotbar layout: edit `config/minecraft-ai-bot/inventory-layout.json` and run `bot
 | `bot workflow run furnace.json` | Run the furnace task |
 | `bot stop` | Stop the bot and cancel its current task |
 
+## Connect from the menu
+
+With Minecraft open at the main or multiplayer menu, use the console or the
+web console to run `bot server connect example.org:25565`. The default port is
+25565. Use `bot server status` to inspect the connection, `bot server disconnect`
+to leave the world, and `bot server reconnect` to retry the last server in this
+session. Connection results appear automatically. After joining, run `bot start`.
+Minecraft still handles account authentication and resource-pack/consent dialogs.
+
+## Console-only mode
+
+This branch starts in console-only mode by default. Run `gradlew.bat runConsoleClient`
+in development. To launch with the game window instead, add
+`-Dminecraftaibot.consoleOnly=false` to the launcher's Java/JVM arguments.
+The game window is hidden after the console starts. Scene/UI drawing is skipped;
+client ticks, networking, Baritone and the local console/web continue running.
+The background loop is capped at 30 frames per second without changing the
+server's tick rate. Loading overlays may still render to complete resource reloads.
+
+Use `bot display console` to enter this mode during a normal session,
+`bot display game` to restore the window, and `bot display status` to inspect it.
+Use `bot client quit` to close Minecraft normally. Display mode is session-only;
+this branch defaults to console-only on each launch. Existing graphics/focus settings
+are restored when returning to the game window.
+
+This is not a graphics-free headless client: Minecraft still initializes its
+window, graphics backend and assets. It requires a working desktop/graphics
+setup. Show the window when Minecraft requires a first-run, account, resource-pack
+or consent dialog. Connecting and tasks use the same commands as the normal mod.
+
 ## Build from source
 
 Use JDK 25. Download `baritone-api-fabric-1.19.0.jar` from
@@ -61,6 +98,8 @@ Author: **rimurutempest2k3-ctrl**.
 Licensed under [MIT](LICENSE). Forks and redistribution are welcome; retain the copyright and license notices. Previously published CC0 material remains available under CC0; see [Third-party software](THIRD_PARTY.md).
 
 ## Hướng dẫn tiếng Việt
+
+Dự án có hai hướng: bản thường từ Release 1.0.0 (main/dev), và bản console-only trên nhánh riêng (1.0.0-console-dev). Bản console mặc định ẩn cửa sổ. Dùng thư mục game riêng khi thử hai bản; mỗi hồ sơ chỉ cài một JAR bot.
 
 Mod hỗ trợ nhiệm vụ JSON, di chuyển/đào bằng Baritone, sinh tồn, bộ nhớ rương,
 AI tùy chọn và điều khiển trên web local.
@@ -80,3 +119,7 @@ Console là tùy chọn: đặt `bot-console.bat` và `tools/` vào thư mục g
 `libs/`, rồi chạy `.\gradlew.bat releaseZip`.
 
 Giấy phép [MIT](LICENSE) cho phép fork và phân phối lại khi giữ thông báo bản quyền và giấy phép. Phần đã công bố theo CC0 vẫn giữ quyền sử dụng CC0.
+
+Từ menu chính/chơi mạng, nhập `bot server connect example.org:25565` trên console hoặc web. Dùng `bot server status` xem trạng thái, `bot server disconnect` thoát, `bot server reconnect` kết nối lại server gần nhất trong phiên. Sau khi vào server, dùng `bot start`. Kết quả kết nối tự xuất hiện; các hộp thoại của Minecraft vẫn cần xử lý trong game.
+
+Chế độ chỉ console: chạy `gradlew.bat runConsoleClient` trong IDE hoặc thêm `-Dminecraftaibot.consoleOnly=true` vào tham số JVM của launcher. Dùng `bot display console` để ẩn cửa sổ/tắt vẽ game, `bot display game` để hiện lại, `bot display status` để xem trạng thái và `bot client quit` để đóng game. Đây vẫn là Minecraft client cần đồ họa khi khởi tạo; các hộp thoại cần xác nhận phải xử lý khi hiện lại cửa sổ.

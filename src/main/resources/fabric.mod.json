@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "minecraft-ai-bot",
   "version": "${version}",
-  "name": "Minecraft AI Bot",
+  "name": "Minecraft AI Bot (Console)",
   "description": "A client automation mod with local JSON tasks, Baritone navigation, survival assistance, an optional multi-provider AI controller and a local web dashboard.",
   "authors": [
     "rimurutempest2k3-ctrl"

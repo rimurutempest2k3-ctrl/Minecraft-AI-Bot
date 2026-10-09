@@ -19,6 +19,48 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MinecraftAIBotClient implements ClientModInitializer {
+    private static volatile boolean consoleOnly;
+    public static boolean consoleOnly() { return consoleOnly; }
+    public static boolean skipDisplayRendering() {
+        return consoleOnly && Minecraft.getInstance().gui.overlay() == null;
+    }
+    private Boolean previousPauseOnLostFocus;
+    private Boolean previousVsync;
+    private Boolean previousFullscreen;
+    private void restoreDisplayOptions(Minecraft client) {
+        if (previousPauseOnLostFocus == null) return;
+        client.options.pauseOnLostFocus = previousPauseOnLostFocus;
+        client.options.enableVsync().set(previousVsync);
+        client.options.fullscreen().set(previousFullscreen);
+        client.getWindow().updateFullscreenIfChanged();
+        previousPauseOnLostFocus = previousVsync = previousFullscreen = null;
+    }
+    private String displayCommand(String option) {
+        Minecraft client = Minecraft.getInstance();
+        if (option.equals("status")) return consoleOnly ? "Display: console-only (window hidden; graphics initialization still required)." : "Display: game window.";
+        if (option.equals("console")) {
+            if (consoleOnly) return displayCommand("status");
+            if (console == null) return "Console unavailable; keeping the game window visible.";
+            previousPauseOnLostFocus = client.options.pauseOnLostFocus;
+            previousVsync = client.options.enableVsync().get();
+            previousFullscreen = client.options.fullscreen().get();
+            client.options.pauseOnLostFocus = false;
+            client.options.enableVsync().set(false);
+            client.options.fullscreen().set(false);
+            client.getWindow().updateFullscreenIfChanged();
+            if (client.gui.screen() instanceof net.minecraft.client.gui.screens.PauseScreen) client.gui.setScreen(null);
+            consoleOnly = true;
+            org.lwjgl.glfw.GLFW.glfwHideWindow(client.getWindow().handle());
+            return "Console-only enabled. Use bot display game to show Minecraft again.";
+        }
+        if (option.equals("game")) {
+            consoleOnly = false;
+            restoreDisplayOptions(client);
+            org.lwjgl.glfw.GLFW.glfwShowWindow(client.getWindow().handle());
+            return "Game rendering and window restored.";
+        }
+        return "Commands: bot display console/game/status.";
+    }
     private static final Logger LOG = LoggerFactory.getLogger("minecraft-ai-bot");
     private final BotCore bot = new BotCore();
     private final BaritoneController movement = new BaritoneController(bot);
@@ -51,6 +93,95 @@ public class MinecraftAIBotClient implements ClientModInitializer {
     private AiController ai;
     private AgentLoop agent;
     private int agentTicks;
+    private String lastServerAddress;
+    private String pendingServerAddress;
+    private String serverResult = "No console connection requested.";
+
+    // All menu and connection operations run on the Minecraft client thread.
+    private String serverCommand(String input) {
+        Minecraft client = Minecraft.getInstance();
+        var screen = client.gui.screen();
+        if (input.equals("status")) {
+            var current = client.getCurrentServer();
+            if (client.level != null && client.player != null)
+                return current == null ? "Connected to a local world." : "Connected to server: " + current.ip;
+            if (pendingServerAddress != null) return "Connecting to server: " + pendingServerAddress;
+            if (screen instanceof net.minecraft.client.gui.screens.DisconnectedScreen disconnected)
+                return "Server connection failed: " + disconnected.getNarrationMessage().getString();
+            return serverResult + " | Menu: " + (screen == null ? "none" : screen.getClass().getSimpleName());
+        }
+        if (input.equals("disconnect")) {
+            if (pendingServerAddress != null || screen instanceof net.minecraft.client.gui.screens.ConnectScreen)
+                return "Connection in progress. Use Minecraft's Cancel button first.";
+            if (client.level == null) return "Not in a world.";
+            var current = client.getCurrentServer();
+            if (current != null) lastServerAddress = current.ip;
+            if (agent != null) agent.cancel("Disconnected; AI task canceled.");
+            survival.cancel(client);
+            stopAgentGame();
+            bot.stop();
+            client.disconnectWithSavingScreen();
+            client.gui.setScreen(new net.minecraft.client.gui.screens.TitleScreen());
+            return serverResult = "Disconnected. Console and web remain available.";
+        }
+        String address;
+        if (input.equals("reconnect")) {
+            if (lastServerAddress == null) return "No previous server. Use bot server connect <host[:port]>.";
+            address = lastServerAddress;
+        } else address = input.substring("connect ".length());
+        if (pendingServerAddress != null || screen instanceof net.minecraft.client.gui.screens.ConnectScreen
+                || client.getConnection() != null && client.level == null)
+            return "Connection in progress. Wait for the result or use Minecraft's Cancel button.";
+        if (client.level != null) return "Leave the current world with bot server disconnect before connecting.";
+        if (!(screen instanceof net.minecraft.client.gui.screens.TitleScreen
+                || screen instanceof net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen
+                || screen instanceof net.minecraft.client.gui.screens.DisconnectedScreen))
+            return "Open the main menu or multiplayer menu before connecting.";
+        if (!client.allowsMultiplayer()) return "Multiplayer is unavailable for this Minecraft account.";
+        if (!validServerAddress(address)) return "Invalid server address. Use host[:port], with port 1-65535; IPv6 uses [address]:port.";
+        var parsed = net.minecraft.client.multiplayer.resolver.ServerAddress.parseString(address);
+        var server = new net.minecraft.client.multiplayer.ServerData(address, address,
+                net.minecraft.client.multiplayer.ServerData.Type.OTHER);
+        if (agent != null) agent.cancel("Disconnected; AI task canceled.");
+        survival.cancel(client);
+        stopAgentGame();
+        bot.stop();
+        // Keep resource-pack/consent dialogs and authentication under Minecraft's control.
+        net.minecraft.client.gui.screens.ConnectScreen.startConnecting(
+                new net.minecraft.client.gui.screens.TitleScreen(), client, parsed, server, false, null);
+        lastServerAddress = pendingServerAddress = address;
+        return serverResult = "Connecting to server: " + address;
+    }
+    private static boolean validServerAddress(String address) {
+        if (address.length() > 255 || address.matches(".*[\\s/@\\\\?#].*")
+                || !net.minecraft.client.multiplayer.resolver.ServerAddress.isValidAddress(address)) return false;
+        int separator = address.startsWith("[") ? address.indexOf(']') + 1 : address.indexOf(':');
+        if (address.startsWith("[") && separator == 0) return false;
+        if (separator >= 0 && separator < address.length()) {
+            if (address.charAt(separator) != ':') return false;
+            String port = address.substring(separator + 1);
+            if (!port.matches("[0-9]{1,5}")) return false;
+            int number = Integer.parseInt(port);
+            if (number < 1 || number > 65535) return false;
+        }
+        return true;
+    }
+    private void tickServerConnection(Minecraft client) {
+        if (pendingServerAddress == null) return;
+        var screen = client.gui.screen();
+        WebConsole.Channel channel = WebConsole.Channel.RESPONSE;
+        if (client.level != null && client.player != null) {
+            serverResult = "Connected to server: " + pendingServerAddress;
+        } else if (screen instanceof net.minecraft.client.gui.screens.DisconnectedScreen disconnected) {
+            serverResult = "Server connection failed: " + disconnected.getNarrationMessage().getString();
+            channel = WebConsole.Channel.ERROR;
+        } else if (screen instanceof net.minecraft.client.gui.screens.TitleScreen) {
+            serverResult = "Server connection canceled.";
+        } else return;
+        pendingServerAddress = null;
+        if (console != null) console.notifyConsole(serverResult);
+        if (web != null) web.publish(serverResult, channel);
+    }
     private TaskPresets.Workflow queuedWorkflow;
     private net.minecraft.client.player.LocalPlayer queuedPlayer;
     private net.minecraft.client.multiplayer.ClientLevel queuedWorld;
@@ -126,11 +257,19 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         String normalized=input.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
         // Display preferences must never interrupt an AI/local/survival task.
         if(normalized.equals("bot language") || normalized.startsWith("bot language "))return commands.execute(input);
+        if(normalized.equals("bot display") || normalized.startsWith("bot display "))
+            return displayCommand(normalized.equals("bot display") ? "status" : normalized.substring(12));
+        if(normalized.equals("bot client quit")) {
+            // Let the normal client shutdown save the world and close network/log resources.
+            clientQuitRequested();
+            return "Minecraft client is shutting down.";
+        }
         if(normalized.startsWith("bot workflow run "))return runWorkflow(normalized.substring(17));
         if(normalized.equals("bot workflow list") || normalized.equals("bot workflow reload")) {
             try {return "File JSON: "+TaskPresets.workflows().stream().map(w->w.filename()+(w.error()==null?"":" (error)")).collect(Collectors.joining(", "));}
             catch(RuntimeException e){return e.getMessage();}
         }
+        if(normalized.equals("bot server") || normalized.startsWith("bot server "))return commands.execute(input);
         if(normalized.equals("bot help") || normalized.equals("bot task list"))
             return commands.execute(input)+"\nLocal files: bot workflow list/reload; bot workflow run <name.json>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.";
         if(normalized.startsWith("bot starter ")) {
@@ -164,6 +303,10 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         WebConsole browser=web;
         if(browser!=null) browser.publish(message);
     }
+    private void clientQuitRequested() {
+        restoreDisplayOptions(Minecraft.getInstance());
+        Minecraft.getInstance().stop();
+    }
     private void notifyAiConsole(String message) {
         ConsoleServer connected=console;if(connected!=null) connected.notifyConsole(message);
         WebConsole browser=web;
@@ -174,6 +317,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         }
     }
     private String executeAction(String input) {
+        if (input.startsWith("server ")) return serverCommand(input.substring(7));
         if(input.startsWith("goto ")) {
             String[] parts=input.split(" ");
             if(survival.avoidsDestination(Minecraft.getInstance(),new net.minecraft.core.BlockPos(Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),Integer.parseInt(parts[3]))))
@@ -284,6 +428,8 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         Minecraft client=Minecraft.getInstance();var data=new com.google.gson.JsonObject();var gson=new com.google.gson.Gson();
         data.addProperty("inWorld",client.player!=null && client.level!=null);data.addProperty("state",bot.state().name());
         data.addProperty("language",I18n.language());
+        data.addProperty("consoleOnly", consoleOnly);
+        data.addProperty("connection", serverCommand("status"));
         var features=new java.util.TreeMap<>(survival.webFeatures());features.put("ai",agent!=null && agent.autoEnabled());
         data.add("features",gson.toJsonTree(features));data.add("baritone",movement.webSettings());
         data.add("starter",localTasks.starterSnapshot(client));
@@ -388,6 +534,8 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         ClientTickEvents.START_CLIENT_TICK.register(furnace::tick);
         ClientTickEvents.END_CLIENT_TICK.register(client -> chestMemory.tick(client, chest.busy()));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (consoleOnly) client.options.pauseOnLostFocus = false;
+            tickServerConnection(client);
             tickQueuedWorkflow(client);
             localTasks.autoTick(client,idleForEquipment() && !survival.busy());
             if (agent != null && agent.active() && ++agentTicks % 20 == 0) agent.tick(agentValid(client), movement.busy() || chest.busy() || localTasks.busy() || furnace.busy() || placement.busy(), this::observation);
@@ -422,11 +570,13 @@ public class MinecraftAIBotClient implements ClientModInitializer {
                     LOG.info("Bot web console: {}",web.url());
                     notifyConsole("Web console local: "+web.url());
                 } catch(Exception|LinkageError failure) {LOG.error("Could not start local web console; terminal remains available",failure);}
+                if (Boolean.parseBoolean(System.getProperty("minecraftaibot.consoleOnly", "true"))) notifyConsole(displayCommand("console"));
             } catch (Exception failure) {
                 LOG.error("Could not start bot console", failure);
             }
         });
         ClientLifecycleEvents.CLIENT_STOPPING.register(client -> {
+            restoreDisplayOptions(client);
             try {if(web!=null) web.close();} catch(Exception failure) {LOG.warn("Could not close bot web console",failure);}
             try {
                 if (console != null) console.close();

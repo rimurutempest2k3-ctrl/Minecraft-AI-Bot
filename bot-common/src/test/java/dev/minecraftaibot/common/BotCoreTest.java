@@ -19,6 +19,19 @@ public final class BotCoreTest {
         check(commands.execute("bot goto 1 64 2").contains("bot start"));
         check(commands.execute("bot place crafting_table").contains("bot start"));
         check(actions.isEmpty());
+        check(commands.execute(" BOT SERVER CONNECT Example.org:25566 ").equals("accepted"));
+        check(actions.getLast().equals("server connect example.org:25566"));
+        check(bot.state() == BotState.STOPPED);
+        for (String operation : List.of("status", "disconnect", "reconnect")) {
+            check(commands.execute("bot server " + operation).equals("accepted"));
+            check(actions.getLast().equals("server " + operation));
+        }
+        int serverActions = actions.size();
+        for (String invalid : List.of("bot server connect", "bot server connect a b", "bot server erase", "bot server status extra", "bot server connect " + "a".repeat(256))) {
+            check(commands.execute(invalid).contains("bot server connect"));
+            check(actions.size() == serverActions);
+        }
+        actions.clear();
         check(commands.execute("bot start").equals("Bot started."));
         check(commands.execute(" BOT GOTO 1 64 -2 ").equals("accepted"));
         check(actions.getLast().equals("goto 1 64 -2"));

@@ -64,6 +64,16 @@ public final class CommandDispatcher {
         if(command.equals("bot language"))return I18n.command("status");
         if(command.startsWith("bot language "))return I18n.command(command.substring(13));
         LOG.fine("Command received: " + command);
+        if (command.equals("bot server") || command.equals("bot server help"))
+            return "Commands: bot server connect <host[:port]>, bot server status, bot server reconnect, bot server disconnect.";
+        if (command.startsWith("bot server ")) {
+            String[] parts = command.split(" ");
+            if (parts.length == 3 && java.util.Set.of("status", "reconnect", "disconnect").contains(parts[2]))
+                return actions.apply("server " + parts[2]);
+            if (parts.length == 4 && parts[2].equals("connect") && parts[3].length() <= 255)
+                return actions.apply("server connect " + parts[3]);
+            return "Commands: bot server connect <host[:port]>, bot server status, bot server reconnect, bot server disconnect.";
+        }
         if(command.equals("bot furnace") || command.equals("bot furnace status")) return actions.apply(command.substring(4));
         if(command.startsWith("bot furnace ")) {
             String[] parts=command.split(" ");
@@ -162,7 +172,7 @@ public final class CommandDispatcher {
         if (command.equals("bot move") || command.startsWith("bot move "))
             return "Movement now uses Baritone. Use bot goto <x> <y> <z>.";
         return switch (command) {
-            case "help", "bot help" -> "Commands: bot start, bot status, bot info, bot inventory, bot chest, bot furnace, bot task list, bot task <name> [quantity] [total|additional], bot goto <x> <y> <z>, bot mine <block> <quantity>, bot place crafting_table [x y z], bot pause, bot resume, bot stop, bot get API, bot ai auto on/off/status, bot ai status/ask/result, exit";
+            case "help", "bot help" -> "Commands: bot server, bot start, bot status, bot info, bot inventory, bot chest, bot furnace, bot task list, bot task <name> [quantity] [total|additional], bot goto <x> <y> <z>, bot mine <block> <quantity>, bot place crafting_table [x y z], bot pause, bot resume, bot stop, bot get API, bot ai auto on/off/status, bot ai status/ask/result, exit";
             case "bot info" -> information.get();
             case "bot inventory" -> inventory.get();
             case "bot start" -> bot.start();
