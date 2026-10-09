@@ -1,0 +1,9 @@
+{
+  "mode": "collect",
+  "version": 1,
+  "title": "Collect 16 additional logs",
+  "description": "Gather 16 more logs beyond the stock present when this step begins. Existing logs do not skip this task.",
+  "steps": [
+    {"label": "Gather 16 additional logs", "action": "mine", "item": "minecraft:oak_log", "count": 16, "role": "logs"}
+  ]
+}

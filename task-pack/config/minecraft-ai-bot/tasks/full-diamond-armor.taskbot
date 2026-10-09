@@ -1,4 +1,5 @@
 {
+  "mode": "ensure",
   "version": 1,
   "title": "Full diamond armor - from basic resources",
   "description": "Prepare food, wood, stone tools, a furnace, iron equipment and torches. Mine 24 diamonds in four batches and craft all four armor pieces. Existing worn armor is counted; each diamond batch is skipped when its armor piece is already owned. Requires a mod build supporting smelt and skipIf. Survival assistance should stay enabled. Stops safely if mining or crafting cannot progress.",

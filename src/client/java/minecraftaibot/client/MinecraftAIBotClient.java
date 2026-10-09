@@ -292,6 +292,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             library.addProperty("directory",TaskPresets.workflowDirectory().toString());
             var files=new com.google.gson.JsonArray();for(var entry:TaskPresets.workflows()) {
                 var file=new com.google.gson.JsonObject();file.addProperty("filename",entry.filename());file.addProperty("title",entry.title());file.addProperty("description",entry.description());
+                file.addProperty("mode",entry.mode());
                 if(entry.error()!=null)file.addProperty("error",entry.error());
                 else {
                     var steps=new com.google.gson.JsonArray();for(var step:entry.plan().steps()) {

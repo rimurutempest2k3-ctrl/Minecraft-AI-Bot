@@ -1065,6 +1065,10 @@
     ". Select it and click Run when ready.": ". Chọn file và bấm Khởi chạy khi sẵn sàng.",
     "Task JSON nesting exceeds 32 levels": "JSON nhiệm vụ lồng nhau vượt quá 32 cấp",
     "Task files: ": "File nhiệm vụ: ",
-    "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.": "\nFile local: bot workflow list/reload; bot workflow run <tên.json>. Chuẩn bị: bot starter start/status; bot starter food [1-64]; bot starter auto on/off."
+    "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.": "\nFile local: bot workflow list/reload; bot workflow run <tên.json>. Chuẩn bị: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.",
+    "Smelt": "Nung",
+    "Ensure required stock": "Bổ sung cho đủ",
+    "Collect requested quantity": "Thu thêm số lượng yêu cầu",
+    "Added": "Đã thu thêm"
   }
 }

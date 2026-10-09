@@ -1065,6 +1065,10 @@
     ". Select it and click Run when ready.": ". Select it and click Run when ready.",
     "Task JSON nesting exceeds 32 levels": "Task JSON nesting exceeds 32 levels",
     "Task files: ": "Task files: ",
-    "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.": "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off."
+    "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.": "\nLocal files: bot workflow list/reload; bot workflow run <name.taskbot>. Preparation: bot starter start/status; bot starter food [1-64]; bot starter auto on/off.",
+    "Smelt": "Smelt",
+    "Ensure required stock": "Ensure required stock",
+    "Collect requested quantity": "Collect requested quantity",
+    "Added": "Added"
   }
 }
