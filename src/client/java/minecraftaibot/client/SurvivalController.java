@@ -415,6 +415,12 @@ final class SurvivalController {
         }
     }
     boolean busy() {return mode!=Mode.WATCH;}
+    boolean safeForTaskResume(Minecraft client) {
+        return client.player!=null && client.level!=null && client.player.isAlive() && !busy() && !recovering(client)
+                && assessment.level()==SurvivalPolicy.Danger.CLEAR && !avoidsDestination(client,client.player.blockPosition())
+                && client.level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,client.player.getBoundingBox().inflate(16),m->m instanceof net.minecraft.world.entity.monster.Enemy && m.isAlive()).isEmpty()
+                && System.nanoTime()-lastDamage>3_000_000_000L;
+    }
     String status() {return "Survival "+(enabled?"ON":"OFF")+" | Combat "+(combat?"ON":"OFF")+" | Cung "+(rangedEnabled?"ON":"OFF")+" | Shield "+(shieldEnabled?"ON":"OFF")+" | Auto equipment "+(autoEquipment?"ON":"OFF")+" | "+status;}
     java.util.Map<String,Boolean> webFeatures() {return java.util.Map.of("survival",enabled,"combat",combat,"ranged",rangedEnabled,"shield",shieldEnabled,
             "equipment",autoEquipment,"loot",autoLoot,"trash",autoTrash,"alerts",alerts);}
@@ -804,7 +810,7 @@ final class SurvivalController {
 
                 if(food<0) {nextFood=System.nanoTime()+10_000_000_000L;announce("No suitable food for healing; raw meat is reserved for cooking until hunger reaches 6/20.");return;}
                 if(claim(client)) eat(client,foodSlot(client));
-            } else if(autoTrash && seen.isEmpty() && System.nanoTime()>=nextTrash && safeMaintenance(client)
+            } else if(autoTrash && idleForEquipment.getAsBoolean() && seen.isEmpty() && System.nanoTime()>=nextTrash && safeMaintenance(client)
                     && java.util.stream.IntStream.rangeClosed(9,44).filter(i->client.player.inventoryMenu.getSlot(i).getItem().isEmpty()).count()<=4) {
                 nextTrash=System.nanoTime()+120_000_000_000L;
                 beginCleanup(client);

@@ -60,6 +60,16 @@ public final class AgentLoopTest {
         loop.tick(true,false,()->{observations[0]++;return "Không đọc lại khi chờ API";});check(observations[0]==1);
         loop.cancel("Kết thúc");loop.start("Quan sát lỗi");
         loop.tick(true,false,()->{throw new IllegalStateException("Game thay đổi");});check(!loop.active());
+        loop.start("Preserve survival goal");loop.tick(true,false,"Before danger");
+        var interruptedAnswer=answers.getLast();int commandsBefore=commands.size(),requestsBefore=requests.size();
+        loop.suspend();check(loop.active() && loop.suspended());
+        interruptedAnswer.accept(json("inventory","{}"));check(commands.size()==commandsBefore);
+        time[0]+=1_900_000;loop.tick(true,false,"During danger");check(requests.size()==requestsBefore);
+        loop.resumeIfSafe(true);time[0]+=2000;loop.resumeIfSafe(false);loop.resumeIfSafe(true);
+        time[0]+=2999;loop.resumeIfSafe(true);check(loop.suspended());
+        time[0]++;loop.resumeIfSafe(true);check(!loop.suspended() && loop.active());
+        loop.tick(true,false,"After danger");check(requests.getLast().contains("Preserve survival goal") && requests.getLast().contains("Action interrupted"));
+        loop.suspend();loop.cancel("Manual stop while suspended");check(!loop.active());
         System.out.println("All AI loop sequencing, real result feedback, stale callbacks, cancellation, bounded turns/time and chest action validation checks passed.");
     }
     private static String json(String action,String args) { return "{\"action\":\""+action+"\",\"args\":"+args+",\"message\":\"Test\"}"; }

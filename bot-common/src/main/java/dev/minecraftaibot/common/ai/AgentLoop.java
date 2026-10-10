@@ -14,6 +14,22 @@ public final class AgentLoop {
     private final Consumer<String> notify;
     private final LongSupplier time;
     private boolean active, requesting, waiting, autoEnabled;
+    private boolean suspended;
+    private long suspendedAt,safeSince;
+    public boolean suspended() {return suspended;}
+    public void suspend() {
+        if(!active || suspended)return;
+        suspended=true;suspendedAt=time.getAsLong();safeSince=-1;generation++;requesting=false;waiting=false;
+        feedback+="\nAction interrupted for survival; do not assume completion. Recheck inventory and world before selecting the remaining work.";
+        stop.run();status="AI goal saved; waiting for safety.";notify.accept(status);
+    }
+    public void resumeIfSafe(boolean safe) {
+        if(!active || !suspended)return;
+        if(!safe) {safeSince=-1;return;}
+        long now=time.getAsLong();if(safeSince<0)safeSince=now;
+        if(now-safeSince<3000)return;
+        started+=now-suspendedAt;suspended=false;next=now;status="AI goal resumed; checking current progress.";notify.accept(status);
+    }
     private long generation, started, actionStarted, next;
     private long actionTimeout=180_000;
     private int steps;
@@ -34,19 +50,19 @@ public final class AgentLoop {
         if(!autoEnabled) return "AI execution is OFF. Enable bot ai auto on first.";
         if (active) return "AI task active. Use bot ai cancel first.";
         this.goal=goal; feedback="No action executed yet."; steps=0;
-        generation++; active=true; requesting=false; waiting=false; started=time.getAsLong(); next=started;
+        generation++; active=true; suspended=false;requesting=false; waiting=false; started=time.getAsLong(); next=started;
         return status="AI task accepted: " + goal;
     }
     public void cancel(String reason) {
         if (!active) return;
-        active=false; generation++; requesting=false; waiting=false; stop.run();
+        active=false;suspended=false; generation++; requesting=false; waiting=false; stop.run();
         status=reason; notify.accept(status);
     }
     public void tick(boolean valid, boolean gameBusy, String observation) {
         tick(valid,gameBusy,()->observation);
     }
     public void tick(boolean valid, boolean gameBusy, Supplier<String> observation) {
-        if (!active) return;
+        if (!active || suspended) return;
         long now=time.getAsLong();
         if (!valid) { cancel("AI task stopped: world/player changed, player died or bot is no longer RUNNING."); return; }
         if (now-started >= 1_800_000) { cancel("AI task stopped after exceeding 30 minutes."); return; }
