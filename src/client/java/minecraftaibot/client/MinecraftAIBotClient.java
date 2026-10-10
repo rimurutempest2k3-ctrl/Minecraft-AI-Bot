@@ -43,7 +43,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         return chest.execute(input);
     }
     private boolean idleForEquipment() {
-        return queuedWorkflow==null && !movement.busy() && !chest.busy() && !placement.busy() && !localTasks.busy() && !furnace.busy()
+        return queuedWorkflow==null && !movement.busy() && !chest.busy() && !placement.busy() && !localTasks.executing() && !furnace.busy()
                 && (ai==null || !ai.busy()) && (agent==null || !agent.active());
     }
     private volatile ConsoleServer console;
@@ -109,8 +109,11 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         var workflow=queuedWorkflow;queuedWorkflow=null;notifyConsole(localTasks.startWorkflow(workflow));
     }
     private boolean interruptForSurvival() {
-        if(agent!=null && agent.active()) agent.cancel("AI task canceled to prioritize survival.");
-        else stopAgentGame();
+        if(localTasks.busy()) {
+            localTasks.suspendForSurvival();
+            if(chest.busy())chest.cancel();
+        } else if(agent!=null && agent.active()) agent.suspend();
+        else {if(chest.busy())chest.cancel();placement.cancel("Placement interrupted for survival.");movement.stop();}
         Minecraft client=Minecraft.getInstance();
         if(!client.player.containerMenu.getCarried().isEmpty()) return false;
         if(client.player.containerMenu instanceof net.minecraft.world.inventory.AbstractCraftingMenu menu
@@ -126,6 +129,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         String normalized=input.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
         // Display preferences must never interrupt an AI/local/survival task.
         if(normalized.equals("bot language") || normalized.startsWith("bot language "))return commands.execute(input);
+        if(normalized.equals("bot workflow resume"))return localTasks.resumeSaved(Minecraft.getInstance(),survival.safeForTaskResume(Minecraft.getInstance()),true);
         if(normalized.startsWith("bot workflow run "))return runWorkflow(normalized.substring(17));
         if(normalized.equals("bot workflow list") || normalized.equals("bot workflow reload")) {
             try {return "Task files: "+TaskPresets.workflows().stream().map(w->w.filename()+(w.error()==null?"":" (error)")).collect(Collectors.joining(", "));}
@@ -287,6 +291,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         var features=new java.util.TreeMap<>(survival.webFeatures());features.put("ai",agent!=null && agent.autoEnabled());
         data.add("features",gson.toJsonTree(features));data.add("baritone",movement.webSettings());
         data.add("starter",localTasks.starterSnapshot(client));
+        data.add("taskTabs",localTasks.taskTabsSnapshot(client));
         var library=new com.google.gson.JsonObject();
         try {
             library.addProperty("directory",TaskPresets.workflowDirectory().toString());
@@ -391,6 +396,8 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(localTasks::plantMemoryTick);
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             tickQueuedWorkflow(client);
+            localTasks.resumeTick(client,survival.safeForTaskResume(client));
+            if(agent!=null)agent.resumeIfSafe(survival.safeForTaskResume(client) && !ai.busy());
             localTasks.autoTick(client,idleForEquipment() && !survival.busy());
             if (agent != null && agent.active() && ++agentTicks % 20 == 0) agent.tick(agentValid(client), movement.busy() || chest.busy() || localTasks.busy() || furnace.busy() || placement.busy(), this::observation);
         });

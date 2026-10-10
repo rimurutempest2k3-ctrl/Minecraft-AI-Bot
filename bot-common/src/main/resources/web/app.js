@@ -1,6 +1,6 @@
 'use strict';
 const $=s=>document.querySelector(s),history=[];
-let snapshot=null,sending=false,polling=false,aiDirty=false,baritoneDirty=false,selectedChest='',slotSelection=-1,inventorySignature='',chestSignature='',selectedWorkflow='',librarySignature='';
+let snapshot=null,sending=false,polling=false,aiDirty=false,baritoneDirty=false,selectedChest='',slotSelection=-1,inventorySignature='',chestSignature='',selectedWorkflow='',librarySignature='',selectedTaskRun='',followTaskRun=true;
 const features=[['survival','Survival','bot survival','Eat, defend and retreat.'],['combat','Combat','bot survival combat','Attack mobs when conditions allow.'],['ranged','Ranged bow combat','bot survival ranged','Skeleton, stray, bogged; predicts motion and arrow drop.'],['shield','Use shield','bot survival shield','Equip offhand and raise shield.'],['equipment','Equipment & hotbar sorting','bot survival equipment','Prefer better armor, an offhand shield and tool sorting when safe.'],['loot','Useful loot pickup','bot loot','Scan every 2 seconds; after death, recover all drops near the death location in loaded chunks.'],['trash','Auto trash cleanup','bot trash auto','Apply the filter when inventory is nearly full.'],['ai','AI execution','bot ai auto','Execute supported AI commands.'],['alerts','Survival alerts','bot survival alerts','Notify about missing items and low durability.']];
 function node(tag,value,className){const el=document.createElement(tag);if(value!==undefined)el.textContent=value;if(className)el.className=className;return el;}
 function text(selector,value){$(selector).textContent=value??'—';}
@@ -49,13 +49,17 @@ lock(false);setInterval(refresh,2000);refresh();
 $("#command-input").addEventListener("input",()=>{$("#command-input").type=/^\s*bot\s+get\s+api\b/i.test($("#command-input").value)?"password":"text";});
 
 function renderSupplies(plan){
+    const runs=snapshot?.taskTabs||[],tabs=$('#task-run-tabs');tabs.replaceChildren();
+    if(followTaskRun || !runs.some(r=>r.id===selectedTaskRun))selectedTaskRun=plan?.id||'';
+    runs.forEach(r=>{const b=node('button',r.title+' · '+r.state,'tab');b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',String(r.id===selectedTaskRun));b.addEventListener('click',()=>{followTaskRun=false;selectedTaskRun=r.id;renderSupplies(snapshot.starter);});tabs.append(b);});
+    plan=runs.find(r=>r.id===selectedTaskRun)||plan;
     $('#starter-auto').setAttribute('aria-checked',String(!!plan?.automatic));
     text('#starter-status',plan?.status||'No task.');
     text('#running-workflow-title',plan?.title?(plan.title+' · '+plan.file):'No task file running');
-    const states={RUNNING:'Running',COMPLETED:'Completed',CANCELLED:'Stopped',IDLE:'Not started'};
+    const states={RUNNING:'Running',COMPLETED:'Completed',CANCELLED:'Stopped',IDLE:'Not started',SUSPENDED:'Waiting for safety',WAITING_RECOVERY:'Waiting for furnace recovery'};
     const done=(plan?.steps||[]).filter(s=>['COMPLETED','SKIPPED'].includes(s.state)).length;
     text('#workflow-summary',(states[plan?.state]||'Not started')+' · '+done+' / '+(plan?.steps?.length||0)+' steps finished');
-    const labels={COMPLETED:'Done',SKIPPED:'Already available · skipped',RUNNING:'In progress',STOPPED:'Stopped here',WAITING:'Pending'};
+    const labels={COMPLETED:'Done',SKIPPED:'Already available · skipped',RUNNING:'In progress',STOPPED:'Stopped here',WAITING:'Pending',SUSPENDED:'Saved · temporarily interrupted'};
     const box=$('#supply-list');box.replaceChildren();
     (plan?.steps||[]).forEach((s,i)=>{const row=node('div',undefined,'step '+(s.state==='RUNNING'?'current':['COMPLETED','SKIPPED'].includes(s.state)?'completed':s.state==='STOPPED'?'stopped':'waiting')),content=node('div');
         row.append(node('span',String(i+1),'num'));content.append(node('b',s.label),node('small',(labels[s.state]||'Pending')+' · Target '+s.target+' · '+(plan?.mode==='collect'?'Added':'Present')+' '+s.present));row.append(content);box.append(row);
@@ -105,7 +109,7 @@ $('#import-workflow-file').addEventListener('change',()=>{
     });
 });
 $('#workflow-search').addEventListener('input',()=>renderLibrary(snapshot?.workflows,true));
-$('#run-workflow').addEventListener('click',()=>action(async()=>{const message=await request('bot workflow run '+selectedWorkflow);if(!message.startsWith('Previous task stopped.'))throw new Error(message);showWorkflowTab('workflow-progress');}));
+$('#run-workflow').addEventListener('click',()=>action(async()=>{const message=await request('bot workflow run '+selectedWorkflow);if(!message.startsWith('Previous task stopped.'))throw new Error(message);followTaskRun=true;showWorkflowTab('workflow-progress');}));
 $('#starter-auto').addEventListener('click',()=>send('bot starter auto '+(snapshot?.starter?.automatic?'off':'on')));
 
 $('#language-select').addEventListener('change',()=>action(async()=>{

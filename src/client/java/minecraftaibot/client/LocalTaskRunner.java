@@ -61,6 +61,37 @@ final class LocalTaskRunner {
     private static final Map<String,String> MEATS=Map.of("minecraft:beef","minecraft:cooked_beef","minecraft:porkchop","minecraft:cooked_porkchop",
             "minecraft:mutton","minecraft:cooked_mutton","minecraft:chicken","minecraft:cooked_chicken");
     private boolean active;
+    private boolean suspended,productionRecovery;
+    private long suspendedAt,safeSince;
+    private String taskId=UUID.randomUUID().toString();
+    private final Deque<com.google.gson.JsonObject> taskHistory=new ArrayDeque<>();
+    boolean executing() {return active && !suspended;}
+    void suspendForSurvival() {
+        if(!active || suspended)return;
+        suspended=true;suspendedAt=System.nanoTime();safeSince=0;productionRecovery=phase==Phase.SMELT;
+        releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();
+        furnace.cancel(Minecraft.getInstance(),"Smelting suspended; recover loaded items before resuming the task.");
+        placement.cancel("Placement suspended for survival.");crafting.cancel(Minecraft.getInstance());
+        workflowState=productionRecovery?"WAITING_RECOVERY":"SUSPENDED";
+        status=productionRecovery?"Task saved; recover furnace contents, then use bot workflow resume.":"Task saved; survival has priority. Will resume when safe.";
+        notify.accept(status);
+    }
+    String resumeSaved(Minecraft client,boolean safe,boolean manual) {
+        if(!active || !suspended)return "No suspended task.";
+        if(!safe || client.player!=owner || client.level!=world || !owner.isAlive() || bot.state()!=BotState.RUNNING
+                || client.gui.screen()!=null || client.isPaused() || owner.containerMenu!=owner.inventoryMenu || !owner.containerMenu.getCarried().isEmpty()
+                || owner.inventoryMenu.getInputGridSlots().stream().anyMatch(s->!s.getItem().isEmpty())) {safeSince=0;return "Task saved; waiting for safety and empty crafting grid/cursor.";}
+        if(productionRecovery && !manual)return "Task saved; recover furnace contents, then use bot workflow resume.";
+        long now=System.nanoTime();if(safeSince==0)safeSince=now;
+        if(!manual && now-safeSince<3_000_000_000L)return status;
+        started+=now-suspendedAt;suspended=false;productionRecovery=false;workflowState="RUNNING";clock=0;
+        change(Phase.PLAN,"Resuming saved task at the current step; checking actual inventory.");return status;
+    }
+    void resumeTick(Minecraft client,boolean safe) {if(suspended)resumeSaved(client,safe,false);}
+    com.google.gson.JsonArray taskTabsSnapshot(Minecraft client) {
+        var tabs=new com.google.gson.JsonArray();for(var past:taskHistory)tabs.add(past.deepCopy());
+        if(starter!=null)tabs.add(starterSnapshot(client));return tabs;
+    }
     private TaskPresets.Catalog catalog;
     private TaskPresets.Task definition;
     private TaskPresets.Preparation preparation;
@@ -133,6 +164,8 @@ final class LocalTaskRunner {
         if(bot.state()!=BotState.RUNNING || client.isPaused() || client.gui.screen()!=null || client.gui.overlay()!=null
                 || client.player.containerMenu!=client.player.inventoryMenu || !client.player.containerMenu.getCarried().isEmpty())return "Close menus, store cursor items and let the game run first.";
         catalog=TaskPresets.catalog();owner=client.player;world=client.level;oldSelected=owner.getInventory().getSelectedSlot();
+        if(starter!=null) {taskHistory.addLast(starterSnapshot(client));while(taskHistory.size()>20)taskHistory.removeFirst();}
+        taskId=UUID.randomUUID().toString();suspended=false;productionRecovery=false;
         starter=workflow.plan();workflowFile=workflow.filename();workflowTitle=workflow.title();workflowState="RUNNING";
         workflowMode=workflow.mode();supplyBaselines=new int[starter.steps().size()];Arrays.fill(supplyBaselines,-1);
         initiallySatisfied=new boolean[starter.steps().size()];
@@ -148,13 +181,14 @@ final class LocalTaskRunner {
         data.addProperty("status",status);data.addProperty("step",supplyIndex);
         data.addProperty("file",workflowFile);data.addProperty("title",workflowTitle);data.addProperty("state",workflowState);
         data.addProperty("mode",workflowMode);
+        data.addProperty("id",taskId);data.addProperty("priority",30);data.addProperty("suspended",suspended);
         data.addProperty("phase",phase==null?"":phase.name());
         var steps=new com.google.gson.JsonArray();
         int index=0;
         if(starter!=null) for(var step:starter.steps()) {
             var row=new com.google.gson.JsonObject();row.addProperty("label",step.label());row.addProperty("item",step.item());row.addProperty("target",step.count());
             row.addProperty("action",step.action());
-            row.addProperty("state",index<supplyIndex?(initiallySatisfied[index]?"SKIPPED":"COMPLETED"):index==supplyIndex && workflowState.equals("CANCELLED")?"STOPPED":index==supplyIndex && active?"RUNNING":"WAITING");
+            row.addProperty("state",index<supplyIndex?(initiallySatisfied[index]?"SKIPPED":"COMPLETED"):index==supplyIndex && workflowState.equals("CANCELLED")?"STOPPED":index==supplyIndex && suspended?"SUSPENDED":index==supplyIndex && active?"RUNNING":"WAITING");
             row.addProperty("present",client.player==null?0:supplyProgress(client,index));index++;steps.add(row);
         }
         data.add("steps",steps);return data;
@@ -274,6 +308,7 @@ final class LocalTaskRunner {
     void tick(Minecraft client) {
         releaseHuntAttack(client);
         if(!active) return;
+        if(suspended)return;
         if(client.player!=owner || client.level!=world || !owner.isAlive() || bot.state()!=BotState.RUNNING) { cancel("Local stopped: world/player changed, player died or bot state changed.");return; }
         if(phase==Phase.HUNT && System.nanoTime()-phaseStarted>180_000_000_000L) beginFoodFallback(client,"Animal search timed out.");
         if(System.nanoTime()-started>(starter==null?900_000_000_000L:1_800_000_000_000L)
@@ -282,7 +317,7 @@ final class LocalTaskRunner {
         try {
             if(phase==Phase.HUNT) {huntTick(client);return;}
             if(phase==Phase.FOOD_CROP && !world.getEntitiesOfClass(Mob.class,owner.getBoundingBox().inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty()) {
-                cancel("Food gathering stopped: hostile mob nearby; survival takes priority.");return;
+                suspendForSurvival();return;
             }
             if(phase==Phase.FOOD_CROP) {foodCropTick(client);return;}
             if(phase==Phase.SMELT) {
@@ -528,7 +563,7 @@ final class LocalTaskRunner {
         return result;
     }
     void cancel(String reason) {
-        if(!active) return;active=false;if(starter!=null)workflowState="CANCELLED";releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();furnace.cancel(Minecraft.getInstance(),"Local task smelting canceled.");placement.cancel("Local task table placement canceled.");crafting.cancel(Minecraft.getInstance());
+        if(!active) return;active=false;suspended=false;productionRecovery=false;if(starter!=null)workflowState="CANCELLED";releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();furnace.cancel(Minecraft.getInstance(),"Local task smelting canceled.");placement.cancel("Local task table placement canceled.");crafting.cancel(Minecraft.getInstance());
         if(owner!=null && Minecraft.getInstance().player==owner) owner.getInventory().setSelectedSlot(oldSelected);
         status=reason+" If items remain on the crafting grid/cursor, store them; items will not be dropped automatically.";LOG.warn("{}",status);notify.accept(status);
     }
@@ -598,7 +633,7 @@ final class LocalTaskRunner {
         long now=System.nanoTime();
         if(owner.position().distanceToSqr(huntSearchOrigin)>160*160) {beginFoodFallback(client,"Animal search reached its exploration limit.");return;}
         if(!world.getEntitiesOfClass(Mob.class,owner.getBoundingBox().inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty()) {
-            cancel("Hunting stopped: hostile mob nearby; survival takes priority.");return;
+            suspendForSurvival();return;
         }
         if(rawMeat()>0) {
             releaseHunting(client);movement.stop();change(Phase.PLAN,"Meat collected; preparing wood and cooking immediately.");return;
