@@ -2,6 +2,12 @@
   "version": 1,
   "language": "en",
   "messages": {
+    "Clearing a natural block at ": "Clearing a natural block at ",
+    " to make space for production placement.": " to make space for production placement.",
+    "Block clearing rejected or timed out; choosing another position.": "Block clearing rejected or timed out; choosing another position.",
+    "Cleared cell is not suitable for placement; choosing another position.": "Cleared cell is not suitable for placement; choosing another position.",
+    "Placement face changed or could not be aimed at; retrying another position.": "Placement face changed or could not be aimed at; retrying another position.",
+    "Block clearing target is no longer reachable.": "Block clearing target is no longer reachable.",
     "Individual tasks": "Individual tasks",
     "Resume saved task": "Resume saved task",
     "Waiting for safety": "Waiting for safety",
