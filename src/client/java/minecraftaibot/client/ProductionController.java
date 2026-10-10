@@ -104,7 +104,7 @@ final class ProductionController {
     /** Nearby placement, jump fallback and short bounded relocations through Baritone. */
     static final class BlockPlacement {
         private Block block=Blocks.CRAFTING_TABLE;
-        private enum Phase { JUMP, CONFIRM, LAND, MOVE, SETTLE }
+        private enum Phase { JUMP, AIM, CLEAR, CONFIRM, LAND, MOVE, SETTLE }
         private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot");
         private final Consumer<String> notify;
         private final BaritoneController movement;
@@ -116,6 +116,10 @@ final class ProductionController {
         private JumpPlacementGate jump;
         private boolean holdingJump,automatic;
         private Phase phase;
+        private net.minecraft.world.level.block.state.BlockState clearingState;
+        private boolean digging;
+        private int clearAttempts,aligned,clearStable;
+        private final Set<BlockPos> cleared=new HashSet<>();
         private PlacementRecovery recovery;
         private final Set<BlockPos> attempted=new LinkedHashSet<>();
         private String status="No production block placed.";
@@ -133,7 +137,7 @@ final class ProductionController {
             if(!client.player.inventoryMenu.getCarried().isEmpty()) throw new IllegalArgumentException("Store the cursor item first.");
             if(!Set.of(Blocks.CRAFTING_TABLE,Blocks.FURNACE,Blocks.BLAST_FURNACE,Blocks.SMOKER).contains(requestedBlock)) throw new IllegalArgumentException("Unsupported production block.");
             block=requestedBlock;owner=client.player;world=client.level;target=null;destination=null;jump=null;automatic=requested==null;
-            selected=owner.getInventory().getSelectedSlot();recovery=new PlacementRecovery();attempted.clear();overallDeadline=System.nanoTime()+60_000_000_000L;
+            selected=owner.getInventory().getSelectedSlot();recovery=new PlacementRecovery();attempted.clear();cleared.clear();clearAttempts=0;digging=false;overallDeadline=System.nanoTime()+60_000_000_000L;
             if(requested!=null && (Math.abs((long)requested.getX())>29999984 || Math.abs((long)requested.getZ())>29999984 || requested.getY()<world.getMinY() || requested.getY()>world.getMaxY())) throw new IllegalArgumentException("Coordinates outside world bounds.");
             if(requested!=null && world.hasChunkAt(requested) && world.getBlockState(requested).is(block)) {target=requested;return status="Production block already exists at "+requested.toShortString()+"; no additional placement.";}
             if(blockSlot()<0) throw new IllegalArgumentException("No production block in inventory. Craft it first.");
@@ -168,15 +172,64 @@ final class ProductionController {
                 if(candidate!=null && distance<best) {target=pos.immutable();hit=candidate;best=distance;}
             }
             if(target!=null) {selectBlock(client);place(client,hit);return;}
+            if(tryClear(client))return;
             if(!attempted.contains(origin) && canJumpPlace(origin)) {
                 target=origin.immutable();selectBlock(client);jump=new JumpPlacementGate();begin(Phase.JUMP,5);
                 holdingJump=true;client.options.keyJump.setDown(true);announce("No nearby placement spot; jumping to place a block underfoot at "+target.toShortString()+".");
             } else recover("No nearby placement cell and cannot jump-place underfoot yet.");
         }
         private void place(Minecraft client,BlockHitResult hit) {
-            attempted.add(target.immutable());jump=null;releaseJump();stableTicks=0;begin(Phase.CONFIRM,5);
-            client.gameMode.useItemOn(owner,InteractionHand.MAIN_HAND,hit);announce("Placing production block at "+target.toShortString()+"; waiting for game state.");
+            if(jump!=null) {
+                attempted.add(target.immutable());jump=null;releaseJump();stableTicks=0;begin(Phase.CONFIRM,5);
+                client.gameMode.useItemOn(owner,InteractionHand.MAIN_HAND,hit);owner.swing(InteractionHand.MAIN_HAND);
+                announce("Placing production block at "+target.toShortString()+"; waiting for game state.");return;
+            }
+            aligned=0;jump=null;releaseJump();stableTicks=0;begin(Phase.AIM,3);
         }
+        private boolean aimAt(Vec3 point) {
+            Vec3 delta=point.subtract(owner.getEyePosition());
+            float yaw=(float)Math.toDegrees(Math.atan2(delta.z,delta.x))-90,pitch=(float)-Math.toDegrees(Math.atan2(delta.y,Math.hypot(delta.x,delta.z)));
+            float ye=net.minecraft.util.Mth.wrapDegrees(yaw-owner.getYRot()),pe=pitch-owner.getXRot();
+            owner.setYRot(owner.getYRot()+net.minecraft.util.Mth.clamp(ye,-15,15));owner.setXRot(net.minecraft.util.Mth.clamp(owner.getXRot()+net.minecraft.util.Mth.clamp(pe,-10,10),-90,90));
+            aligned=Math.abs(ye)<2 && Math.abs(pe)<2?aligned+1:0;return aligned>=2;
+        }
+        private boolean clearable(BlockPos pos) {
+            return !attempted.contains(pos) && !cleared.contains(pos) && clearableNow(pos);
+        }
+        private boolean clearableNow(BlockPos pos) {
+            if(!world.hasChunkAt(pos))return false;
+            var state=world.getBlockState(pos);var support=world.getBlockState(pos.below());
+            if(state.isAir() || state.getDestroySpeed(world,pos)<0 || !support.isCollisionShapeFullBlock(world,pos.below()) || support.is(Blocks.MAGMA_BLOCK))return false;
+            boolean natural=state.is(net.minecraft.tags.BlockTags.DIRT) || state.is(net.minecraft.tags.BlockTags.BASE_STONE_OVERWORLD)
+                    || state.is(net.minecraft.tags.BlockTags.LEAVES) || state.is(Blocks.SHORT_GRASS) || state.is(Blocks.TALL_GRASS) || state.is(Blocks.FERN);
+            boolean fluid=!world.getFluidState(pos).isEmpty();for(var direction:Direction.values())fluid|=!world.getFluidState(pos.relative(direction)).isEmpty();
+            boolean occupied=pos.getY()<owner.blockPosition().getY() || owner.getBoundingBox().intersects(new AABB(pos)) || !world.getEntities(owner,new AABB(pos),e->e.isAlive()).isEmpty();
+            return PlacementRecovery.canClear(natural,state.getBlock() instanceof EntityBlock,occupied,fluid,
+                    world.getBlockState(pos.above()).getBlock() instanceof net.minecraft.world.level.block.FallingBlock);
+        }
+        private BlockHitResult clearingHit(BlockPos pos) {
+            var hit=world.clip(new ClipContext(owner.getEyePosition(),Vec3.atCenterOf(pos),ClipContext.Block.OUTLINE,ClipContext.Fluid.NONE,owner));
+            return hit.getType()==HitResult.Type.BLOCK && hit.getBlockPos().equals(pos)
+                    && owner.getEyePosition().distanceToSqr(hit.getLocation())<=Math.pow(owner.blockInteractionRange(),2)?hit:null;
+        }
+        private boolean tryClear(Minecraft client) {
+            if(!automatic || clearAttempts>=2)return false;
+            var origin=owner.blockPosition();BlockPos best=null;double nearest=Double.MAX_VALUE;
+            for(var pos:BlockPos.betweenClosed(origin.offset(-2,0,-2),origin.offset(2,1,2))) {
+                if(!clearable(pos))continue;var candidate=clearingHit(pos);double distance=owner.distanceToSqr(Vec3.atCenterOf(pos));
+                if(candidate!=null && distance<nearest) {best=pos.immutable();nearest=distance;}
+            }
+            if(best==null)return false;
+            movement.stop();target=best;clearingState=world.getBlockState(best);cleared.add(best);clearAttempts++;aligned=clearStable=0;digging=false;
+            var items=owner.getInventory().getNonEquipmentItems();int tool=owner.getInventory().getSelectedSlot();float speed=items.get(tool).getDestroySpeed(clearingState);
+            for(int i=0;i<items.size();i++)if(!items.get(i).isDamageableItem() || items.get(i).getMaxDamage()-items.get(i).getDamageValue()>3) {
+                float candidate=items.get(i).getDestroySpeed(clearingState);if(candidate>speed) {tool=i;speed=candidate;}
+            }
+            if(tool<9)owner.getInventory().setSelectedSlot(tool);
+            else client.gameMode.handleContainerInput(owner.inventoryMenu.containerId,tool,owner.getInventory().getSelectedSlot(),ContainerInput.SWAP,owner);
+            begin(Phase.CLEAR,10);announce("Clearing a natural block at "+target.toShortString()+" to make space for production placement.");return true;
+        }
+        private void stopDigging(Minecraft client) {if(digging && client.gameMode!=null)client.gameMode.stopDestroyBlock();digging=false;}
         private boolean canJumpPlace(BlockPos pos) {
             BlockPos support=pos.below();var state=world.getBlockState(support);
             return owner.onGround() && owner.getDeltaMovement().horizontalDistanceSqr()<0.0004 && world.getBlockState(pos).isAir()
@@ -194,6 +247,7 @@ final class ProductionController {
                     && owner.getEyePosition().distanceToSqr(ray.getLocation())<=Math.pow(owner.blockInteractionRange(),2)?ray:null;
         }
         private void recover(String reason) {
+            stopDigging(Minecraft.getInstance());
             if(target!=null) attempted.add(target.immutable());jump=null;releaseJump();
             if(!automatic || recovery.moves()>=2) {cancel(reason+" Stopped after reaching the relocation attempt limit.");return;}
             if(blockSlot()<0) {cancel(reason+" No blocks left in inventory; stopped.");return;}
@@ -243,6 +297,32 @@ final class ProductionController {
             stableTicks=0;
             try {
                 switch(phase) {
+                    case AIM -> {
+                        var hit=placementHit(target);
+                        if(hit==null || now>deadline || !owner.getMainHandItem().is(block.asItem())) {recover("Placement face changed or could not be aimed at; retrying another position.");return;}
+                        if(aimAt(hit.getLocation()) && client.hitResult instanceof BlockHitResult actual && actual.getBlockPos().equals(hit.getBlockPos()) && actual.getDirection()==hit.getDirection()) {
+                            attempted.add(target.immutable());begin(Phase.CONFIRM,5);client.gameMode.useItemOn(owner,InteractionHand.MAIN_HAND,hit);owner.swing(InteractionHand.MAIN_HAND);
+                            announce("Placing production block at "+target.toShortString()+"; waiting for game state.");
+                        }
+                    }
+                    case CLEAR -> {
+                        if(world.getBlockState(target).isAir()) {
+                            stopDigging(client);
+                            if(++clearStable<10)return;
+                            var hit=placementHit(target);
+                            if(hit==null) {recover("Cleared cell is not suitable for placement; choosing another position.");return;}
+                            selectBlock(client);place(client,hit);return;
+                        }
+                        clearStable=0;
+                        if(!world.getBlockState(target).equals(clearingState) || !clearableNow(target) || now>deadline) {recover("Block clearing rejected or timed out; choosing another position.");return;}
+                        var hit=clearingHit(target);
+                        if(hit==null) {recover("Block clearing target is no longer reachable.");return;}
+                        if(aimAt(hit.getLocation()) && client.hitResult instanceof BlockHitResult actual && actual.getBlockPos().equals(target)) {
+                            if(!digging) {client.gameMode.startDestroyBlock(target,hit.getDirection());digging=true;}
+                            else client.gameMode.continueDestroyBlock(target,hit.getDirection());
+                            owner.swing(InteractionHand.MAIN_HAND);
+                        } else stopDigging(client);
+                    }
                     case LAND,SETTLE -> {
                         if(owner.onGround() && owner.getDeltaMovement().horizontalDistanceSqr()<0.0004) {
                             if(++settled>=3) {if(phase==Phase.SETTLE) attempt(client);else relocate(client);}
@@ -268,7 +348,7 @@ final class ProductionController {
             } catch(RuntimeException failure) {cancel("Cannot continue production block placement/relocation.");}
         }
         void cancel(String message) {
-            if(!busy()) return;if(phase==Phase.MOVE) movement.stop();deadline=0;jump=null;releaseJump();
+            if(!busy()) return;stopDigging(Minecraft.getInstance());if(phase==Phase.MOVE) movement.stop();deadline=0;jump=null;releaseJump();
             if(Minecraft.getInstance().player==owner) owner.getInventory().setSelectedSlot(selected);announce(message);
         }
     }

@@ -4,6 +4,12 @@ import java.util.*;
 
 public final class PlacementRecoveryTest {
     public static void run() {
+        check(PlacementRecovery.canClear(true,false,false,false,false));
+        check(!PlacementRecovery.canClear(false,false,false,false,false));
+        check(!PlacementRecovery.canClear(true,true,false,false,false));
+        check(!PlacementRecovery.canClear(true,false,true,false,false));
+        check(!PlacementRecovery.canClear(true,false,false,true,false));
+        check(!PlacementRecovery.canClear(true,false,false,false,true));
         var origin=new PlacementRecovery.Cell(10,64,-10);
         var candidates=PlacementRecovery.candidates(origin);
         check(candidates.size()==12 && new HashSet<>(candidates).size()==12);

@@ -2,6 +2,12 @@
   "version": 1,
   "language": "vi",
   "messages": {
+    "Clearing a natural block at ": "Đang đào vật cản tự nhiên tại ",
+    " to make space for production placement.": " để tạo chỗ đặt bàn/lò.",
+    "Block clearing rejected or timed out; choosing another position.": "Đào block bị từ chối, không còn an toàn hoặc hết thời gian; chọn vị trí khác.",
+    "Cleared cell is not suitable for placement; choosing another position.": "Chỗ vừa đào không phù hợp để đặt; chọn vị trí khác.",
+    "Placement face changed or could not be aimed at; retrying another position.": "Mặt đặt block đã thay đổi hoặc không ngắm được; thử vị trí khác.",
+    "Block clearing target is no longer reachable.": "Không còn tiếp cận được block cần đào.",
     "Individual tasks": "Các nhiệm vụ riêng",
     "Resume saved task": "Tiếp tục nhiệm vụ đã lưu",
     "Waiting for safety": "Chờ an toàn",

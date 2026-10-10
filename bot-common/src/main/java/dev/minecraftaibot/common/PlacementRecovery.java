@@ -5,6 +5,9 @@ import java.util.function.Predicate;
 
 /** Short relocations, bounded to two moves and without revisiting failed positions. */
 public final class PlacementRecovery {
+    public static boolean canClear(boolean natural,boolean protectedBlock,boolean occupied,boolean fluidNearby,boolean fallingAbove) {
+        return natural && !protectedBlock && !occupied && !fluidNearby && !fallingAbove;
+    }
     public record Cell(int x,int y,int z) {}
     private final Set<Cell> visited=new HashSet<>();
     private int moves;
