@@ -2,8 +2,7 @@
 
 <p align="center"><img src="assets/minecraft-ai-bot-logo.png" alt="Minecraft AI Bot logo" width="320"></p>
 
-A Minecraft Java client mod with Baritone navigation, JSON tasks, survival
-assistance, chest memory, optional AI control and a local web dashboard.
+A Minecraft Java client mod with Baritone navigation, ordered JSON tasks, nearby defense and auto eating, chest memory, optional AI control and a local web dashboard.
 
 ## Development tracks
 
@@ -42,7 +41,9 @@ The optional Windows console uses `bot-console.bat` and `tools/` from the releas
 package, placed in the game directory. Run `.\bot-console.bat` in PowerShell.
 Java must be available through PATH or JAVA_HOME. The web does not require this console.
 
-Hotbar layout: edit `config/minecraft-ai-bot/inventory-layout.json` and run `bot survival equipment reload`. See [Inventory layout](INVENTORY.md) for the fields and scoring rules.
+Task chains run only when assigned. Auto eating and defense within 4 blocks may interrupt a chain temporarily; its steps are retained. Autonomous hunting, looting, retreat and world-entry preparation do not run in the background. Hunting/cooking still works as an explicit task step.
+
+If a step fails, its progress is held as `BLOCKED`. Resolve the cause, recover items from the crafting grid/cursor or furnace, close menus, then use `bot workflow resume`. Resume rechecks inventory; completed steps and collect baselines remain intact. Progress is currently held only in the same game session/player/world; restarting Minecraft does not restore it. See [Task chains and chest steps](task-pack/TASK-CHAINS.md).
 
 ## Basic commands
 
