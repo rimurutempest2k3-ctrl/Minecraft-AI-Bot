@@ -33,6 +33,8 @@ public final class WebConsoleTest {
             }
             var script=client.send(HttpRequest.newBuilder(URI.create(url+"/app.js")).GET().build(),HttpResponse.BodyHandlers.ofString());
             check(script.statusCode()==200 && script.body().contains("EventSource"));
+            var builder=client.send(HttpRequest.newBuilder(URI.create(url+"/task-builder.js")).GET().build(),HttpResponse.BodyHandlers.ofString());
+            check(builder.statusCode()==200 && builder.body().contains("documentFor") && page.body().contains("workflow-tab-builder"));
             var status=client.send(HttpRequest.newBuilder(URI.create(url+"/status")).header("Cookie",cookie).GET().build(),HttpResponse.BodyHandlers.ofString());
             check(status.statusCode()==200 && calls.get()==1);
             var badOrigin=client.send(HttpRequest.newBuilder(URI.create(url+"/command")).header("Cookie",cookie).header("Origin","http://example.com")

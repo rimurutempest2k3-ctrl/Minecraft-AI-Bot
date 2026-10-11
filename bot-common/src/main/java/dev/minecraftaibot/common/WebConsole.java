@@ -67,7 +67,7 @@ public final class WebConsole implements AutoCloseable {
             exchange.getResponseHeaders().set("X-Content-Type-Options","nosniff");
             exchange.getResponseHeaders().set("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'");
             String path=exchange.getRequestURI().getPath(),method=exchange.getRequestMethod();
-            if(method.equals("GET") && (path.equals("/") || path.equals("/app.js") || path.equals("/i18n.js"))) {
+            if(method.equals("GET") && (path.equals("/") || path.equals("/app.js") || path.equals("/i18n.js") || path.equals("/task-builder.js"))) {
                 if(path.equals("/")) exchange.getResponseHeaders().add("Set-Cookie","bot_session="+session+"; HttpOnly; SameSite=Strict; Path=/");
                 try(var asset=WebConsole.class.getResourceAsStream(path.equals("/")?"/web/index.html":"/web"+path)) {
                     if(asset==null) {reply(exchange,404,"Interface not found.");return;}

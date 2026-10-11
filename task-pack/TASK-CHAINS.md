@@ -2,6 +2,8 @@
 
 Choose a `.taskbot` file on the web and run it. The content is JSON. Steps execute in order, and the next step starts only after its result is checked. Existing `mine`, `craft`, `smelt` and `food` steps remain supported.
 
+To create a file without writing JSON, open **Tasks & progress → Create task**. Enter a title, filename and mode; add each step with its item ID, quantity or menu/chest details. Edit, duplicate or move steps up/down to arrange the sequence. Save the step being edited before saving the task. **Save to task library** validates the complete file through the mod, adds it to the library and never starts it automatically or replaces an existing file. Choose a new filename if it already exists. **Download .taskbot** exports the draft for sharing; the mod still validates it when imported. Saved draft steps and task details are kept in this browser. Custom recipe definitions still require editing the task file directly.
+
 Auto eating and defense against mobs within 4 blocks temporarily suspend the chain. They do not start autonomous hunting, looting or retreat. The chain resumes after the intervention ends and the crafting grid/cursor is empty. You can toggle nearby defense with `bot survival combat on/off`.
 
 A failed step becomes `BLOCKED`, preserving completed steps and collection baselines. Resolve its reported cause, recover any crafting/furnace/cursor items, close menus and use **Resume saved task**, or `bot workflow resume`. The bot checks current inventory again. It does not blindly repeat a failed transfer. `bot stop` cancels the chain. Progress currently lasts only for the same game session/player/world; restart or respawn does not restore the chain automatically.
@@ -86,6 +88,8 @@ Imported tasks can send chat and server commands when you run them. Review their
 ## Tiếng Việt
 
 Chọn file `.taskbot` và khởi chạy trên web. Các bước chạy theo thứ tự và kiểm tra kết quả trước khi chuyển tiếp. Tự ăn và đánh trả trong 4 khối chỉ ngắt tạm thời; không tự đi săn, nhặt đồ hay tìm rương.
+
+Để tự soạn, vào **Nhiệm vụ & tiến độ → Tạo nhiệm vụ**. Nhập tên, tên file, chế độ rồi thêm các bước bằng biểu mẫu. Có thể sửa, nhân bản và đưa bước lên/xuống. Lưu bước đang sửa trước khi lưu nhiệm vụ. **Lưu vào thư viện nhiệm vụ** sẽ kiểm tra toàn bộ file, không tự chạy và không ghi đè file đã có. **Tải file .taskbot** xuất bản nháp để chia sẻ. Các bước đã thêm và thông tin nhiệm vụ được giữ trong trình duyệt. Công thức chế tạo riêng vẫn cần sửa trong file.
 
 Khi bước bị lỗi, tiến độ được giữ ở `BLOCKED`. Xử lý nguyên nhân, thu lại đồ trong lưới chế tạo/lò/con trỏ, đóng giao diện rồi bấm **Tiếp tục nhiệm vụ đã lưu** hoặc nhập `bot workflow resume`. Tiến độ hiện chỉ giữ trong cùng phiên game, người chơi và thế giới.
 

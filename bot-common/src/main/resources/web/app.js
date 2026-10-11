@@ -72,7 +72,7 @@ function previewWorkflow(){
     const box=$('#workflow-preview');box.replaceChildren();
     const actions={mine:'Gather materials',craft:'Craft',food:'Hunt and cook food',smelt:'Smelt',chest_take:'Take from specified chest',chest_put:'Store in specified chest',chat:'Send chat',command:'Run server command',menu_open:'Open server menu',menu_click:'Click server menu'};
     (file?.steps||[]).forEach((s,i)=>{const row=node('div',undefined,'step'),content=node('div');row.append(node('span',String(i+1),'num'));
-        content.append(node('b',s.label),node('small',(actions[s.action]||s.action)+' · '+s.item+' ×'+s.count));
+        content.append(node('b',s.label),node('small',(actions[s.action]||s.action)+' · '+(s.item||s.text||s.menu?.title||'')+(['chat','command','menu_open','menu_click'].includes(s.action)?'':' ×'+s.count)));
         if(s.menu)content.append(node('br'),node('small',s.menu.title+(s.menu.slot!==undefined?' · Slot '+s.menu.slot:'')));
         if(s.text)content.append(node('br'),node('small',s.text));
         if(s.chest)content.append(node('br'),node('small','Chest: '+s.chest.x+', '+s.chest.y+', '+s.chest.z));
@@ -93,7 +93,7 @@ function renderLibrary(library,force=false){
 }
 const workflowTabs=[...document.querySelectorAll('[data-workflow-tab]')];
 function showWorkflowTab(id){workflowTabs.forEach(b=>{const active=b.dataset.workflowTab===id;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;$('#'+b.dataset.workflowTab).hidden=!active;});}
-workflowTabs.forEach((b,i)=>{b.addEventListener('click',()=>showWorkflowTab(b.dataset.workflowTab));b.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?1:1-i;showWorkflowTab(workflowTabs[next].dataset.workflowTab);workflowTabs[next].focus();});});
+workflowTabs.forEach((b,i)=>{b.addEventListener('click',()=>showWorkflowTab(b.dataset.workflowTab));b.addEventListener('keydown',e=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();const next=e.key==='Home'?0:e.key==='End'?workflowTabs.length-1:(i+(e.key==='ArrowRight'?1:-1)+workflowTabs.length)%workflowTabs.length;showWorkflowTab(workflowTabs[next].dataset.workflowTab);workflowTabs[next].focus();});});
 $('#browse-workflow').addEventListener('click',()=>$('#import-workflow-file').click());
 $('#import-workflow-file').addEventListener('change',()=>{
     const input=$('#import-workflow-file'),file=input.files?.[0];input.value='';if(!file)return;
