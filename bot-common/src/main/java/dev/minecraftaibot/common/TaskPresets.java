@@ -90,7 +90,12 @@ public final class TaskPresets {
             if(in==null) throw new IOException("Missing core data: "+name);Files.copy(in,path);
         }
     }
-    public record Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf) {
+    public record ChestTarget(int x,int y,int z) {}
+    public record MenuTarget(String title,Integer slot,String expectedItem,String nextTitle,Boolean closed) {}
+    public static boolean controlAction(String action) {return Set.of("chat","command","menu_open","menu_click").contains(action);}
+    public record Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf,ChestTarget chest,String text,MenuTarget menu) {
+        public Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf,ChestTarget chest) {this(label,item,count,action,role,input,skipIf,chest,null,null);}
+        public Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf) {this(label,item,count,action,role,input,skipIf,null);}
         public Supply(String label,String item,int count,String action,String role) {this(label,item,count,action,role,null,null);}
     }
     public static String miningBlock(String item) {
@@ -252,11 +257,43 @@ public final class TaskPresets {
             // Reuse the existing strict recipe validator.
             var wrapper=JsonParser.parseString("{\"version\":1,\"tasks\":{\"kit\":{\"label\":\"kit\",\"goal\":\"minecraft:stone\",\"resultItem\":\"minecraft:cobblestone\",\"quantity\":1}},\"preparations\":{}}").getAsJsonObject();
             wrapper.add("recipes",root.get("recipes"));parse(wrapper.toString());
-            for(var step:root.getAsJsonArray("steps")) validateKeys(step.getAsJsonObject(),Set.of("label","item","count","action","role","input","skipIf"));
+            for(var step:root.getAsJsonArray("steps")) {
+                validateKeys(step.getAsJsonObject(),Set.of("label","item","count","action","role","input","skipIf","chest","text","menu"));
+                if(step.getAsJsonObject().has("menu")) {
+                    var menu=step.getAsJsonObject().getAsJsonObject("menu");validateKeys(menu,Set.of("title","slot","expectedItem","nextTitle","closed"));
+                    if(menu.has("slot") && (!menu.get("slot").isJsonPrimitive() || !menu.get("slot").getAsJsonPrimitive().isNumber() || !menu.get("slot").getAsString().matches("[0-9]+")))throw invalid("Menu slot must be an integer");
+                    if(menu.has("closed") && (!menu.get("closed").isJsonPrimitive() || !menu.get("closed").getAsJsonPrimitive().isBoolean()))throw invalid("Menu closed must be boolean");
+                }
+                if(step.getAsJsonObject().has("chest")) {
+                    var target=step.getAsJsonObject().getAsJsonObject("chest");validateKeys(target,Set.of("x","y","z"));
+                    for(var value:target.entrySet())if(!value.getValue().isJsonPrimitive() || !value.getValue().getAsJsonPrimitive().isNumber() || !value.getValue().getAsString().matches("-?[0-9]+"))throw invalid("Chest coordinates must be integers");
+                    if(!target.keySet().equals(Set.of("x","y","z")))throw invalid("Chest requires x, y and z");
+                }
+            }
             for(Supply step:s.steps()) {
-                item(step.item());
+                if(!controlAction(step.action()) || step.item()!=null)item(step.item());
                 if(step.label()==null || step.label().isBlank() || step.label().length()>160 || step.count()<1 || step.count()>64
-                        || !Set.of("mine","craft","food","smelt").contains(step.action()) || step.role()!=null && !Set.of("logs","pickaxe","axe","sword","food").contains(step.role())) throw invalid("Invalid starter step");
+                        || !Set.of("mine","craft","food","smelt","chest_take","chest_put","chat","command","menu_open","menu_click").contains(step.action()) || step.role()!=null && !Set.of("logs","pickaxe","axe","sword","food").contains(step.role())) throw invalid("Invalid starter step");
+                if(controlAction(step.action()) && (step.count()!=1 || step.role()!=null || step.input()!=null || step.skipIf()!=null || step.chest()!=null))throw invalid("Control steps require count 1 and no role/input/skipIf/chest");
+                if(step.action().equals("chat") || step.action().equals("command")) {
+                    if(step.item()!=null || step.menu()!=null || step.text()==null || step.text().isBlank() || step.text().length()>256 || step.text().contains("\n") || step.text().contains("\r") || step.text().startsWith("/"))throw invalid("Chat/command requires text without leading slash or line breaks");
+                } else if(step.text()!=null)throw invalid("Only chat/command accepts text");
+                if(step.action().equals("menu_open") || step.action().equals("menu_click")) {
+                    var menu=step.menu();if(menu==null || menu.title()==null || menu.title().isBlank() || menu.title().length()>160)throw invalid("Menu step requires expected title");
+                    if(step.action().equals("menu_open")) {
+                        item(step.item());if(menu.slot()!=null || menu.expectedItem()!=null || menu.nextTitle()!=null || menu.closed()!=null)throw invalid("Menu open accepts title only");
+                    } else {
+                        if(step.item()!=null || menu.slot()==null || menu.slot()<0 || menu.slot()>53)throw invalid("Menu click requires slot 0-53");
+                        item(menu.expectedItem());
+                        boolean closes=Boolean.TRUE.equals(menu.closed());
+                        if(closes==(menu.nextTitle()!=null) || menu.closed()!=null && !closes || menu.nextTitle()!=null && (menu.nextTitle().isBlank() || menu.nextTitle().length()>160 || menu.nextTitle().equals(menu.title())))throw invalid("Menu click requires a different nextTitle or closed true");
+                    }
+                } else if(step.menu()!=null)throw invalid("Only menu steps accept menu");
+                boolean chestAction=step.action().equals("chest_take") || step.action().equals("chest_put");
+                if(chestAction) {
+                    if(step.chest()==null || step.role()!=null || step.skipIf()!=null || step.input()!=null)throw invalid("Chest steps require coordinates and no role/input/skipIf");
+                    if(Math.abs((long)step.chest().x())>29999984 || Math.abs((long)step.chest().z())>29999984 || step.chest().y() < -2048 || step.chest().y()>2048)throw invalid("Invalid chest coordinates");
+                } else if(step.chest()!=null)throw invalid("Only chest steps accept chest coordinates");
                 if(step.action().equals("smelt")) {if(step.input()==null || step.role()!=null)throw invalid("Smelting requires input and no role");item(step.input());}
                 else if(step.input()!=null) throw invalid("Only smelting accepts input");
                 if(step.skipIf()!=null) {

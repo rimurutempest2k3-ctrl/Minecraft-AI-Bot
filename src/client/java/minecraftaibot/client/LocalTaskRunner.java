@@ -26,7 +26,8 @@ import java.util.function.*;
 /** JSON local task executor, using vanilla crafting and Baritone only. */
 final class LocalTaskRunner {
     private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot");
-    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT, FOOD_CROP }
+    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT, FOOD_CROP, CHEST_OPEN, CHEST_TRANSFER, MENU_OPEN, MENU_CONFIRM, MENU_READY }
+    private final ChestController chest;
     private final BotCore bot;
     private final BaritoneController movement;
     private final Consumer<String> notify;
@@ -61,30 +62,38 @@ final class LocalTaskRunner {
     private static final Map<String,String> MEATS=Map.of("minecraft:beef","minecraft:cooked_beef","minecraft:porkchop","minecraft:cooked_porkchop",
             "minecraft:mutton","minecraft:cooked_mutton","minecraft:chicken","minecraft:cooked_chicken");
     private boolean active;
-    private boolean suspended,productionRecovery;
+    private boolean suspended,productionRecovery,manualHold;
     private long suspendedAt,safeSince;
     private String taskId=UUID.randomUUID().toString();
     private final Deque<com.google.gson.JsonObject> taskHistory=new ArrayDeque<>();
     boolean executing() {return active && !suspended;}
+    private void block(String reason) {
+        if(!active || suspended)return;
+        manualHold=true;suspendForSurvival();workflowState="BLOCKED";
+        status=reason+" Task progress saved. Resolve the cause, recover crafting/furnace items, then use bot workflow resume.";
+        LOG.warn("{}",status);notify.accept(status);
+    }
     void suspendForSurvival() {
         if(!active || suspended)return;
         suspended=true;suspendedAt=System.nanoTime();safeSince=0;productionRecovery=phase==Phase.SMELT;
-        releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();
+        releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();if(chest.busy())chest.cancel();
         furnace.cancel(Minecraft.getInstance(),"Smelting suspended; recover loaded items before resuming the task.");
         placement.cancel("Placement suspended for survival.");crafting.cancel(Minecraft.getInstance());
         workflowState=productionRecovery?"WAITING_RECOVERY":"SUSPENDED";
         status=productionRecovery?"Task saved; recover furnace contents, then use bot workflow resume.":"Task saved; survival has priority. Will resume when safe.";
-        notify.accept(status);
+        if(!manualHold)notify.accept(status);
     }
     String resumeSaved(Minecraft client,boolean safe,boolean manual) {
         if(!active || !suspended)return "No suspended task.";
+        if(manualHold && !manual)return status;
         if(!safe || client.player!=owner || client.level!=world || !owner.isAlive() || bot.state()!=BotState.RUNNING
                 || client.gui.screen()!=null || client.isPaused() || owner.containerMenu!=owner.inventoryMenu || !owner.containerMenu.getCarried().isEmpty()
                 || owner.inventoryMenu.getInputGridSlots().stream().anyMatch(s->!s.getItem().isEmpty())) {safeSince=0;return "Task saved; waiting for safety and empty crafting grid/cursor.";}
         if(productionRecovery && !manual)return "Task saved; recover furnace contents, then use bot workflow resume.";
         long now=System.nanoTime();if(safeSince==0)safeSince=now;
         if(!manual && now-safeSince<3_000_000_000L)return status;
-        started+=now-suspendedAt;suspended=false;productionRecovery=false;workflowState="RUNNING";clock=0;
+        reconcileChest(client);
+        started=manualHold?now:started+now-suspendedAt;suspended=false;productionRecovery=false;manualHold=false;workflowState="RUNNING";clock=0;
         change(Phase.PLAN,"Resuming saved task at the current step; checking actual inventory.");return status;
     }
     void resumeTick(Minecraft client,boolean safe) {if(suspended)resumeSaved(client,safe,false);}
@@ -109,6 +118,16 @@ final class LocalTaskRunner {
     private String workflowMode="ensure";
     private int[] supplyBaselines=new int[0];
     private int supplyIndex;
+    private boolean[] controlDone=new boolean[0],controlSent=new boolean[0];
+    private Object previousMenu;
+    private int[] chestProgress=new int[0];
+    private int chestBefore;
+    private boolean pendingChest;
+    private void reconcileChest(Minecraft client) {
+        if(!pendingChest)return;
+        var step=starter.steps().get(supplyIndex);int delta=supplyCount(client,step)-chestBefore;
+        chestProgress[supplyIndex]+=Math.max(0,step.action().equals("chest_put")?-delta:delta);pendingChest=false;
+    }
     private boolean automatic;
     private final Set<String> automaticWorlds=new HashSet<>();
     private String automaticScope(Minecraft client) {
@@ -116,11 +135,7 @@ final class LocalTaskRunner {
                 :client.getCurrentServer()!=null?"server:"+client.getCurrentServer().ip.toLowerCase(Locale.ROOT):"session:"+System.identityHashCode(client.getConnection());
     }
     String starterCommand(String input) {
-        if(input.equals("auto on") || input.equals("auto off")) {
-            automatic=input.endsWith("on");
-            if(automatic && !active) automaticWorlds.remove(automaticScope(Minecraft.getInstance()));
-            return "Auto preparation on world entry: "+(automatic?"ON":"OFF")+". Once per world per session; failed steps are not retried automatically.";
-        }
+        if(input.equals("auto on") || input.equals("auto off")) {automatic=false;return "Task execution is manual: select a task file and run it.";}
         if(input.equals("status")) return status;
         boolean foodOnly=input.equals("food") || input.startsWith("food ");int foodTarget=8;
         if(foodOnly && !input.equals("food")) {
@@ -142,7 +157,8 @@ final class LocalTaskRunner {
         var client=Minecraft.getInstance();
         if(client.player==null || client.level==null || !client.player.isAlive()) throw new IllegalArgumentException("Enter the world and respawn first.");
         for(var step:workflow.plan().steps()) {
-            requiredItem(step.item());
+            if(step.item()!=null)requiredItem(step.item());
+            if(step.menu()!=null && step.menu().expectedItem()!=null)requiredItem(step.menu().expectedItem());
             if(step.action().equals("mine")) {
                 String goal=TaskPresets.miningBlock(step.item());
                 if(BuiltInRegistries.BLOCK.getOptional(net.minecraft.resources.Identifier.parse(goal)).filter(b->!b.defaultBlockState().isAir()).isEmpty())
@@ -165,11 +181,13 @@ final class LocalTaskRunner {
                 || client.player.containerMenu!=client.player.inventoryMenu || !client.player.containerMenu.getCarried().isEmpty())return "Close menus, store cursor items and let the game run first.";
         catalog=TaskPresets.catalog();owner=client.player;world=client.level;oldSelected=owner.getInventory().getSelectedSlot();
         if(starter!=null) {taskHistory.addLast(starterSnapshot(client));while(taskHistory.size()>20)taskHistory.removeFirst();}
-        taskId=UUID.randomUUID().toString();suspended=false;productionRecovery=false;
+        taskId=UUID.randomUUID().toString();suspended=false;productionRecovery=false;manualHold=false;
         starter=workflow.plan();workflowFile=workflow.filename();workflowTitle=workflow.title();workflowState="RUNNING";
         workflowMode=workflow.mode();supplyBaselines=new int[starter.steps().size()];Arrays.fill(supplyBaselines,-1);
+        controlDone=new boolean[starter.steps().size()];controlSent=new boolean[starter.steps().size()];
+        chestProgress=new int[starter.steps().size()];pendingChest=false;
         initiallySatisfied=new boolean[starter.steps().size()];
-        for(int i=0;i<initiallySatisfied.length;i++)initiallySatisfied[i]=workflowMode.equals("ensure") && supplyCount(client,starter.steps().get(i))>=starter.steps().get(i).count();
+        for(int i=0;i<initiallySatisfied.length;i++)initiallySatisfied[i]=workflowMode.equals("ensure") && !TaskPresets.controlAction(starter.steps().get(i).action()) && !starter.steps().get(i).action().startsWith("chest_") && supplyCount(client,starter.steps().get(i))>=starter.steps().get(i).count();
         boolean finished=workflowMode.equals("ensure") && workflow.goal()!=null && workflow.goal().satisfied(supplyCount(client,starter.steps().getLast()));
         if(finished)Arrays.fill(initiallySatisfied,true);
         supplyIndex=finished?starter.steps().size():0;clock=batches=0;started=System.nanoTime();active=true;foodFallbackStep=-1;
@@ -188,12 +206,13 @@ final class LocalTaskRunner {
         if(starter!=null) for(var step:starter.steps()) {
             var row=new com.google.gson.JsonObject();row.addProperty("label",step.label());row.addProperty("item",step.item());row.addProperty("target",step.count());
             row.addProperty("action",step.action());
-            row.addProperty("state",index<supplyIndex?(initiallySatisfied[index]?"SKIPPED":"COMPLETED"):index==supplyIndex && workflowState.equals("CANCELLED")?"STOPPED":index==supplyIndex && suspended?"SUSPENDED":index==supplyIndex && active?"RUNNING":"WAITING");
+            row.addProperty("state",index<supplyIndex?(initiallySatisfied[index]?"SKIPPED":"COMPLETED"):index==supplyIndex && workflowState.equals("CANCELLED")?"STOPPED":index==supplyIndex && suspended?workflowState:index==supplyIndex && active?"RUNNING":"WAITING");
             row.addProperty("present",client.player==null?0:supplyProgress(client,index));index++;steps.add(row);
         }
         data.add("steps",steps);return data;
     }
     private int supplyCount(Minecraft client,TaskPresets.Supply step) {
+        if(TaskPresets.controlAction(step.action()))return 0;
         if(workflowMode.equals("ensure") && step.skipIf()!=null && step.skipIf().stream().allMatch(id->ownedRequirement(client,id))) return step.count();
         if(workflowMode.equals("ensure") && step.item().equals("minecraft:furnace") && furnace.nearby(client,"furnace")) return 1;
         return ownedItems(client).stream().filter(s->{
@@ -214,6 +233,9 @@ final class LocalTaskRunner {
         }).mapToInt(ItemStack::getCount).sum();
     }
     private int supplyProgress(Minecraft client,int index) {
+        var step=starter.steps().get(index);
+        if(TaskPresets.controlAction(step.action()))return controlDone[index]?1:0;
+        if(step.action().equals("chest_take") || step.action().equals("chest_put"))return chestProgress[index];
         if(workflowMode.equals("collect") && supplyBaselines[index]<0)return 0;
         return TaskPresets.supplyProgress(workflowMode,supplyCount(client,starter.steps().get(index)),Math.max(0,supplyBaselines[index]));
     }
@@ -235,7 +257,7 @@ final class LocalTaskRunner {
         return ownedCount(client,id)>0;
     }
     private static final List<String> WOODS=List.of("oak","birch","spruce","jungle","acacia","dark_oak","mangrove","cherry","pale_oak");
-    LocalTaskRunner(BotCore bot,BaritoneController movement,ProductionController.BlockPlacement placement,ProductionController.FurnaceRun furnace,Consumer<String> notify) { this.bot=bot;this.movement=movement;this.placement=placement;this.furnace=furnace;this.notify=notify; }
+    LocalTaskRunner(BotCore bot,BaritoneController movement,ProductionController.BlockPlacement placement,ProductionController.FurnaceRun furnace,ChestController chest,Consumer<String> notify) { this.chest=chest;this.bot=bot;this.movement=movement;this.placement=placement;this.furnace=furnace;this.notify=notify; }
     boolean busy() { return active; }
     String status() { return status; }
     String start(String taskName,int quantity) {
@@ -309,27 +331,53 @@ final class LocalTaskRunner {
         releaseHuntAttack(client);
         if(!active) return;
         if(suspended)return;
-        if(client.player!=owner || client.level!=world || !owner.isAlive() || bot.state()!=BotState.RUNNING) { cancel("Local stopped: world/player changed, player died or bot state changed.");return; }
+        if(client.player!=owner || client.level!=world || !owner.isAlive() || bot.state()!=BotState.RUNNING) { block("Local stopped: world/player changed, player died or bot state changed.");return; }
         if(phase==Phase.HUNT && System.nanoTime()-phaseStarted>180_000_000_000L) beginFoodFallback(client,"Animal search timed out.");
         if(System.nanoTime()-started>(starter==null?900_000_000_000L:1_800_000_000_000L)
-                || System.nanoTime()-phaseStarted>(phase==Phase.SMELT?900_000_000_000L:180_000_000_000L)) { cancel("Local stopped: current step timed out.");return; }
+                || System.nanoTime()-phaseStarted>(phase==Phase.SMELT?900_000_000_000L:180_000_000_000L)) { block("Local stopped: current step timed out.");return; }
         if(client.isPaused() || client.gui.overlay()!=null) return;
         try {
-            if(phase==Phase.HUNT) {huntTick(client);return;}
-            if(phase==Phase.FOOD_CROP && !world.getEntitiesOfClass(Mob.class,owner.getBoundingBox().inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty()) {
-                suspendForSurvival();return;
+            if(phase==Phase.MENU_READY) {
+                if(matchesMenu(client,starter.steps().get(supplyIndex).menu().title()))change(Phase.PLAN,"Expected menu is ready; checking the requested slot.");
+                else if(System.nanoTime()-phaseStarted>5_000_000_000L)block("Expected menu did not open; no click sent.");
+                return;
             }
+            if(phase==Phase.MENU_OPEN || phase==Phase.MENU_CONFIRM) {
+                var menu=starter.steps().get(supplyIndex).menu();
+                boolean confirmed=phase==Phase.MENU_OPEN?matchesMenu(client,menu.title()):Boolean.TRUE.equals(menu.closed())
+                        ?owner.containerMenu==owner.inventoryMenu && client.gui.screen()==null
+                        :owner.containerMenu!=previousMenu && matchesMenu(client,menu.nextTitle());
+                if(confirmed && owner.containerMenu.getCarried().isEmpty()) {controlDone[supplyIndex]=true;change(Phase.PLAN,"Menu action confirmed; checking next step.");return;}
+                if(System.nanoTime()-phaseStarted>5_000_000_000L)block("Expected menu result was not confirmed; action will not be sent again automatically.");
+                return;
+            }
+            if(phase==Phase.CHEST_OPEN) {
+                if(chest.busy())return;
+                if(!(owner.containerMenu instanceof ChestMenu)) {block(chest.status());return;}
+                var step=starter.steps().get(supplyIndex);
+                chestBefore=supplyCount(client,step);pendingChest=true;
+                String response=chest.execute((step.action().equals("chest_put")?"put ":"take ")+step.item()+" "+(step.count()-supplyProgress(client,supplyIndex)));
+                if(!chest.busy()) {pendingChest=false;block(response);return;}change(Phase.CHEST_TRANSFER,response);return;
+            }
+            if(phase==Phase.CHEST_TRANSFER) {
+                if(chest.busy())return;
+                var step=starter.steps().get(supplyIndex);
+                if(owner.containerMenu.getCarried().isEmpty())reconcileChest(client);
+                if(!chest.transferConfirmed() || supplyProgress(client,supplyIndex)<step.count()) {block(chest.status());return;}
+                closeForMovement();change(Phase.PLAN,"Chest transfer confirmed; checking next step.");return;
+            }
+            if(phase==Phase.HUNT) {huntTick(client);return;}
             if(phase==Phase.FOOD_CROP) {foodCropTick(client);return;}
             if(phase==Phase.SMELT) {
                 if(furnace.busy()) {status="Smelting: "+furnace.status();return;}
-                if(count(craftedItem)<=craftedBefore) {cancel("Smelting unsuccessful: "+furnace.status());return;}
+                if(count(craftedItem)<=craftedBefore) {block("Smelting unsuccessful: "+furnace.status());return;}
                 change(Phase.PLAN,"Smelted output collected; checking remaining needs.");return;
             }
             if(phase==Phase.CRAFT) {
                 crafting.tick(client);
                 if(!crafting.busy()) {
-                    if(crafting.failure()!=null) { cancel("Crafting stopped: "+crafting.failure());return; }
-                    if(count(craftedItem)<=craftedBefore) { cancel("Output not found in inventory; stopped.");return; }
+                    if(crafting.failure()!=null) { block("Crafting stopped: "+crafting.failure());return; }
+                    if(count(craftedItem)<=craftedBefore) { block("Output not found in inventory; stopped.");return; }
                     change(Phase.PLAN,"Crafted: "+BuiltInRegistries.ITEM.getKey(craftedItem)+". Checking the next step.");
                 }
                 return;
@@ -343,39 +391,40 @@ final class LocalTaskRunner {
                 }
                 if(preparation!=null && pickaxe()<0) { movement.stop();change(Phase.PLAN,"Pickaxe exhausted; preparing a new one for the remaining items.");return; }
                 if(System.nanoTime()-phaseStarted>2_000_000_000L && !movement.busy()) {
-                    cancel("Baritone stopped before collecting enough "+definition.resultItem()+": "+collected+"/"+quantity+". "+movement.status());
+                    block("Baritone stopped before collecting enough "+definition.resultItem()+": "+collected+"/"+quantity+". "+movement.status());
                 }
                 return;
             }
             if(phase==Phase.WOOD) {
                 if(count(s->logType(s)!=null)-initialWood>=requestedWood) { movement.stop();change(Phase.PLAN,"Enough wood for tools collected."); }
-                else if(System.nanoTime()-phaseStarted>2_000_000_000L && !movement.busy()) cancel("Not enough wood collected yet. "+movement.status());
+                else if(System.nanoTime()-phaseStarted>2_000_000_000L && !movement.busy()) block("Not enough wood collected yet. "+movement.status());
                 return;
             }
             if(phase==Phase.PLACE) {
                 if(placement.busy()) return;
                 placedAt=placement.target();
                 if(placedAt!=null && world.getBlockState(placedAt).is(Blocks.CRAFTING_TABLE)) { owner.getInventory().setSelectedSlot(oldSelected);table=placedAt;change(Phase.PLAN,"Crafting table placed."); }
-                else if(!placement.busy()) cancel(placement.status());
+                else if(!placement.busy()) block(placement.status());
                 return;
             }
             if(phase==Phase.OPEN) {
                 if(owner.containerMenu instanceof CraftingMenu) change(Phase.PLAN,"Crafting table opened.");
-                else if(System.nanoTime()-phaseStarted>5_000_000_000L) cancel("Could not open crafting table; check server permissions.");
+                else if(System.nanoTime()-phaseStarted>5_000_000_000L) block("Could not open crafting table; check server permissions.");
                 return;
             }
             if(phase==Phase.APPROACH) {
-                if(!world.getBlockState(table).is(Blocks.CRAFTING_TABLE)) { cancel("Target crafting table disappeared.");return; }
+                if(!world.getBlockState(table).is(Blocks.CRAFTING_TABLE)) { block("Target crafting table disappeared.");return; }
                 BlockHitResult hit=reachable(table);
                 if(hit!=null) { movement.stop();openTable(client,hit); }
-                else if(System.nanoTime()-phaseStarted>2_000_000_000L && !movement.busy()) cancel("Crafting table approach stopped before reaching the table.");
+                else if(System.nanoTime()-phaseStarted>2_000_000_000L && !movement.busy()) block("Crafting table approach stopped before reaching the table.");
                 return;
             }
             if(++clock%10!=0) return;
-            if(!(owner.containerMenu instanceof InventoryMenu) && !(owner.containerMenu instanceof CraftingMenu)) { cancel("Another menu is open; local task stopped.");return; }
-            if(!owner.containerMenu.getCarried().isEmpty()) { cancel("Cursor contains an item; store it first.");return; }
+            if(starter!=null && supplyIndex<starter.steps().size() && TaskPresets.controlAction(starter.steps().get(supplyIndex).action())) {plan(client);return;}
+            if(!(owner.containerMenu instanceof InventoryMenu) && !(owner.containerMenu instanceof CraftingMenu)) { block("Another menu is open; local task stopped.");return; }
+            if(!owner.containerMenu.getCarried().isEmpty()) { block("Cursor contains an item; store it first.");return; }
             plan(client);
-        } catch(Exception failure) { cancel("Local stopped: "+(failure instanceof IllegalArgumentException ? failure.getMessage():"Cannot access game state.")); }
+        } catch(Exception failure) { block("Local stopped: "+(failure instanceof IllegalArgumentException ? failure.getMessage():"Cannot access game state.")); }
     }
     private void plan(Minecraft client) {
         if(starter!=null && planStarter(client)) return;
@@ -432,11 +481,44 @@ final class LocalTaskRunner {
             closeForMovement();finish("Task "+workflowTitle+" completed. Checked "+supplyIndex+" steps; no AI calls.");return true;
         }
         var step=starter.steps().get(supplyIndex);
+        if(TaskPresets.controlAction(step.action())) {controlStep(client,step);return true;}
+        if(step.action().equals("chest_take") || step.action().equals("chest_put")) {
+            closeForMovement();var target=step.chest();
+            String response=chest.execute("open "+target.x()+" "+target.y()+" "+target.z());
+            if(!chest.busy())throw new IllegalArgumentException(response);
+            change(Phase.CHEST_OPEN,response);return true;
+        }
         if(step.action().equals("food")) {planFood(client,step);return true;}
         if(step.action().equals("smelt")) {planSmelt(client,step);return true;}
         if(step.action().equals("craft")) {prepareRecipe(client,starter.recipes().values().stream().filter(r->r.output().equals(step.item())).findFirst().orElseThrow(),new HashSet<>());return true;}
         String item="logs".equals(step.role())?"minecraft:"+nearestWood()+"_log":step.item();
         configureMine(item,step.count()-supplyProgress(client,supplyIndex));return false;
+    }
+    private boolean matchesMenu(Minecraft client,String title) {
+        return owner.containerMenu instanceof ChestMenu && client.gui.screen()!=null && client.gui.screen().getTitle().getString().equals(title);
+    }
+    private void controlStep(Minecraft client,TaskPresets.Supply step) {
+        movement.stop();
+        if(!owner.containerMenu.getCarried().isEmpty())throw new IllegalArgumentException("Menu cursor is not empty; store the item first.");
+        if(step.action().equals("chat") || step.action().equals("command")) {
+            if(client.getConnection()==null)throw new IllegalArgumentException("No server connection.");
+            if(step.action().equals("chat"))owner.connection.sendChat(step.text());else owner.connection.sendCommand(step.text());
+            controlDone[supplyIndex]=true;change(Phase.PLAN,"Message/command sent once; checking next step.");return;
+        }
+        if(controlSent[supplyIndex]) {change(step.action().equals("menu_open")?Phase.MENU_OPEN:Phase.MENU_CONFIRM,"Waiting for the previously requested menu result; not repeating the action.");return;}
+        if(step.action().equals("menu_open")) {
+            closeForMovement();int slot=-1;for(int i=0;i<inventory().size();i++)if(inventory().get(i).is(requiredItem(step.item()))) {slot=i;break;}
+            if(slot<0 || !select(client,slot))throw new IllegalArgumentException("Menu-opening item is not available.");
+            controlSent[supplyIndex]=true;client.gameMode.useItem(owner,InteractionHand.MAIN_HAND);change(Phase.MENU_OPEN,"Waiting for the expected server menu.");return;
+        }
+        var menu=step.menu();
+        if(!owner.containerMenu.getCarried().isEmpty())throw new IllegalArgumentException("Menu cursor is not empty; store the item first.");
+        if(!matchesMenu(client,menu.title())) {change(Phase.MENU_READY,"Waiting for the expected menu before clicking.");return;}
+        var chestMenu=(ChestMenu)owner.containerMenu;
+        if(menu.slot()>=chestMenu.getRowCount()*9 || !chestMenu.getSlot(menu.slot()).getItem().is(requiredItem(menu.expectedItem())))throw new IllegalArgumentException("Menu slot or item does not match the task.");
+        previousMenu=owner.containerMenu;controlSent[supplyIndex]=true;
+        client.gameMode.handleContainerInput(chestMenu.containerId,menu.slot(),0,ContainerInput.PICKUP,owner);
+        change(Phase.MENU_CONFIRM,"Menu clicked once; waiting for the expected result.");
     }
     private void configureMine(String item,int missing) {
         String goal=TaskPresets.miningBlock(item);
@@ -563,7 +645,7 @@ final class LocalTaskRunner {
         return result;
     }
     void cancel(String reason) {
-        if(!active) return;active=false;suspended=false;productionRecovery=false;if(starter!=null)workflowState="CANCELLED";releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();furnace.cancel(Minecraft.getInstance(),"Local task smelting canceled.");placement.cancel("Local task table placement canceled.");crafting.cancel(Minecraft.getInstance());
+        if(!active) return;active=false;suspended=false;productionRecovery=false;manualHold=false;if(starter!=null)workflowState="CANCELLED";releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();furnace.cancel(Minecraft.getInstance(),"Local task smelting canceled.");placement.cancel("Local task table placement canceled.");crafting.cancel(Minecraft.getInstance());
         if(owner!=null && Minecraft.getInstance().player==owner) owner.getInventory().setSelectedSlot(oldSelected);
         status=reason+" If items remain on the crafting grid/cursor, store them; items will not be dropped automatically.";LOG.warn("{}",status);notify.accept(status);
     }
@@ -632,13 +714,10 @@ final class LocalTaskRunner {
     private void huntTick(Minecraft client) {
         long now=System.nanoTime();
         if(owner.position().distanceToSqr(huntSearchOrigin)>160*160) {beginFoodFallback(client,"Animal search reached its exploration limit.");return;}
-        if(!world.getEntitiesOfClass(Mob.class,owner.getBoundingBox().inflate(12),m->m instanceof Enemy && m.isAlive()).isEmpty()) {
-            suspendForSurvival();return;
-        }
         if(rawMeat()>0) {
             releaseHunting(client);movement.stop();change(Phase.PLAN,"Meat collected; preparing wood and cooking immediately.");return;
         }
-        if(inventory().stream().noneMatch(ItemStack::isEmpty)) {cancel("Hunting stopped: inventory full, needs space for meat; items are not dropped automatically.");return;}
+        if(inventory().stream().noneMatch(ItemStack::isEmpty)) {block("Hunting stopped: inventory full, needs space for meat; items are not dropped automatically.");return;}
         if(client.gui.screen()!=null || owner.containerMenu!=owner.inventoryMenu || owner.isUsingItem()) return;
         if(prey!=null && !prey.isAlive()) {lastKill=prey.position();killUntil=now+8_000_000_000L;prey=null;nextHuntPath=0;}
         if(lastKill!=null && now<killUntil) {
@@ -647,7 +726,7 @@ final class LocalTaskRunner {
                     .min(Comparator.comparingDouble(owner::distanceToSqr)).orElse(null);
             if(drop!=null)huntPath(drop.blockPosition(),now);return;
         }
-        if(lastKill!=null) {cancel("Hunting stopped: meat not collected after kill. Check drops/server permissions before continuing.");return;}
+        if(lastKill!=null) {block("Hunting stopped: meat not collected after kill. Check drops/server permissions before continuing.");return;}
         if(huntSearchTarget!=null) {
             huntOrigin=owner.position();
             if(now<nextFoodAreaScan && owner.blockPosition().distSqr(huntSearchTarget)>9 && now<foodSearchUntil && movement.busy())return;
@@ -667,7 +746,7 @@ final class LocalTaskRunner {
         }
         if(owner.distanceTo(prey)>2.5 || !owner.hasLineOfSight(prey)) {huntAligned=0;huntPath(prey.blockPosition(),now);return;}
         movement.stop();nextHuntPath=0;
-        int slot=huntWeapon();if(slot<0 || !select(client,slot)) {cancel("No hunting weapon with enough durability.");return;}
+        int slot=huntWeapon();if(slot<0 || !select(client,slot)) {block("No hunting weapon with enough durability.");return;}
         if(client.getCameraEntity()!=owner || client.options.keyAttack.isUnbound() || client.options.keyAttack.isDown())return;
         Vec3 delta=prey.getBoundingBox().getCenter().subtract(owner.getEyePosition());
         float yaw=(float)Math.toDegrees(Math.atan2(delta.z,delta.x))-90,pitch=(float)-Math.toDegrees(Math.atan2(delta.y,Math.hypot(delta.x,delta.z)));
@@ -727,7 +806,7 @@ final class LocalTaskRunner {
         }
         foodSource=cropCandidates.stream().filter(p->!checkedFoodSources.contains(p) && world.hasChunkAt(p) && matureFoodCrop(p) && safeFoodSource(p)).findFirst().orElse(null);
         if(foodSource==null) {
-            cancel("Food sources exhausted: animals and mature crops could not supply enough food. Bring food or move to another area, then run the task again. Survival remains active.");return;
+            block("Food sources exhausted: animals and mature crops could not supply enough food. Bring food or move to another area, then resume the saved task.");return;
         }
         foodPlants.observe(client,foodSource);
         checkedFoodSources.add(foodSource);cropItem=world.getBlockState(foodSource).is(Blocks.WHEAT)?Items.WHEAT:Items.POTATO;

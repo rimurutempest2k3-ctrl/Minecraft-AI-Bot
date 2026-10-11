@@ -30,7 +30,7 @@ public final class LocalTaskTest {
         verifyCoreMigration();
         var starter=TaskPresets.starter();
         check(starter.steps().size()==10);
-        verifySupplyModes();
+        verifySupplyModes();verifyChestSteps();verifyMenuSteps();
         verifyDiamondWorkflow();
         check(starter.steps().getFirst().action().equals("food"));
         check(starter.steps().getFirst().role().equals("food"));
@@ -331,6 +331,41 @@ public final class LocalTaskTest {
     }
     private static Map<String,Integer> state(boolean pick,int logs,int planks,int sticks,boolean table,boolean nearby,boolean open) {
         return Map.of("pickaxe",pick?1:0,"logs",logs,"planks",planks,"sticks",sticks,"table_available",table || nearby || open?1:0,"nearby_table",nearby?1:0,"table_open",open?1:0);
+    }
+    private static void verifyMenuSteps() {
+        String source="""
+            {"version":1,"title":"Join mode","steps":[
+            {"label":"Chat","action":"chat","count":1,"text":"Hello"},
+            {"label":"Command","action":"command","count":1,"text":"menu"},
+            {"label":"Open","action":"menu_open","count":1,"item":"minecraft:compass","menu":{"title":"Games"}},
+            {"label":"Click","action":"menu_click","count":1,"menu":{"title":"Games","slot":13,"expectedItem":"minecraft:grass_block","closed":true}}]}
+            """;
+        var workflow=TaskPresets.parseWorkflow("menu.taskbot",source);
+        check(workflow.plan().steps().size()==4);
+        check(workflow.plan().steps().getLast().menu().slot()==13);
+        for(String invalid:List.of(source.replace("\"slot\":13","\"slot\":54"),source.replace("\"slot\":13","\"slot\":1.5"),
+                source.replace("\"closed\":true","\"closed\":\"true\""),source.replace("\"closed\":true","\"nextTitle\":\"Games\""),
+                source.replace("\"text\":\"menu\"","\"text\":\"/menu\""),source.replace("\"text\":\"Hello\"","\"text\":\"/op me\""),
+                source.replace("\"count\":1","\"count\":2"))) {
+            try {TaskPresets.parseWorkflow("bad-menu.taskbot",invalid);throw new AssertionError("Invalid control step accepted");}
+            catch(IllegalArgumentException expected) {}
+        }
+    }
+    private static void verifyChestSteps() {
+        String source="""
+            {"version":1,"mode":"collect","title":"Chest delivery","steps":[
+            {"label":"Take","action":"chest_take","item":"minecraft:cobblestone","count":16,"chest":{"x":-12,"y":64,"z":8}},
+            {"label":"Store","action":"chest_put","item":"minecraft:cobblestone","count":16,"chest":{"x":20,"y":64,"z":8}}]}
+            """;
+        var plan=TaskPresets.parseWorkflow("delivery.taskbot",source).plan();
+        check(plan.steps().getFirst().chest().x()==-12);
+        check(plan.steps().getLast().action().equals("chest_put"));
+        for(String invalid:List.of(source.replace("\"x\":-12","\"x\":1.5"),source.replace("\"x\":-12","\"x\":\"12\""),
+                source.replace("\"x\":-12,",""),source.replace("\"x\":-12","\"x\":30000000"),source.replace("chest_take","mine"),
+                source.replace("\"count\":16","\"count\":0"),source.replace("\"chest\":{\"x\":-12,\"y\":64,\"z\":8}","\"chest\":null"))) {
+            try {TaskPresets.parseWorkflow("invalid.taskbot",invalid);throw new AssertionError("Invalid chest step accepted");}
+            catch(IllegalArgumentException expected) {}
+        }
     }
     private static void reject(JsonObject json) {try {TaskPresets.parse(json.toString());throw new AssertionError("Invalid JSON accepted");}catch(IllegalArgumentException expected) {}}
     private static void verify(int gridSize,Map<Integer,Set<String>> recipe,Stack result,List<Stack> inventory,Map<String,Integer> expected) {

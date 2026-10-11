@@ -1,7 +1,7 @@
 'use strict';
 const $=s=>document.querySelector(s),history=[];
 let snapshot=null,sending=false,polling=false,aiDirty=false,baritoneDirty=false,selectedChest='',slotSelection=-1,inventorySignature='',chestSignature='',selectedWorkflow='',librarySignature='',selectedTaskRun='',followTaskRun=true;
-const features=[['survival','Survival','bot survival','Eat, defend and retreat.'],['combat','Combat','bot survival combat','Attack mobs when conditions allow.'],['ranged','Ranged bow combat','bot survival ranged','Skeleton, stray, bogged; predicts motion and arrow drop.'],['shield','Use shield','bot survival shield','Equip offhand and raise shield.'],['equipment','Equipment & hotbar sorting','bot survival equipment','Prefer better armor, an offhand shield and tool sorting when safe.'],['loot','Useful loot pickup','bot loot','Scan every 2 seconds; after death, recover all drops near the death location in loaded chunks.'],['trash','Auto trash cleanup','bot trash auto','Apply the filter when inventory is nearly full.'],['ai','AI execution','bot ai auto','Execute supported AI commands.'],['alerts','Survival alerts','bot survival alerts','Notify about missing items and low durability.']];
+const features=[['combat','Nearby defense','bot survival combat','Defend within 4 blocks; resume the task afterwards.'],['ai','AI execution','bot ai auto','Execute supported AI commands.']];
 function node(tag,value,className){const el=document.createElement(tag);if(value!==undefined)el.textContent=value;if(className)el.className=className;return el;}
 function text(selector,value){$(selector).textContent=value??'—';}
 function itemText(item){return item?.id?(item.name||item.id)+' x'+item.count+(item.durability?' · durability '+item.durability:''):'Empty';}
@@ -56,10 +56,10 @@ function renderSupplies(plan){
     $('#starter-auto').setAttribute('aria-checked',String(!!plan?.automatic));
     text('#starter-status',plan?.status||'No task.');
     text('#running-workflow-title',plan?.title?(plan.title+' · '+plan.file):'No task file running');
-    const states={RUNNING:'Running',COMPLETED:'Completed',CANCELLED:'Stopped',IDLE:'Not started',SUSPENDED:'Waiting for safety',WAITING_RECOVERY:'Waiting for furnace recovery'};
+    const states={BLOCKED:'Blocked · progress saved',RUNNING:'Running',COMPLETED:'Completed',CANCELLED:'Stopped',IDLE:'Not started',SUSPENDED:'Waiting for safety',WAITING_RECOVERY:'Waiting for furnace recovery'};
     const done=(plan?.steps||[]).filter(s=>['COMPLETED','SKIPPED'].includes(s.state)).length;
     text('#workflow-summary',(states[plan?.state]||'Not started')+' · '+done+' / '+(plan?.steps?.length||0)+' steps finished');
-    const labels={COMPLETED:'Done',SKIPPED:'Already available · skipped',RUNNING:'In progress',STOPPED:'Stopped here',WAITING:'Pending',SUSPENDED:'Saved · temporarily interrupted'};
+    const labels={BLOCKED:'Blocked · resolve and resume',COMPLETED:'Done',SKIPPED:'Already available · skipped',RUNNING:'In progress',STOPPED:'Stopped here',WAITING:'Pending',SUSPENDED:'Saved · temporarily interrupted'};
     const box=$('#supply-list');box.replaceChildren();
     (plan?.steps||[]).forEach((s,i)=>{const row=node('div',undefined,'step '+(s.state==='RUNNING'?'current':['COMPLETED','SKIPPED'].includes(s.state)?'completed':s.state==='STOPPED'?'stopped':'waiting')),content=node('div');
         row.append(node('span',String(i+1),'num'));content.append(node('b',s.label),node('small',(labels[s.state]||'Pending')+' · Target '+s.target+' · '+(plan?.mode==='collect'?'Added':'Present')+' '+s.present));row.append(content);box.append(row);
@@ -70,9 +70,12 @@ function previewWorkflow(){
     text('#workflow-title',file?.title||'Select a task file');text('#workflow-description',file?(file.description+' · '+file.filename+' · '+(file.mode==='collect'?'Collect requested quantity':'Ensure required stock')):'');
     $('#workflow-error').hidden=!file?.error;text('#workflow-error',file?.error||'');
     const box=$('#workflow-preview');box.replaceChildren();
-    const actions={mine:'Gather materials',craft:'Craft',food:'Hunt and cook food',smelt:'Smelt'};
+    const actions={mine:'Gather materials',craft:'Craft',food:'Hunt and cook food',smelt:'Smelt',chest_take:'Take from specified chest',chest_put:'Store in specified chest',chat:'Send chat',command:'Run server command',menu_open:'Open server menu',menu_click:'Click server menu'};
     (file?.steps||[]).forEach((s,i)=>{const row=node('div',undefined,'step'),content=node('div');row.append(node('span',String(i+1),'num'));
         content.append(node('b',s.label),node('small',(actions[s.action]||s.action)+' · '+s.item+' ×'+s.count));
+        if(s.menu)content.append(node('br'),node('small',s.menu.title+(s.menu.slot!==undefined?' · Slot '+s.menu.slot:'')));
+        if(s.text)content.append(node('br'),node('small',s.text));
+        if(s.chest)content.append(node('br'),node('small','Chest: '+s.chest.x+', '+s.chest.y+', '+s.chest.z));
         const ingredients=Object.entries(s.ingredients||{}).map(([item,count])=>item+' ×'+count).join(', ');
         if(ingredients)content.append(node('br'),node('small','Ingredients per craft: '+ingredients));row.append(content);box.append(row);
     });

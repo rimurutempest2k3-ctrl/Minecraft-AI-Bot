@@ -97,7 +97,7 @@ final class SurvivalController {
     private SurvivalPolicy.Biomes biomes=SurvivalPolicy.defaultBiomes();
     private boolean escapingBiome;
     private Path config;
-    private boolean enabled,combat=true,holdingUse;
+    private boolean enabled=true,combat=true,holdingUse;
     private boolean attackQueued;
     private boolean rangedEnabled=true,drawingBow;
     private int bowTicks,bowSamples,steadyBowSamples;
@@ -416,10 +416,35 @@ final class SurvivalController {
     }
     boolean busy() {return mode!=Mode.WATCH;}
     boolean safeForTaskResume(Minecraft client) {
-        return client.player!=null && client.level!=null && client.player.isAlive() && !busy() && !recovering(client)
-                && assessment.level()==SurvivalPolicy.Danger.CLEAR && !avoidsDestination(client,client.player.blockPosition())
-                && client.level.getEntitiesOfClass(net.minecraft.world.entity.Mob.class,client.player.getBoundingBox().inflate(16),m->m instanceof net.minecraft.world.entity.monster.Enemy && m.isAlive()).isEmpty()
-                && System.nanoTime()-lastDamage>3_000_000_000L;
+        return client.player!=null && client.level!=null && client.player.isAlive() && !busy()
+                && (!combat || scan(client).stream().noneMatch(v->client.player.distanceTo(v.entity())<=4));
+    }
+    /** Limited support for explicit tasks: eat and defend locally, without autonomous travel. */
+    void supportTick(Minecraft client) {
+        releaseAttack(client);
+        if(!enabled || bot.state()!=BotState.RUNNING || client.player==null || client.level==null || client.gameMode==null || !client.player.isAlive()) {cancel(client);return;}
+        if(client.isPaused() || client.gui.overlay()!=null) {cancel(client);return;}
+        if(busy() && (client.player!=owner || client.level!=world)) {cancel(client);return;}
+        try {
+            if(mode==Mode.EAT) {tickEating(client);return;}
+            if(client.gui.screen()!=null || client.player.containerMenu!=client.player.inventoryMenu || !client.player.containerMenu.getCarried().isEmpty()) {if(busy())cancel(client);return;}
+            long now=System.nanoTime();
+            int food=foodSlot(client);
+            if(now>=nextFood && SurvivalPolicy.eatingNeeded(client.player.getHealth(),client.player.getMaxHealth(),client.player.getFoodData().getFoodLevel()) && food>=0) {
+                if(busy())cancel(client);
+                if(claim(client))eat(client,food);
+                return;
+            }
+            var nearby=scan(client).stream().filter(v->client.player.distanceTo(v.entity())<=4).toList();
+            if(combat && !nearby.isEmpty()) {
+                if(!claim(client))return;
+                var creeper=nearby.stream().filter(v->v.threat.creeper()).findFirst();
+                if(creeper.isPresent()) {mode=Mode.CREEPER;shieldCreeper(client,List.of(creeper.get()));return;}
+                if(mode!=Mode.DEFEND) {releaseShield(client);movement.stop();mode=Mode.DEFEND;weaponDelay=0;alignedTicks=0;aimedMob=null;}
+                defend(client,nearby.getFirst().entity());return;
+            }
+            if(busy())finish(client,"Nearby danger ended; resuming the saved task.");
+        } catch(RuntimeException failure) {endAction(client,"Could not process survival state; action stopped.");}
     }
     String status() {return "Survival "+(enabled?"ON":"OFF")+" | Combat "+(combat?"ON":"OFF")+" | Cung "+(rangedEnabled?"ON":"OFF")+" | Shield "+(shieldEnabled?"ON":"OFF")+" | Auto equipment "+(autoEquipment?"ON":"OFF")+" | "+status;}
     java.util.Map<String,Boolean> webFeatures() {return java.util.Map.of("survival",enabled,"combat",combat,"ranged",rangedEnabled,"shield",shieldEnabled,

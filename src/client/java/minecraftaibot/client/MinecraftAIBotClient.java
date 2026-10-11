@@ -26,7 +26,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
     private final ChestController chest = new ChestController(bot, movement, chestMemory, this::notifyConsole);
     private final ProductionController.BlockPlacement placement = new ProductionController.BlockPlacement(movement,this::notifyConsole);
     private final ProductionController.FurnaceRun furnace = new ProductionController.FurnaceRun(bot, movement, placement, this::notifyConsole);
-    private final LocalTaskRunner localTasks = new LocalTaskRunner(bot, movement, placement, furnace, this::notifyConsole);
+    private final LocalTaskRunner localTasks = new LocalTaskRunner(bot, movement, placement, furnace, chest, this::notifyConsole);
     private final SurvivalController survival = new SurvivalController(bot,movement,this::interruptForSurvival,this::notifyConsole,this::idleForEquipment);
     private final CommandDispatcher commands = new CommandDispatcher(bot, this::describeGame,
             this::executeAction, this::describeInventory, this::askAi,
@@ -144,12 +144,11 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             }
             return localTasks.starterCommand(option);
         }
-        if(normalized.equals("bot trash") || normalized.startsWith("bot trash "))
-            return survival.trashCommand(normalized.equals("bot trash")?"status":normalized.substring(10));
-        if(normalized.equals("bot loot") || normalized.startsWith("bot loot "))
-            return survival.lootCommand(normalized.equals("bot loot")?"status":normalized.substring(9));
-        if(normalized.equals("bot survival") || normalized.startsWith("bot survival "))
-            return survival.command(normalized.equals("bot survival")?"":normalized.substring(13));
+        if(normalized.equals("bot trash") || normalized.startsWith("bot trash ")
+                || normalized.equals("bot loot") || normalized.startsWith("bot loot ")
+                || normalized.equals("bot survival") || normalized.startsWith("bot survival "))
+            return normalized.equals("bot survival combat on") || normalized.equals("bot survival combat off")
+                    ?survival.command(normalized.substring(13)):"Only auto eating and nearby defense are enabled; autonomous gathering is disabled.";
         boolean readOnly=java.util.Set.of("bot info", "bot inventory", "bot status", "bot help", "bot task list", "bot task check", "bot task inventory", "bot ai status", "bot ai result", "bot chest memory", "bot chest list", "bot chest status").contains(normalized)
                 || normalized.startsWith("bot chest show ") || normalized.equals("bot furnace")
                 || normalized.equals("bot furnace status") || normalized.startsWith("bot furnace check ") || normalized.startsWith("bot furnace plan ");
@@ -288,7 +287,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         Minecraft client=Minecraft.getInstance();var data=new com.google.gson.JsonObject();var gson=new com.google.gson.Gson();
         data.addProperty("inWorld",client.player!=null && client.level!=null);data.addProperty("state",bot.state().name());
         data.addProperty("language",I18n.language());
-        var features=new java.util.TreeMap<>(survival.webFeatures());features.put("ai",agent!=null && agent.autoEnabled());
+        var features=new java.util.TreeMap<String,Boolean>();features.put("ai",agent!=null && agent.autoEnabled());features.put("combat",survival.webFeatures().get("combat"));
         data.add("features",gson.toJsonTree(features));data.add("baritone",movement.webSettings());
         data.add("starter",localTasks.starterSnapshot(client));
         data.add("taskTabs",localTasks.taskTabsSnapshot(client));
@@ -318,7 +317,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         data.add("ai",ai==null?new com.google.gson.JsonObject():ai.webSettings());data.add("chests",chestMemory.webSnapshot(client));
         var tasks=new com.google.gson.JsonObject();tasks.addProperty("local",localTasks.status());tasks.addProperty("movement",movement.status());
         tasks.addProperty("furnace",furnace.status());tasks.addProperty("placement",placement.status());
-        tasks.addProperty("chest",chest.status());tasks.addProperty("survival",survival.status()+" | "+survival.riskStatus());
+        tasks.addProperty("chest",chest.status());tasks.addProperty("survival","Auto eating and nearby defense; explicit tasks control travel.");
         tasks.addProperty("ai",agent==null?"AI not ready":agent.status());data.add("tasks",tasks);
         data.add("progress",movement.webProgress());
         if(client.player!=null && client.level!=null) {
@@ -365,6 +364,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             WebConsole browser=web;if(browser!=null) browser.publish(message.getString(),overlay?WebConsole.Channel.ACTIVITY:WebConsole.Channel.CHAT);
         });
         survival.initialize(FabricLoader.getInstance().getConfigDir().resolve("minecraft-ai-bot/survival.json"));
+        survival.command("reload");
         try { TaskPresets.initialize(FabricLoader.getInstance().getConfigDir().resolve("minecraft-ai-bot/local-tasks.json")); }
         catch(java.io.IOException failure) {LOG.error("Could not initialize local task definitions",failure);}
         try {
@@ -386,7 +386,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         } catch (java.io.IOException failure) {
             LOG.error("Could not initialize AI module", failure);
         }
-        ClientTickEvents.START_CLIENT_TICK.register(survival::tick);
+        ClientTickEvents.START_CLIENT_TICK.register(survival::supportTick);
         ClientTickEvents.START_CLIENT_TICK.register(movement::tick);
         ClientTickEvents.START_CLIENT_TICK.register(chest::tick);
         ClientTickEvents.START_CLIENT_TICK.register(placement::tick);
@@ -398,7 +398,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             tickQueuedWorkflow(client);
             localTasks.resumeTick(client,survival.safeForTaskResume(client));
             if(agent!=null)agent.resumeIfSafe(survival.safeForTaskResume(client) && !ai.busy());
-            localTasks.autoTick(client,idleForEquipment() && !survival.busy());
+
             if (agent != null && agent.active() && ++agentTicks % 20 == 0) agent.tick(agentValid(client), movement.busy() || chest.busy() || localTasks.busy() || furnace.busy() || placement.busy(), this::observation);
         });
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {

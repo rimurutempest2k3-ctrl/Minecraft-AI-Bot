@@ -55,6 +55,8 @@ final class ChestController {
         this.observer = observer;
         this.bot = bot; this.movement = movement; this.stopMovement = movement::stop; this.notifyConsole = notifyConsole;
     }
+    private boolean transferConfirmed;
+    boolean transferConfirmed() {return transferConfirmed;}
     boolean busy() { return steps != null || openingUntil != 0 || approaching != null; }
     String status() { return status; }
     String execute(String command) {
@@ -170,7 +172,7 @@ final class ChestController {
         try { plan = deposit ? ChestTransferPlan.deposit(snapshot, chestSlots, selected, amount) : ChestTransferPlan.create(snapshot, chestSlots, selected, amount); }
         catch (IllegalArgumentException failure) { return failure.getMessage(); }
         stopMovement.run(); menu = chest; owner = client.player; world = client.level;
-        steps = plan; expected = snapshot; cursor = ChestTransferPlan.Stack.empty();
+        transferConfirmed=false;steps = plan; expected = snapshot; cursor = ChestTransferPlan.Stack.empty();
         item = identifier; quantity = amount; initialCount = inventoryCount(); index = 0; delay = 4; returnSlot = -1;
         depositing = deposit;
         status = (deposit ? "Storing " : "Taking ") + item + " x" + quantity + (deposit ? " into chest." : " from chest.");
@@ -221,7 +223,7 @@ final class ChestController {
             int acquired = depositing ? initialCount - inventoryCount() : inventoryCount() - initialCount;
             status = acquired == quantity ? (depositing ? "Stored " : "Took ") + item + " x" + acquired + (depositing ? " from inventory to chest" : " from chest to inventory") + " (check client state)."
                     : "Chest action finished but counts changed: " + acquired + "/" + quantity + ". Check inventory.";
-            steps = null; notifyConsole.accept(status); return;
+            transferConfirmed=acquired==quantity;steps = null; notifyConsole.accept(status); return;
         }
         var step = steps.get(index++);
         if (cursor.count() == 0 && step.cursor().count() > 0) returnSlot = step.slot();
