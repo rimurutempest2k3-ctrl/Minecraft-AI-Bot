@@ -15,6 +15,9 @@ loom {
 	splitEnvironmentSourceSets()
 
     runs {
+        client {
+            vmArg '-Dminecraftaibot.consoleOnly=false'
+        }
         consoleClient {
             client()
             name 'Minecraft AI Bot (console only)'

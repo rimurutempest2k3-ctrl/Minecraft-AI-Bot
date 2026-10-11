@@ -1,5 +1,7 @@
 # Minecraft AI Bot — Console-only development
 
+> **Archived on 2026-10-11.** The console-only track is frozen and will receive no further development. Its source and final download remain available for reference. Active development continues on the standard Minecraft client with its game window and local web dashboard.
+
 <p align="center"><img src="assets/minecraft-ai-bot-logo.png" alt="Minecraft AI Bot logo" width="320"></p>
 
 A Minecraft Java client mod with Baritone navigation, ordered JSON tasks, nearby defense and auto eating, chest memory, optional AI control and a local web dashboard.
