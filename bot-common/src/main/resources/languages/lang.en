@@ -1293,6 +1293,10 @@
     "Block opening state changed; no click sent.": "Block opening state changed; no click sent.",
     "Could not aim at the block before opening.": "Could not aim at the block before opening.",
     "Release the use key before opening the block.": "Release the use key before opening the block.",
-    "Use key is unbound in Minecraft settings.": "Use key is unbound in Minecraft settings."
+    "Use key is unbound in Minecraft settings.": "Use key is unbound in Minecraft settings.",
+    "No usable crafting recipe for the missing ingredient; supply it first.": "No usable crafting recipe for the missing ingredient; supply it first.",
+    "No available items for ingredient group: ": "No available items for ingredient group: ",
+    "Missing crafting ingredient: ": "Missing crafting ingredient: ",
+    ". Supply it before resuming.": ". Supply it before resuming."
   }
 }

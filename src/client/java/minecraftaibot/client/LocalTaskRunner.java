@@ -177,7 +177,7 @@ final class LocalTaskRunner {
         }
         for(var recipe:workflow.plan().recipes().values()) {
             if(!recipe.output().equals("$log_planks"))requiredItem(recipe.output());
-            for(var cell:recipe.cells()) if(!cell.ingredient().startsWith("$") && !cell.ingredient().startsWith("#"))requiredItem(cell.ingredient());
+            for(var cell:recipe.cells())for(String choice:cell.choices())if(!choice.startsWith("$") && !choice.startsWith("#"))requiredItem(choice);
         }
         TaskPresets.catalog();
     }
@@ -287,7 +287,7 @@ final class LocalTaskRunner {
                 throw new IllegalArgumentException("Unknown JSON block: "+definition.goal());
             for(var recipe:catalog.recipes().values()) {
                 if(!recipe.output().equals("$log_planks")) requiredItem(recipe.output());
-                for(var cell:recipe.cells()) if(!cell.ingredient().startsWith("$") && !cell.ingredient().startsWith("#")) requiredItem(cell.ingredient());
+                for(var cell:recipe.cells())for(String choice:cell.choices())if(!choice.startsWith("$") && !choice.startsWith("#"))requiredItem(choice);
             }
         }
         catch(IllegalArgumentException invalid) {return invalid.getMessage();}
@@ -509,7 +509,7 @@ final class LocalTaskRunner {
         }
         if(step.action().equals("food")) {planFood(client,step);return true;}
         if(step.action().equals("smelt")) {planSmelt(client,step);return true;}
-        if(step.action().equals("craft")) {prepareRecipe(client,starter.recipes().values().stream().filter(r->r.output().equals(step.item())).findFirst().orElseThrow(),new HashSet<>());return true;}
+        if(step.action().equals("craft")) {prepareRecipe(client,chooseRecipe(step.item(),Set.of()),new HashSet<>());return true;}
         String item="logs".equals(step.role())?"minecraft:"+nearestWood()+"_log":step.item();
         configureMine(item,step.count()-supplyProgress(client,supplyIndex));return false;
     }
@@ -585,17 +585,48 @@ final class LocalTaskRunner {
         if(!furnace.busy())throw new IllegalArgumentException(response);
         change(Phase.SMELT,response);
     }
+    private boolean ingredientMatches(ItemStack stack,String choice) {
+        if(choice.equals("$log"))return logType(stack)!=null;
+        if(choice.startsWith("#"))return stack.is(net.minecraft.tags.TagKey.create(net.minecraft.core.registries.Registries.ITEM,net.minecraft.resources.Identifier.parse(choice.substring(1))));
+        return stack.is(requiredItem(choice));
+    }
+    private Predicate<ItemStack> ingredientMatcher(TaskPresets.Cell cell) {return stack->cell.choices().stream().anyMatch(choice->ingredientMatches(stack,choice));}
+    private boolean recipeReady(TaskPresets.Recipe recipe) {
+        var stacks=inventory();int[] remaining=stacks.stream().mapToInt(ItemStack::getCount).toArray();
+        var ordered=recipe.cells().stream().sorted(Comparator.comparingInt(c->c.choices().stream().anyMatch(s->s.startsWith("#") || s.equals("$log"))?100:c.choices().size())).toList();
+        for(var cell:ordered) {
+            boolean found=false;
+            for(int i=0;i<remaining.length;i++)if(remaining[i]>0 && ingredientMatcher(cell).test(stacks.get(i))) {remaining[i]--;found=true;break;}
+            if(!found)return false;
+        }
+        return true;
+    }
+    private TaskPresets.Recipe chooseRecipe(String output,Set<String> visiting) {
+        var candidates=starter.recipes().values().stream().filter(r->r.output().equals(output)
+                && r.cells().stream().flatMap(c->c.choices().stream()).noneMatch(visiting::contains)).toList();
+        return candidates.stream().filter(this::recipeReady).findFirst().orElse(candidates.isEmpty()?null:candidates.getFirst());
+    }
     private void prepareRecipe(Minecraft client,TaskPresets.Recipe recipe,Set<String> visiting) {
+        if(recipe==null)throw new IllegalArgumentException("No usable crafting recipe for the missing ingredient; supply it first.");
         if(!visiting.add(recipe.output()) || visiting.size()>12) throw new IllegalArgumentException("Starter recipe contains a cycle.");
-        Map<String,Integer> needed=new LinkedHashMap<>();for(var cell:recipe.cells()) needed.merge(cell.ingredient(),1,Integer::sum);
+        Map<String,Integer> needed=new LinkedHashMap<>();Map<String,TaskPresets.Cell> groups=new LinkedHashMap<>();
+        for(var cell:recipe.cells()) {needed.merge(cell.signature(),1,Integer::sum);groups.putIfAbsent(cell.signature(),cell);}
         for(var entry:needed.entrySet()) {
-            String ingredient=entry.getKey();int available=ingredient.equals("#minecraft:planks")?count(s->s.is(ItemTags.PLANKS))
-                    :ingredient.equals("$log")?count(s->logType(s)!=null):count(requiredItem(ingredient));
+            var cell=groups.get(entry.getKey());String ingredient=cell.ingredient();int available=count(ingredientMatcher(cell));
             if(available>=entry.getValue()) continue;
-            String output=ingredient.equals("#minecraft:planks")?"$log_planks":ingredient;
-            var sub=starter.recipes().values().stream().filter(r->r.output().equals(output)).findFirst();
-            if(sub.isPresent()) {prepareRecipe(client,sub.get(),visiting);return;}
             String item=ingredient.equals("$log")?"minecraft:"+nearestWood()+"_log":ingredient;
+            if(ingredient.startsWith("#") || cell.choices().size()>1) {
+                item=inventory().stream().filter(ingredientMatcher(cell)).filter(s->!s.isEmpty()).map(s->BuiltInRegistries.ITEM.getKey(s.getItem()).toString()).findFirst().orElse(null);
+                if(item==null)for(Item candidate:BuiltInRegistries.ITEM) {
+                    String id=BuiltInRegistries.ITEM.getKey(candidate).toString();
+                    if(ingredientMatcher(cell).test(new ItemStack(candidate)) && TaskPresets.mineableItem(id)) {item=id;break;}
+                }
+                if(item==null)item=cell.choices().stream().filter(s->!s.startsWith("#")).findFirst().orElseThrow(()->new IllegalArgumentException("No available items for ingredient group: "+ingredient));
+            }
+            String output=ingredient.equals("#minecraft:planks")?"$log_planks":item;
+            var sub=chooseRecipe(output,visiting);
+            if(sub!=null && (recipeReady(sub) || ingredient.equals("#minecraft:planks") || !TaskPresets.mineableItem(item))) {prepareRecipe(client,sub,visiting);return;}
+            if(!TaskPresets.mineableItem(item))throw new IllegalArgumentException("Missing crafting ingredient: "+item+". Supply it before resuming.");
             configureMine(item,entry.getValue()-available);
             // Wheat is obtained from hay, then unpacked using the wheat recipe.
             planMining(client);return;
@@ -632,12 +663,16 @@ final class LocalTaskRunner {
         for(TaskPresets.Cell cell:recipe.cells()) {
             Predicate<ItemStack> ingredient;
             if(cell.ingredient().equals("$log")) ingredient=s->s.is(log.getItem());
-            else if(cell.ingredient().equals("#minecraft:planks")) ingredient=s->s.is(ItemTags.PLANKS);
-            else {Item item=requiredItem(cell.ingredient());ingredient=s->s.is(item);}
+            else ingredient=ingredientMatcher(cell);
             ingredients.put(cell.row()*width+cell.column(),ingredient);
         }
         String output=recipe.output().equals("$log_planks")?"minecraft:"+logType(log)+"_planks":recipe.output();
-        craft(client,ingredients,new ItemStack(requiredItem(output),recipe.count()));
+        ItemStack result=new ItemStack(requiredItem(output),recipe.count());
+        if(recipe.components()!=null) {
+            var data=new com.google.gson.JsonObject();data.addProperty("id",output);data.addProperty("count",recipe.count());data.add("components",recipe.components());
+            result=ItemStack.CODEC.parse(net.minecraft.resources.RegistryOps.create(com.mojang.serialization.JsonOps.INSTANCE,world.registryAccess()),data).getOrThrow();
+        }
+        craft(client,ingredients,result);
     }
     private Item requiredItem(String id) {
         return BuiltInRegistries.ITEM.getOptional(net.minecraft.resources.Identifier.parse(id))

@@ -14,8 +14,11 @@ public final class TaskPresets {
     private static final Map<String,CachedWorkflow> workflowCache=new HashMap<>();
     private static final Set<String> FIELDS=Set.of("pickaxe","logs","planks","sticks","table_available","nearby_table","table_open","planks_needed","logs_needed");
     public record Task(String label,String goal,String resultItem,int quantity,String preparation) {}
-    public record Cell(int row,int column,String ingredient) {}
-    public record Recipe(String output,int count,int width,List<Cell> cells) {}
+    public record Cell(int row,int column,String ingredient,List<String> alternatives) {
+        public List<String> choices() {return alternatives==null?List.of(ingredient):alternatives;}
+        public String signature() {return String.join("|",choices());}
+    }
+    public record Recipe(String output,int count,int width,List<Cell> cells,JsonObject components) {}
     public record Step(String action,String recipe) {}
     public record Condition(String field,String op,String value) {
         boolean matches(Map<String,Integer> s) {int a=s.getOrDefault(field,0),b=number(value,s);return op.equals("lt")?a<b:a>=b;}
@@ -126,6 +129,7 @@ public final class TaskPresets {
     }
     public static String miningBlock(String item) {return miningBlocks(item).getFirst();}
     public static List<String> miningTools(String item) {return MiningCatalog.SOURCES.getOrDefault(item,List.of()).stream().filter(s->s.block().equals(miningBlock(item))).findFirst().map(MiningSource::tools).orElse(List.of());}
+    public static boolean mineableItem(String item) {return MiningCatalog.SOURCES.containsKey(item);}
     public static int toolTier(String id) {
         return id.contains(":netherite_")?5:id.contains(":diamond_")?4:id.contains(":iron_")?3:id.contains(":stone_")?2:1;
     }
@@ -175,7 +179,10 @@ public final class TaskPresets {
         String description=root.has("description")?root.remove("description").getAsString():"";
         if(title.isBlank() || title.length()>160 || description.length()>1000) throw invalid("Invalid task title/description");
         JsonObject recipes=sharedRecipes();
-        if(root.has("recipes")) root.getAsJsonObject("recipes").entrySet().forEach(e->recipes.add(e.getKey(),e.getValue()));
+        if(root.has("recipes")) {
+            JsonObject custom=root.getAsJsonObject("recipes").deepCopy();
+            recipes.entrySet().forEach(e->{if(!custom.has(e.getKey()))custom.add(e.getKey(),e.getValue());});recipes=custom;
+        }
         root.add("recipes",recipes);
         Starter plan=parseStarter(root.toString());
         var last=plan.steps().getLast();
@@ -258,12 +265,18 @@ public final class TaskPresets {
         if(file==null) throw invalid("Task directory not initialized");
         try {
             Path path=file.resolveSibling("core-data").resolve("task-recipes.json");
-            if(!Files.exists(path)) return new JsonObject();
-            if(Files.size(path)>262144) throw invalid("task-recipes.json exceeds 256 KB");
+            JsonObject recipes;
+            try(var in=TaskPresets.class.getResourceAsStream("/core-data/task-recipes.json")) {
+                if(in==null)throw new IOException("Missing bundled task recipes");
+                recipes=JsonParser.parseString(new String(in.readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonObject("recipes").deepCopy();
+            }
+            if(!Files.exists(path)) return recipes;
+            if(Files.size(path)>2097152) throw invalid("task-recipes.json exceeds 2 MB");
             var root=JsonParser.parseString(Files.readString(path,StandardCharsets.UTF_8)).getAsJsonObject();
             validateKeys(root,Set.of("version","recipes"));
             if(!root.get("version").toString().equals("1")) throw invalid("Invalid recipe version");
-            return root.getAsJsonObject("recipes").deepCopy();
+            JsonObject custom=root.getAsJsonObject("recipes").deepCopy();
+            recipes.entrySet().forEach(e->{if(!custom.has(e.getKey()))custom.add(e.getKey(),e.getValue());});return custom;
         } catch(IOException | RuntimeException e) {throw invalid("task-recipes.json: "+e.getMessage());}
     }
     public static Starter parseStarter(String json) {
@@ -352,19 +365,20 @@ public final class TaskPresets {
             JsonObject root=JsonParser.parseString(json).getAsJsonObject();validateKeys(root,Set.of("version","tasks","recipes","preparations"));
             Catalog c=new Gson().fromJson(root,Catalog.class);
             for(var e:root.getAsJsonObject("recipes").entrySet()) for(var cell:e.getValue().getAsJsonObject().getAsJsonArray("cells"))
-                validateKeys(cell.getAsJsonObject(),Set.of("row","column","ingredient"));
+                validateKeys(cell.getAsJsonObject(),Set.of("row","column","ingredient","alternatives"));
             for(var e:root.getAsJsonObject("preparations").entrySet()) {
                 JsonObject p=e.getValue().getAsJsonObject();validateKeys(p,Set.of("planksPerLog","budget","rules"));
                 for(var b:p.getAsJsonArray("budget")) {validateKeys(b.getAsJsonObject(),Set.of("when","planks"));validateConditions(b.getAsJsonObject());}
                 for(var r:p.getAsJsonArray("rules")) {validateKeys(r.getAsJsonObject(),Set.of("when","step"));validateConditions(r.getAsJsonObject());validateKeys(r.getAsJsonObject().getAsJsonObject("step"),Set.of("action","recipe"));}
             }
-            if(c.version!=1 || c.tasks.isEmpty() || c.tasks.size()>100 || c.recipes.size()>100 || c.preparations.size()>100) throw invalid("Invalid version/definition count");
+            if(c.version!=1 || c.tasks.isEmpty() || c.tasks.size()>100 || c.recipes.size()>2048 || c.preparations.size()>100) throw invalid("Invalid version/definition count");
             for(var e:c.recipes.entrySet()) {
-                name(e.getKey());Recipe r=e.getValue();validateKeys(root.getAsJsonObject("recipes").getAsJsonObject(e.getKey()),Set.of("output","count","width","cells"));
+                if(!e.getKey().matches("[a-z][a-z0-9_]{0,127}"))throw invalid("Invalid recipe ID");Recipe r=e.getValue();validateKeys(root.getAsJsonObject("recipes").getAsJsonObject(e.getKey()),Set.of("output","count","width","cells","components"));
                 if(!r.output.equals("$log_planks")) item(r.output);if(r.count<1 || r.count>64 || r.width<2 || r.width>3 || r.cells.isEmpty()) throw invalid("Invalid recipe");
                 Set<Integer> cells=new HashSet<>();for(Cell cell:r.cells) {
                     if(cell.row<0 || cell.row>=r.width || cell.column<0 || cell.column>=r.width || !cells.add(cell.row*r.width+cell.column)) throw invalid("Recipe cell outside grid or duplicated");
-                    if(!Set.of("$log","#minecraft:planks").contains(cell.ingredient)) item(cell.ingredient);
+                    if(cell.ingredient==null || cell.alternatives!=null && (cell.alternatives.isEmpty() || cell.alternatives.size()>64 || !cell.alternatives.contains(cell.ingredient)))throw invalid("Invalid ingredient alternatives");
+                    for(String choice:cell.choices())if(!choice.equals("$log"))item(choice.startsWith("#")?choice.substring(1):choice);
                 }
             }
             for(var e:c.preparations.entrySet()) {

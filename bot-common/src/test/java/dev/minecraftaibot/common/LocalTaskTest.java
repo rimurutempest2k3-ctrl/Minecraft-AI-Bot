@@ -29,6 +29,7 @@ public final class LocalTaskTest {
         } catch(java.io.IOException e) {throw new AssertionError(e);}
         verifyCoreMigration();
         var starter=TaskPresets.starter();
+        verifyFullRecipes(starter);
         check(starter.steps().size()==10);
         verifySupplyModes();verifyChestSteps();verifyMenuSteps();
         verifyDiamondWorkflow();
@@ -204,7 +205,9 @@ public final class LocalTaskTest {
             check(TaskPresets.workflow("custom.json").plan().steps().getFirst().count()==12);
             String needsRecipe=custom.replace("minecraft:birch_log","minecraft:wooden_pickaxe").replace("\"mine\"","\"craft\"");
             java.nio.file.Files.writeString(workflowFolder.resolve("needs-recipe.json"),needsRecipe);
-            try {TaskPresets.workflow("needs-recipe.json");throw new AssertionError("Craft ran without recipe");}catch(IllegalArgumentException expected) {}
+            check(TaskPresets.workflow("needs-recipe.json").plan().recipes().values().stream().anyMatch(r->r.output().equals("minecraft:wooden_pickaxe")));
+            java.nio.file.Files.writeString(workflowFolder.resolve("needs-recipe.json"),needsRecipe.replace("minecraft:wooden_pickaxe","minecraft:netherite_pickaxe"));
+            try {TaskPresets.workflow("needs-recipe.json");throw new AssertionError("Smithing accepted as grid crafting");}catch(IllegalArgumentException expected) {}
             java.nio.file.Files.writeString(workflowFolder.resolve("custom.json"),custom.replace("\"mine\"","\"shell\""));
             try {TaskPresets.workflow("custom.json");throw new AssertionError("Arbitrary code accepted");}catch(IllegalArgumentException expected) {}
             check(java.nio.file.Files.readString(recipeFile).equals("user-edited-catalog"));
@@ -334,6 +337,25 @@ public final class LocalTaskTest {
             }
         }
     }
+    private static void verifyFullRecipes(TaskPresets.Starter starter) {
+        try(var in=LocalTaskTest.class.getResourceAsStream("/core-data/minecraft-recipes-26.2.json")) {
+            var source=JsonParser.parseString(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+            int grids=0;
+            for(var entry:source.getAsJsonObject("recipes").entrySet()) {
+                var original=entry.getValue().getAsJsonObject();String type=original.get("type").getAsString();
+                if(!Set.of("minecraft:crafting_shaped","minecraft:crafting_shapeless").contains(type))continue;
+                var recipe=starter.recipes().get("vanilla_"+entry.getKey().substring("minecraft:".length()));
+                check(recipe!=null && recipe.output().equals(original.getAsJsonObject("result").get("id").getAsString()));
+                check(recipe.count()==(original.getAsJsonObject("result").has("count")?original.getAsJsonObject("result").get("count").getAsInt():1));
+                check(recipe.cells().size()<=9 && recipe.cells().stream().allMatch(c->!c.choices().isEmpty()));grids++;
+            }
+            check(grids==1056);
+            check(starter.recipes().get("vanilla_diamond_helmet").cells().size()==5);
+            check(starter.recipes().get("vanilla_suspicious_stew_from_allium").components()!=null);
+            var armor=TaskPresets.parseWorkflow("diamond.taskbot","{\"version\":1,\"title\":\"Helmet\",\"steps\":[{\"label\":\"Helmet\",\"action\":\"craft\",\"item\":\"minecraft:diamond_helmet\",\"count\":1}]}");
+            check(armor.error()==null && armor.plan().recipes().containsKey("vanilla_diamond_helmet"));
+        } catch(java.io.IOException failure) {throw new AssertionError(failure);}
+    }
     private static void verifyCoreMigration() {
         try {
             var current=TaskPresets.catalog();
@@ -344,6 +366,7 @@ public final class LocalTaskTest {
             java.nio.file.Files.writeString(folder.resolve("task-recipes.json"),custom);
             TaskPresets.initialize(file);
             check(java.nio.file.Files.readString(folder.resolve("core-data/task-recipes.json")).equals(custom));
+            check(TaskPresets.starter().recipes().containsKey("vanilla_diamond_helmet"));
             check(java.nio.file.Files.exists(folder.resolve("task-recipes.json")));
             check(TaskPresets.catalog().preparations().equals(current.preparations()));
             java.nio.file.Files.writeString(folder.resolve("task-recipes.json"),"changed legacy");

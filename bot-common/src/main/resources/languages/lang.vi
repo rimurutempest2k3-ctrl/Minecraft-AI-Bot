@@ -1293,6 +1293,10 @@
     "Block opening state changed; no click sent.": "Trạng thái mở block đã thay đổi; chưa gửi thao tác bấm.",
     "Could not aim at the block before opening.": "Không ngắm được block trước khi mở.",
     "Release the use key before opening the block.": "Thả phím sử dụng trước khi mở block.",
-    "Use key is unbound in Minecraft settings.": "Chưa gán phím sử dụng trong cài đặt Minecraft."
+    "Use key is unbound in Minecraft settings.": "Chưa gán phím sử dụng trong cài đặt Minecraft.",
+    "No usable crafting recipe for the missing ingredient; supply it first.": "Không có công thức phù hợp cho nguyên liệu còn thiếu; hãy cung cấp trước.",
+    "No available items for ingredient group: ": "Không có vật phẩm phù hợp cho nhóm nguyên liệu: ",
+    "Missing crafting ingredient: ": "Thiếu nguyên liệu chế tạo: ",
+    ". Supply it before resuming.": ". Cung cấp nguyên liệu trước khi tiếp tục."
   }
 }
