@@ -126,6 +126,13 @@ final class BaritoneController {
                 return "Coordinates outside world bounds.";
             engine(); stop();
             baritone.getCustomGoalProcess().setGoalAndPath(new GoalBlock(x, y, z));
+        } else if(parts[0].equals("gather")) {
+            var target=BuiltInRegistries.ITEM.getOptional(Identifier.parse(parts[1])).orElseThrow(()->new IllegalArgumentException("Invalid item ID: "+parts[1]));
+            var blocks=dev.minecraftaibot.common.TaskPresets.miningBlocks(parts[1]).stream().map(id->BuiltInRegistries.BLOCK.getOptional(Identifier.parse(id)).orElseThrow(()->new IllegalArgumentException("Invalid mining block: "+id))).toArray(net.minecraft.world.level.block.Block[]::new);
+            var nextQuota=new MiningQuota(countExact(client.player,target),Integer.parseInt(parts[2]));
+            engine();stop();quota=nextQuota;gatheredItem=target;miningFilter=new BlockOptionalMetaLookup(blocks);
+            previousAutoTool=BaritoneAPI.getSettings().autoTool.value;BaritoneAPI.getSettings().autoTool.value=false;
+            baritone.getMineProcess().mine(miningFilter);
         } else if (parts[0].equals("mine")) {
             boolean collectingCobblestone = parts[1].equals("cobblestone") || parts[1].equals("minecraft:cobblestone");
             Identifier id = Identifier.tryParse(collectingCobblestone ? "minecraft:stone" : parts[1]);
@@ -191,6 +198,8 @@ final class BaritoneController {
                 stop();
                 task = completed;
                 LOG.info("Mining task completed: {}", completed);
+            } else if(gatheredItem!=null && !suitableForGather(owner.getMainHandItem(),BuiltInRegistries.ITEM.getKey(gatheredItem).toString())) {
+                stop();task="Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.";
             } else if (!baritone.getMineProcess().isActive()) {
                 String incomplete = "Mining stopped before reaching requested quantity: " + task
                         + " | Collected: " + quota.collected(count) + "/" + quota.requested();
@@ -207,9 +216,19 @@ final class BaritoneController {
             baritone.getInputOverrideHandler().clearAllKeys();
         }
         owner = null; world = null; task = "No active task";
-        quota = null; miningFilter = null; cobblestoneGoal=false;
+        quota = null; miningFilter = null; cobblestoneGoal=false; gatheredItem=null;
     }
-    private int currentCount(LocalPlayer player) {return cobblestoneGoal ? countCobblestone(player):countItems(player,miningFilter);}
+    private net.minecraft.world.item.Item gatheredItem;
+    static boolean suitableForGather(net.minecraft.world.item.ItemStack stack,String item) {
+        var state=BuiltInRegistries.BLOCK.getValue(Identifier.parse(dev.minecraftaibot.common.TaskPresets.miningBlock(item))).defaultBlockState();
+        var tools=dev.minecraftaibot.common.TaskPresets.miningTools(item);boolean silk=silkTouch(stack);
+        if(state.requiresCorrectToolForDrops() && !stack.isCorrectToolForDrops(state))return false;
+        if(!tools.isEmpty() && !(tools.contains("silk_touch") && silk || tools.contains("shears") && stack.is(net.minecraft.world.item.Items.SHEARS)))return false;
+        if(tools.isEmpty() && !BuiltInRegistries.ITEM.getKey(state.getBlock().asItem()).toString().equals(item) && silk)return false;
+        return !stack.isDamageableItem() || stack.getMaxDamage()-stack.getDamageValue()>10;
+    }
+    private static int countExact(LocalPlayer player,net.minecraft.world.item.Item item) {return player.getInventory().getNonEquipmentItems().stream().filter(s->s.is(item)).mapToInt(net.minecraft.world.item.ItemStack::getCount).sum();}
+    private int currentCount(LocalPlayer player) {return gatheredItem!=null?countExact(player,gatheredItem):cobblestoneGoal ? countCobblestone(player):countItems(player,miningFilter);}
     private static int countCobblestone(LocalPlayer player) {
         return player.getInventory().getNonEquipmentItems().stream()
                 .filter(s->s.is(net.minecraft.world.item.Items.COBBLESTONE)).mapToInt(net.minecraft.world.item.ItemStack::getCount).sum();

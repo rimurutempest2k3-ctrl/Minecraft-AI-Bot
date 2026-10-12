@@ -306,6 +306,14 @@ public final class LocalTaskTest {
             }
             check(cost==35 && sticks==9);
             check(TaskPresets.miningBlock("minecraft:diamond").equals("minecraft:diamond_ore"));
+            check(TaskPresets.miningBlocks("minecraft:diamond").contains("minecraft:deepslate_diamond_ore"));
+            check(TaskPresets.miningBlock("minecraft:lapis_lazuli").equals("minecraft:lapis_ore"));
+            check(TaskPresets.miningBlock("minecraft:raw_gold").equals("minecraft:gold_ore"));
+            check(TaskPresets.miningBlock("minecraft:redstone").equals("minecraft:redstone_ore"));
+            check(TaskPresets.miningBlocks("minecraft:book").contains("minecraft:bookshelf"));
+            check(TaskPresets.miningBlock("minecraft:clay_ball").equals("minecraft:clay"));
+            check(TaskPresets.requiresSilkTouch("minecraft:glass"));
+            check(TaskPresets.miningTools("minecraft:oak_leaves").contains("shears"));
             check(TaskPresets.miningBlock("minecraft:raw_iron").equals("minecraft:iron_ore"));
             check(TaskPresets.toolTier("minecraft:stone_pickaxe")<TaskPresets.toolTier("minecraft:iron_pickaxe"));
             var root=JsonParser.parseString(json).getAsJsonObject();

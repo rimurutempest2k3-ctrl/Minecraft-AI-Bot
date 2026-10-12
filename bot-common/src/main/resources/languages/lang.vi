@@ -1260,6 +1260,11 @@
     "Task mode must be ensure, collect or loop": "Chế độ nhiệm vụ phải là ensure, collect hoặc loop",
     "Resume bot": "Tiếp tục bot",
     "Task round ": "Vòng nhiệm vụ ",
-    "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume.": "Bổ sung bỏ qua đồ đã đủ. Thu thập lấy thêm đồ. Lặp luôn lấy đủ số lượng cần có: đủ thì qua bước sau, hết chuỗi nghỉ năm giây rồi chạy lại. Dừng để hủy; lỗi giữ tiến độ để tiếp tục thủ công."
+    "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume.": "Bổ sung bỏ qua đồ đã đủ. Thu thập lấy thêm đồ. Lặp luôn lấy đủ số lượng cần có: đủ thì qua bước sau, hết chuỗi nghỉ năm giây rồi chạy lại. Dừng để hủy; lỗi giữ tiến độ để tiếp tục thủ công.",
+    "Choose from 1,045 block-drop items. Some need the right tool, Silk Touch, shears, crop maturity or random drops. The bot counts the selected item, not blocks broken.": "Chọn trong 1.045 vật phẩm rơi từ block. Một số cần đúng công cụ, Silk Touch, kéo, cây trưởng thành hoặc phụ thuộc tỉ lệ rơi. Bot đếm vật phẩm đã chọn, không đếm block bị phá.",
+    "Special tool required": "Cần công cụ đặc biệt",
+    ". Required special tools: ": ". Công cụ đặc biệt cần có: ",
+    "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.": "Đã dừng lấy vật phẩm vì công cụ đang cầm không còn phù hợp. Trang bị lại công cụ rồi tiếp tục nhiệm vụ.",
+    "Missing suitable mining tool for ": "Thiếu công cụ đào phù hợp cho "
   }
 }

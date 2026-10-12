@@ -463,17 +463,8 @@ final class LocalTaskRunner {
         switch(step.action()) {
             case "mine_goal" -> {
                 closeForMovement();
-                if(definition.resultItem().equals("minecraft:raw_iron") || definition.resultItem().equals("minecraft:diamond")) {
-                    int tier=definition.resultItem().equals("minecraft:diamond")?3:2,best=-1;
-                    for(int i=0;i<inventory().size();i++) {
-                        var stack=inventory().get(i);
-                        if(stack.is(ItemTags.PICKAXES) && TaskPresets.toolTier(BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())>=tier
-                                && !BaritoneController.silkTouch(stack) && (!stack.isDamageableItem() || stack.getMaxDamage()-stack.getDamageValue()>10)) {best=i;break;}
-                    }
-                    if(best<0 || !select(client,best))throw new IllegalArgumentException("Missing usable pickaxe of required tier for "+definition.resultItem());
-                }
-                if(preparation!=null && !select(client,pickaxe())) throw new IllegalArgumentException("Could not move pickaxe to hotbar.");
-                String response=movement.execute("mine "+definition.goal()+" "+(quantity-Math.max(0,resultCount()-initialResult)));
+                selectMiningTool(client);
+                String response=movement.execute("gather "+definition.resultItem()+" "+(quantity-Math.max(0,resultCount()-initialResult)));
                 if(!movement.busy()) throw new IllegalArgumentException(response);
                 change(Phase.GOAL,"Local JSON: "+response);
             }
@@ -609,6 +600,16 @@ final class LocalTaskRunner {
             placeTable(client);return;
         }
         craftRecipe(client,recipe);
+    }
+    private void selectMiningTool(Minecraft client) {
+        var state=BuiltInRegistries.BLOCK.getValue(net.minecraft.resources.Identifier.parse(TaskPresets.miningBlock(definition.resultItem()))).defaultBlockState();
+        var tools=TaskPresets.miningTools(definition.resultItem());
+        int best=-1;float speed=-1;
+        for(int i=0;i<inventory().size();i++) {
+            var stack=inventory().get(i);if(!BaritoneController.suitableForGather(stack,definition.resultItem()))continue;
+            float candidate=stack.getDestroySpeed(state);if(candidate>speed){speed=candidate;best=i;}
+        }
+        if(best<0 || !select(client,best))throw new IllegalArgumentException("Missing suitable mining tool for "+definition.resultItem()+". Required special tools: "+tools);
     }
     private void planMining(Minecraft client) {
         // Execute the existing preparation rules without recursively entering the starter planner.

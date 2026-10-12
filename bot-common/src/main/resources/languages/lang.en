@@ -1260,6 +1260,11 @@
     "Task mode must be ensure, collect or loop": "Task mode must be ensure, collect or loop",
     "Resume bot": "Resume bot",
     "Task round ": "Task round ",
-    "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume.": "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume."
+    "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume.": "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume.",
+    "Choose from 1,045 block-drop items. Some need the right tool, Silk Touch, shears, crop maturity or random drops. The bot counts the selected item, not blocks broken.": "Choose from 1,045 block-drop items. Some need the right tool, Silk Touch, shears, crop maturity or random drops. The bot counts the selected item, not blocks broken.",
+    "Special tool required": "Special tool required",
+    ". Required special tools: ": ". Required special tools: ",
+    "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.": "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.",
+    "Missing suitable mining tool for ": "Missing suitable mining tool for "
   }
 }

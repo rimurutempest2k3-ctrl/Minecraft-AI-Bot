@@ -16,6 +16,8 @@ Set `"mode":"loop"` or select **Repeat continuously** to repeat the entire chain
 
 In game, **F8** opens Start / Pause / Resume / Stop controls. Pause saves local task progress and requires manual Resume; furnace contents may need recovering before continuing. Start and Resume close the GUI so movement can proceed. Stop cancels the task and loop. Nearby defense/auto eating remain separate features.
 
+**Get items** searches the 1,045 vanilla item definitions with block loot sources in the bundled Minecraft 26.2 catalog. Other actions retain the complete item list. Block-source mapping supports drop IDs such as lapis lazuli, redstone, clay balls and books, plus normal/deepslate ores. The executor counts the requested item exactly. It checks harvesting tools, durability, Silk Touch and shears before starting; if the selected tool changes to an unsuitable one, gathering stops for manual recovery. Some drops still require mature plants, loot conditions or random chance; if the world cannot supply them, the normal blocked/timeout behavior applies. The catalog does not add mob hunting, crafting or furnace recipes to the mining action.
+
 ## Explicit chest deliveries
 
 Save the following as `delivery.taskbot`, replace both chest coordinates, import it on the web and run it:

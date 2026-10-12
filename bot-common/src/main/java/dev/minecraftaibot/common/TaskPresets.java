@@ -100,15 +100,32 @@ public final class TaskPresets {
         public Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf) {this(label,item,count,action,role,input,skipIf,null);}
         public Supply(String label,String item,int count,String action,String role) {this(label,item,count,action,role,null,null);}
     }
-    public static String miningBlock(String item) {
-        return switch(item) {
+    public record MiningSource(String block,boolean silkTouch,List<String> tools) {}
+    private static final class MiningCatalog {
+        static final Map<String,List<MiningSource>> SOURCES=load();
+        private static Map<String,List<MiningSource>> load() {
+            try(var in=TaskPresets.class.getResourceAsStream("/core-data/items-26.2.json")) {
+                var result=new HashMap<String,List<MiningSource>>();
+                var entries=JsonParser.parseString(new String(Objects.requireNonNull(in).readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("items");
+                for(var entry:entries){var item=entry.getAsJsonObject();var sources=new ArrayList<MiningSource>();for(var source:item.getAsJsonArray("miningSources")){var row=source.getAsJsonObject();var tools=new ArrayList<String>();for(var tool:row.getAsJsonArray("tools"))tools.add(tool.getAsString());sources.add(new MiningSource(row.get("block").getAsString(),row.get("silkTouch").getAsBoolean(),List.copyOf(tools)));}if(!sources.isEmpty())result.put(item.get("id").getAsString(),List.copyOf(sources));}
+                return Map.copyOf(result);
+            } catch(IOException e){throw new IllegalStateException("Bundled mining catalog unavailable",e);}
+        }
+    }
+    public static boolean requiresSilkTouch(String item) {var sources=MiningCatalog.SOURCES.get(item);return sources!=null && sources.stream().allMatch(MiningSource::silkTouch);}
+    public static List<String> miningBlocks(String item) {
+        var sources=MiningCatalog.SOURCES.get(item);if(sources==null)return List.of(item);
+        boolean silk=requiresSilkTouch(item);String preferred=switch(item) {
             case "minecraft:cobblestone" -> "minecraft:stone";
             case "minecraft:coal" -> "minecraft:coal_ore";
             case "minecraft:raw_iron" -> "minecraft:iron_ore";
             case "minecraft:diamond" -> "minecraft:diamond_ore";
             default -> item;
         };
+        return sources.stream().filter(s->s.silkTouch()==silk).map(MiningSource::block).distinct().sorted(Comparator.comparingInt((String block)->block.equals(preferred)?0:block.endsWith("_ore")?(block.startsWith("minecraft:deepslate_")?2:1):3).thenComparing(Comparator.naturalOrder())).toList();
     }
+    public static String miningBlock(String item) {return miningBlocks(item).getFirst();}
+    public static List<String> miningTools(String item) {return MiningCatalog.SOURCES.getOrDefault(item,List.of()).stream().filter(s->s.block().equals(miningBlock(item))).findFirst().map(MiningSource::tools).orElse(List.of());}
     public static int toolTier(String id) {
         return id.contains(":netherite_")?5:id.contains(":diamond_")?4:id.contains(":iron_")?3:id.contains(":stone_")?2:1;
     }
