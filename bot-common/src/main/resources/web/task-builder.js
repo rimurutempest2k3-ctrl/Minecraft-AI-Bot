@@ -1,7 +1,7 @@
 'use strict';
 (function(root){
-    const actions=['mine','craft','smelt','food','chest_take','chest_put','chat','command','menu_open','menu_click','goto'];
-    const controls=new Set(['chat','command','menu_open','menu_click','goto']);
+    const actions=['mine','craft','smelt','food','chest_take','chest_put','chat','command','local_chat','menu_open','menu_click','goto'];
+    const controls=new Set(['chat','command','local_chat','menu_open','menu_click','goto']);
     const actionFor=values=>values.action==='chest'?values.chestOperation:values.action==='message'?values.messageOperation:values.action==='menu'?values.menuOperation:values.action;
     const id=value=>/^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(value||'');
     function integer(value,min,max){if(!/^-?\d+$/.test(String(value)))throw new Error('Enter a whole number.');const n=Number(value);if(!Number.isSafeInteger(n)||n<min||n>max)throw new Error('Number is outside the allowed range.');return n;}
@@ -9,13 +9,13 @@
         const action=actionFor(values),label=String(values.label||'').trim();
         if(!actions.includes(action)||!label||label.length>160)throw new Error('Choose an action and enter a step name.');
         const step={label,action,count:controls.has(action)?1:integer(values.count,1,64)};
-        if(!['chat','command','menu_click','goto'].includes(action)){if(!id(values.item))throw new Error('Enter an item ID such as minecraft:cobblestone.');step.item=values.item;}
+        if(!['chat','command','local_chat','menu_click','goto'].includes(action)){if(!id(values.item))throw new Error('Enter an item ID such as minecraft:cobblestone.');step.item=values.item;}
         if(['mine','craft'].includes(action)&&values.role){if(!['logs','pickaxe','axe','sword'].includes(values.role))throw new Error('Invalid item group.');step.role=values.role;}
         if(action==='food')step.role='food';
         if(action==='smelt'){if(!id(values.input))throw new Error('Enter the furnace input item ID.');step.input=values.input;}
         if(action.startsWith('chest_'))step.chest={x:integer(values.x,-29999984,29999984),y:integer(values.y,-2048,2048),z:integer(values.z,-29999984,29999984)};
         if(action==='goto')step.target={x:integer(values.x,-29999984,29999984),y:integer(values.y,-2048,2048),z:integer(values.z,-29999984,29999984)};
-        if(['chat','command'].includes(action)){const text=String(values.text||'');if(!text.trim()||text.length>256||/[\r\n]/.test(text)||text.startsWith('/'))throw new Error('Enter one line of text; commands must not start with /.');step.text=text;}
+        if(['chat','command','local_chat'].includes(action)){const text=String(values.text||'');if(!text.trim()||text.length>256||/[\r\n]/.test(text)||action!=='local_chat' && text.startsWith('/'))throw new Error('Enter one line of text; commands must not start with /.');step.text=text;}
         if(action.startsWith('menu_')){
             const title=String(values.title||'').trim();if(!title||title.length>160)throw new Error('Enter the exact menu title.');step.menu={title};
             if(action==='menu_click'){
@@ -93,7 +93,7 @@
         const submit=form.querySelector('button[type="submit"]');submit.textContent='Save step';
         const data=pending.get(step)||{...step,...step.chest,...step.target,...step.menu,result:step.menu?.closed?'closed':'next'};
         if(data.action.startsWith('chest_')){data.chestOperation=data.action;data.action='chest';}
-        else if(['chat','command'].includes(data.action)){data.messageOperation=data.action;data.action='message';}
+        else if(['chat','command','local_chat'].includes(data.action)){data.messageOperation=data.action;data.action='message';}
         else if(data.action.startsWith('menu_')){data.menuOperation=data.action;data.action='menu';}
         for(const [key,value]of Object.entries(data)){const input=form.elements.namedItem(key);if(input&&typeof value!=='object')input.value=value;}
         const actionLabel=form.elements.namedItem('action').closest('label');actionLabel.classList.add('node-action');form.prepend(actionLabel);

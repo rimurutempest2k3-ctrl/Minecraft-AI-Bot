@@ -367,6 +367,18 @@ public final class LocalTaskTest {
         var workflow=TaskPresets.parseWorkflow("menu.taskbot",source);
         check(workflow.plan().steps().size()==4);
         check(workflow.plan().steps().getLast().menu().slot()==13);
+        String privateMessage="""
+            {"version":1,"title":"Private notice","steps":[
+            {"label":"Notice","action":"local_chat","count":1,"text":"/This stays on the client"}]}
+            """;
+        var notice=TaskPresets.parseWorkflow("notice.taskbot",privateMessage).plan().steps().getFirst();
+        check(notice.action().equals("local_chat") && notice.text().startsWith("/") && TaskPresets.controlAction(notice.action()));
+        for(String invalid:List.of(privateMessage.replace("\"count\":1","\"count\":2"),
+                privateMessage.replace("\"count\":1","\"count\":1,\"item\":\"minecraft:stone\""),
+                privateMessage.replace("/This stays on the client",""))) {
+            try {TaskPresets.parseWorkflow("bad-notice.taskbot",invalid);throw new AssertionError("Invalid private notification accepted");}
+            catch(IllegalArgumentException expected) {}
+        }
         for(String invalid:List.of(source.replace("\"slot\":13","\"slot\":54"),source.replace("\"slot\":13","\"slot\":1.5"),
                 source.replace("\"closed\":true","\"closed\":\"true\""),source.replace("\"closed\":true","\"nextTitle\":\"Games\""),
                 source.replace("\"text\":\"menu\"","\"text\":\"/menu\""),source.replace("\"text\":\"Hello\"","\"text\":\"/op me\""),

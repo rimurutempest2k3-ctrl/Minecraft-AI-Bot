@@ -1265,6 +1265,8 @@
     "Special tool required": "Special tool required",
     ". Required special tools: ": ". Required special tools: ",
     "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.": "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.",
-    "Missing suitable mining tool for ": "Missing suitable mining tool for "
+    "Missing suitable mining tool for ": "Missing suitable mining tool for ",
+    "Private notification displayed; checking next step.": "Private notification displayed; checking next step.",
+    "Private notification": "Private notification"
   }
 }

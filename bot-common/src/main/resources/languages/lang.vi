@@ -1265,6 +1265,8 @@
     "Special tool required": "Cần công cụ đặc biệt",
     ". Required special tools: ": ". Công cụ đặc biệt cần có: ",
     "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.": "Đã dừng lấy vật phẩm vì công cụ đang cầm không còn phù hợp. Trang bị lại công cụ rồi tiếp tục nhiệm vụ.",
-    "Missing suitable mining tool for ": "Thiếu công cụ đào phù hợp cho "
+    "Missing suitable mining tool for ": "Thiếu công cụ đào phù hợp cho ",
+    "Private notification displayed; checking next step.": "Đã hiển thị thông báo riêng; kiểm tra bước tiếp theo.",
+    "Private notification": "Thông báo riêng"
   }
 }

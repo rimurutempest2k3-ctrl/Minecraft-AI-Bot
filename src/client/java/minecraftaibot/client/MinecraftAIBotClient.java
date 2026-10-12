@@ -161,13 +161,27 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             return "Local task running. Use bot stop before assigning another task.";
         return commands.execute(input);
     }
+    private String lastLocalMessage="";
+    private long lastLocalMessageAt;
+    private void notifyLocalChat(String message) {
+        if(message==null || message.isBlank())return;
+        Minecraft client=Minecraft.getInstance();
+        client.execute(()->{
+            if(client.player==null)return;
+            long now=System.nanoTime();if(message.equals(lastLocalMessage) && now-lastLocalMessageAt<10_000_000_000L)return;
+            lastLocalMessage=message;lastLocalMessageAt=now;
+            client.gui.hud.getChat().addClientSystemMessage(net.minecraft.network.chat.Component.literal("[Minecraft AI Bot] "+I18n.text(message)));
+        });
+    }
     private void notifyConsole(String message) {
+        notifyLocalChat(message);
         ConsoleServer connected = console;
         if (connected != null) connected.notifyConsole(message);
         WebConsole browser=web;
         if(browser!=null) browser.publish(message);
     }
     private void notifyAiConsole(String message) {
+        notifyLocalChat(message);
         ConsoleServer connected=console;if(connected!=null) connected.notifyConsole(message);
         WebConsole browser=web;
         if(browser!=null) {

@@ -524,6 +524,10 @@ final class LocalTaskRunner {
             if(!response.startsWith("Assigned Baritone task:"))throw new IllegalArgumentException(response);
             change(Phase.TRAVEL,"Traveling to "+target.x()+", "+target.y()+", "+target.z());return;
         }
+        if(step.action().equals("local_chat")) {
+            client.gui.hud.getChat().addClientSystemMessage(net.minecraft.network.chat.Component.literal("[Minecraft AI Bot] "+step.text()));
+            controlDone[supplyIndex]=true;change(Phase.PLAN,"Private notification displayed; checking next step.");return;
+        }
         if(step.action().equals("chat") || step.action().equals("command")) {
             if(client.getConnection()==null)throw new IllegalArgumentException("No server connection.");
             if(step.action().equals("chat"))owner.connection.sendChat(step.text());else owner.connection.sendCommand(step.text());

@@ -93,7 +93,7 @@ public final class TaskPresets {
     public record ChestTarget(int x,int y,int z) {}
     public record Position(int x,int y,int z) {}
     public record MenuTarget(String title,Integer slot,String expectedItem,String nextTitle,Boolean closed) {}
-    public static boolean controlAction(String action) {return Set.of("chat","command","menu_open","menu_click","goto").contains(action);}
+    public static boolean controlAction(String action) {return Set.of("chat","command","local_chat","menu_open","menu_click","goto").contains(action);}
     public record Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf,ChestTarget chest,String text,MenuTarget menu,Position target) {
         public Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf,ChestTarget chest,String text,MenuTarget menu) {this(label,item,count,action,role,input,skipIf,chest,text,menu,null);}
         public Supply(String label,String item,int count,String action,String role,String input,List<String> skipIf,ChestTarget chest) {this(label,item,count,action,role,input,skipIf,chest,null,null);}
@@ -296,13 +296,13 @@ public final class TaskPresets {
             for(Supply step:s.steps()) {
                 if(!controlAction(step.action()) || step.item()!=null)item(step.item());
                 if(step.label()==null || step.label().isBlank() || step.label().length()>160 || step.count()<1 || step.count()>64
-                        || !Set.of("mine","craft","food","smelt","chest_take","chest_put","chat","command","menu_open","menu_click","goto").contains(step.action()) || step.role()!=null && !Set.of("logs","pickaxe","axe","sword","food").contains(step.role())) throw invalid("Invalid starter step");
+                        || !Set.of("mine","craft","food","smelt","chest_take","chest_put","chat","command","local_chat","menu_open","menu_click","goto").contains(step.action()) || step.role()!=null && !Set.of("logs","pickaxe","axe","sword","food").contains(step.role())) throw invalid("Invalid starter step");
                 if(controlAction(step.action()) && (step.count()!=1 || step.role()!=null || step.input()!=null || step.skipIf()!=null || step.chest()!=null))throw invalid("Control steps require count 1 and no role/input/skipIf/chest");
                 if(step.action().equals("goto")) {
                     var target=step.target();if(target==null || step.item()!=null || Math.abs((long)target.x())>29999984 || Math.abs((long)target.z())>29999984 || target.y() < -2048 || target.y()>2048)throw invalid("Travel step requires valid target x, y and z and no item");
                 } else if(step.target()!=null)throw invalid("Only travel steps accept target coordinates");
-                if(step.action().equals("chat") || step.action().equals("command")) {
-                    if(step.item()!=null || step.menu()!=null || step.text()==null || step.text().isBlank() || step.text().length()>256 || step.text().contains("\n") || step.text().contains("\r") || step.text().startsWith("/"))throw invalid("Chat/command requires text without leading slash or line breaks");
+                if(step.action().equals("chat") || step.action().equals("command") || step.action().equals("local_chat")) {
+                    if(step.item()!=null || step.menu()!=null || step.text()==null || step.text().isBlank() || step.text().length()>256 || step.text().contains("\n") || step.text().contains("\r") || !step.action().equals("local_chat") && step.text().startsWith("/"))throw invalid("Chat/command requires text without leading slash or line breaks");
                 } else if(step.text()!=null)throw invalid("Only chat/command accepts text");
                 if(step.action().equals("menu_open") || step.action().equals("menu_click")) {
                     var menu=step.menu();if(menu==null || menu.title()==null || menu.title().isBlank() || menu.title().length()>160)throw invalid("Menu step requires expected title");
