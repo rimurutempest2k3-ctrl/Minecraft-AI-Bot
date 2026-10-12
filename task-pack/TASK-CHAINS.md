@@ -10,6 +10,8 @@ Auto eating and defense against mobs within 4 blocks temporarily suspend the cha
 
 A failed step becomes `BLOCKED`, preserving completed steps and collection baselines. Resolve its reported cause, recover any crafting/furnace/cursor items, close menus and use **Resume saved task**, or `bot workflow resume`. The bot checks current inventory again. It does not blindly repeat a failed transfer. `bot stop` cancels the chain. Progress currently lasts only for the same game session/player/world; restart or respawn does not restore the chain automatically.
 
+The main action selector groups chest take/store, chat/command, and menu open/click. Choose the operation inside each node. The exported JSON keeps the existing action IDs. Use Go to coordinates to travel to a block position in the current dimension: {"label":"Go home","action":"goto","count":1,"target":{"x":10,"y":64,"z":-20}}. No item is required. The bot checks actual arrival before advancing; a stopped path or the normal three-minute step timeout blocks the task for manual resume.
+
 ## Explicit chest deliveries
 
 Save the following as `delivery.taskbot`, replace both chest coordinates, import it on the web and run it:

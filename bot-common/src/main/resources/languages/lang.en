@@ -1239,6 +1239,16 @@
     "Fixed item catalog: Minecraft 26.2 · 1,537 items.": "Fixed item catalog: Minecraft 26.2 · 1,537 items.",
     "Zoom out": "Zoom out",
     "Hold Shift and use the mouse wheel over the canvas to scroll horizontally.": "Hold Shift and use the mouse wheel over the canvas to scroll horizontally.",
-    "Use the − / + buttons to zoom; Reset zoom returns to 100%.": "Use the − / + buttons to zoom; Reset zoom returns to 100%."
+    "Use the − / + buttons to zoom; Reset zoom returns to 100%.": "Use the − / + buttons to zoom; Reset zoom returns to 100%.",
+    "Destination reached; checking next step.": "Destination reached; checking next step.",
+    "Traveling to ": "Traveling to ",
+    "Server menu interaction": "Server menu interaction",
+    "Chest operation": "Chest operation",
+    "Chest interaction": "Chest interaction",
+    "Message type": "Message type",
+    "Travel stopped before reaching the destination; check the path and resume.": "Travel stopped before reaching the destination; check the path and resume.",
+    "Menu operation": "Menu operation",
+    "Go to coordinates": "Go to coordinates",
+    "Chat or server command": "Chat or server command"
   }
 }

@@ -56,6 +56,12 @@ public final class LocalTaskTest {
         String starterJson=new Gson().toJson(starter);
         var starterRoot=JsonParser.parseString(starterJson).getAsJsonObject();starterRoot.addProperty("version",1);
         check(TaskPresets.parseStarter(starterRoot.toString()).steps().size()==10);
+        var travel=starterRoot.deepCopy();travel.add("steps",JsonParser.parseString("[{\"label\":\"Go home\",\"action\":\"goto\",\"count\":1,\"target\":{\"x\":10,\"y\":64,\"z\":-20}}]"));
+        check(TaskPresets.parseStarter(travel.toString()).steps().getFirst().target().z()==-20);
+        check(TaskPresets.controlAction("goto"));
+        for(String bad:List.of(travel.toString().replace("\"x\":10","\"x\":10.5"),travel.toString().replace("\"x\":10","\"x\":4294967296"),travel.toString().replace("\"count\":1","\"count\":2"),travel.toString().replace("\"goto\"","\"chat\""))) {
+            try {TaskPresets.parseStarter(bad);throw new AssertionError("Invalid travel accepted");} catch(IllegalArgumentException expected) {}
+        }
         var longChain=starterRoot.deepCopy();var hundred=new JsonArray();
         for(int i=0;i<100;i++)hundred.add(starterRoot.getAsJsonArray("steps").get(1).deepCopy());
         longChain.add("steps",hundred);check(TaskPresets.parseStarter(longChain.toString()).steps().size()==100);

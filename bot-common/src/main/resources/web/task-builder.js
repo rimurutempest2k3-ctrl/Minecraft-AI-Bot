@@ -1,18 +1,20 @@
 'use strict';
 (function(root){
-    const actions=['mine','craft','smelt','food','chest_take','chest_put','chat','command','menu_open','menu_click'];
-    const controls=new Set(['chat','command','menu_open','menu_click']);
+    const actions=['mine','craft','smelt','food','chest_take','chest_put','chat','command','menu_open','menu_click','goto'];
+    const controls=new Set(['chat','command','menu_open','menu_click','goto']);
+    const actionFor=values=>values.action==='chest'?values.chestOperation:values.action==='message'?values.messageOperation:values.action==='menu'?values.menuOperation:values.action;
     const id=value=>/^[a-z0-9_.-]+:[a-z0-9_./-]+$/.test(value||'');
     function integer(value,min,max){if(!/^-?\d+$/.test(String(value)))throw new Error('Enter a whole number.');const n=Number(value);if(!Number.isSafeInteger(n)||n<min||n>max)throw new Error('Number is outside the allowed range.');return n;}
     function makeStep(values){
-        const action=values.action,label=String(values.label||'').trim();
+        const action=actionFor(values),label=String(values.label||'').trim();
         if(!actions.includes(action)||!label||label.length>160)throw new Error('Choose an action and enter a step name.');
         const step={label,action,count:controls.has(action)?1:integer(values.count,1,64)};
-        if(!['chat','command','menu_click'].includes(action)){if(!id(values.item))throw new Error('Enter an item ID such as minecraft:cobblestone.');step.item=values.item;}
+        if(!['chat','command','menu_click','goto'].includes(action)){if(!id(values.item))throw new Error('Enter an item ID such as minecraft:cobblestone.');step.item=values.item;}
         if(['mine','craft'].includes(action)&&values.role){if(!['logs','pickaxe','axe','sword'].includes(values.role))throw new Error('Invalid item group.');step.role=values.role;}
         if(action==='food')step.role='food';
         if(action==='smelt'){if(!id(values.input))throw new Error('Enter the furnace input item ID.');step.input=values.input;}
         if(action.startsWith('chest_'))step.chest={x:integer(values.x,-29999984,29999984),y:integer(values.y,-2048,2048),z:integer(values.z,-29999984,29999984)};
+        if(action==='goto')step.target={x:integer(values.x,-29999984,29999984),y:integer(values.y,-2048,2048),z:integer(values.z,-29999984,29999984)};
         if(['chat','command'].includes(action)){const text=String(values.text||'');if(!text.trim()||text.length>256||/[\r\n]/.test(text)||text.startsWith('/'))throw new Error('Enter one line of text; commands must not start with /.');step.text=text;}
         if(action.startsWith('menu_')){
             const title=String(values.title||'').trim();if(!title||title.length>160)throw new Error('Enter the exact menu title.');step.menu={title};
@@ -72,7 +74,8 @@
     function values(){return Object.fromEntries(new FormData(q('#builder-step')));}
     function meta(){return Object.fromEntries(new FormData(q('#builder-meta')));}
     function visibility(form=q('#builder-step')){
-        const input=name=>form.elements.namedItem(name),action=input('action').value;
+        const input=name=>form.elements.namedItem(name),group=input('action').value,action=actionFor(Object.fromEntries(new FormData(form)));
+        form.querySelectorAll('[data-builder-groups]').forEach(el=>{el.hidden=el.dataset.builderGroups!==group;});
         form.querySelectorAll('[data-builder-actions]').forEach(el=>{el.hidden=!el.dataset.builderActions.split(' ').includes(action);});
         form.querySelector('[name="nextTitle"]').closest('label').hidden=action!=='menu_click'||input('result').value!=='next';
         input('count').disabled=controls.has(action);if(controls.has(action))input('count').value='1';
@@ -87,7 +90,10 @@
         form.querySelectorAll('.item-picker').forEach(el=>el.remove());
         form.querySelector('button[type="button"]').remove();
         const submit=form.querySelector('button[type="submit"]');submit.textContent='Save step';
-        const data=pending.get(step)||{...step,...step.chest,...step.menu,result:step.menu?.closed?'closed':'next'};
+        const data=pending.get(step)||{...step,...step.chest,...step.target,...step.menu,result:step.menu?.closed?'closed':'next'};
+        if(data.action.startsWith('chest_')){data.chestOperation=data.action;data.action='chest';}
+        else if(['chat','command'].includes(data.action)){data.messageOperation=data.action;data.action='message';}
+        else if(data.action.startsWith('menu_')){data.menuOperation=data.action;data.action='menu';}
         for(const [key,value]of Object.entries(data)){const input=form.elements.namedItem(key);if(input&&typeof value!=='object')input.value=value;}
         const actionLabel=form.elements.namedItem('action').closest('label');actionLabel.classList.add('node-action');form.prepend(actionLabel);
         const status=document.createElement('p');status.className='section-hint';status.setAttribute('role','status');status.textContent=pending.has(step)?'Unsaved changes':'';form.append(status);
@@ -133,7 +139,7 @@
     function savedNodes(){if(pending.size){feedback('Save changes in each task node first.');return false;}return true;}
     function move(i,delta){if(!savedNodes())return;const to=i+delta;[steps[i],steps[to]]=[steps[to],steps[i]];render();draft();}
     new ResizeObserver(links).observe(q('#builder-steps'));
-    field('action').addEventListener('change',()=>visibility());field('result').addEventListener('change',()=>visibility());
+    q('#builder-step').addEventListener('change',()=>visibility());
     q('#builder-step').addEventListener('submit',event=>{event.preventDefault();try{
         const step=makeStep(values());if(steps.length>=100)throw new Error('A task can contain at most 100 steps.');steps.push(step);
         resetStep();render();draft();feedback('Step saved in the draft.');
@@ -159,7 +165,7 @@
         const raw=localStorage.getItem('minecraft-ai-bot-task-draft-v1');if(raw&&raw.length<=262144){const saved=JSON.parse(raw);if(Array.isArray(saved.steps)&&saved.steps.length<=100){
             if(Number.isFinite(saved.zoom))zoom=Math.max(0.4,Math.min(2,saved.zoom));
             // Revalidate browser draft data instead of trusting storage.
-            steps=saved.steps.map(step=>makeStep({...step,...step.chest,...step.menu,result:step.menu?.closed?'closed':'next'}));
+            steps=saved.steps.map(step=>makeStep({...step,...step.chest,...step.target,...step.menu,result:step.menu?.closed?'closed':'next'}));
             for(const [key,value]of Object.entries(saved.meta||{})){const input=q('#builder-meta').elements.namedItem(key);if(input&&typeof value==='string')input.value=value;}
         }}
     }catch{steps=[];feedback('Could not restore the draft; start a new task.');}

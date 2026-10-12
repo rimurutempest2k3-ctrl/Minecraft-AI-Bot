@@ -26,7 +26,7 @@ import java.util.function.*;
 /** JSON local task executor, using vanilla crafting and Baritone only. */
 final class LocalTaskRunner {
     private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot");
-    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT, FOOD_CROP, CHEST_OPEN, CHEST_TRANSFER, MENU_OPEN, MENU_CONFIRM, MENU_READY }
+    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT, FOOD_CROP, CHEST_OPEN, CHEST_TRANSFER, MENU_OPEN, MENU_CONFIRM, MENU_READY, TRAVEL }
     private final ChestController chest;
     private final BotCore bot;
     private final BaritoneController movement;
@@ -337,6 +337,12 @@ final class LocalTaskRunner {
                 || System.nanoTime()-phaseStarted>(phase==Phase.SMELT?900_000_000_000L:180_000_000_000L)) { block("Local stopped: current step timed out.");return; }
         if(client.isPaused() || client.gui.overlay()!=null) return;
         try {
+            if(phase==Phase.TRAVEL) {
+                var target=starter.steps().get(supplyIndex).target();
+                if(owner.blockPosition().equals(new BlockPos(target.x(),target.y(),target.z()))) {movement.stop();controlDone[supplyIndex]=true;change(Phase.PLAN,"Destination reached; checking next step.");}
+                else if(System.nanoTime()-phaseStarted>2_000_000_000L && !movement.busy())block("Travel stopped before reaching the destination; check the path and resume.");
+                return;
+            }
             if(phase==Phase.MENU_READY) {
                 if(matchesMenu(client,starter.steps().get(supplyIndex).menu().title()))change(Phase.PLAN,"Expected menu is ready; checking the requested slot.");
                 else if(System.nanoTime()-phaseStarted>5_000_000_000L)block("Expected menu did not open; no click sent.");
@@ -500,6 +506,14 @@ final class LocalTaskRunner {
     private void controlStep(Minecraft client,TaskPresets.Supply step) {
         movement.stop();
         if(!owner.containerMenu.getCarried().isEmpty())throw new IllegalArgumentException("Menu cursor is not empty; store the item first.");
+        if(step.action().equals("goto")) {
+            var target=step.target();
+            if(target.y()<world.getMinY() || target.y()>world.getMaxY())throw new IllegalArgumentException("Coordinates outside world bounds.");
+            if(owner.blockPosition().equals(new BlockPos(target.x(),target.y(),target.z()))) {controlDone[supplyIndex]=true;change(Phase.PLAN,"Destination reached; checking next step.");return;}
+            closeForMovement();String response=movement.execute("goto "+target.x()+" "+target.y()+" "+target.z());
+            if(!response.startsWith("Assigned Baritone task:"))throw new IllegalArgumentException(response);
+            change(Phase.TRAVEL,"Traveling to "+target.x()+", "+target.y()+", "+target.z());return;
+        }
         if(step.action().equals("chat") || step.action().equals("command")) {
             if(client.getConnection()==null)throw new IllegalArgumentException("No server connection.");
             if(step.action().equals("chat"))owner.connection.sendChat(step.text());else owner.connection.sendCommand(step.text());

@@ -1239,6 +1239,16 @@
     "Fixed item catalog: Minecraft 26.2 · 1,537 items.": "Danh sách cố định: Minecraft 26.2 · 1.537 vật phẩm.",
     "Zoom out": "Thu nhỏ",
     "Hold Shift and use the mouse wheel over the canvas to scroll horizontally.": "Giữ Shift và lăn chuột trên vùng sơ đồ để cuộn trái/phải.",
-    "Use the − / + buttons to zoom; Reset zoom returns to 100%.": "Dùng nút − / + để zoom; Về 100% để trở lại kích thước mặc định."
+    "Use the − / + buttons to zoom; Reset zoom returns to 100%.": "Dùng nút − / + để zoom; Về 100% để trở lại kích thước mặc định.",
+    "Destination reached; checking next step.": "Đã đến nơi; kiểm tra bước tiếp theo.",
+    "Traveling to ": "Đang đi đến ",
+    "Server menu interaction": "Thao tác menu server",
+    "Chest operation": "Thao tác rương",
+    "Chest interaction": "Tương tác rương",
+    "Message type": "Loại tin nhắn",
+    "Travel stopped before reaching the destination; check the path and resume.": "Di chuyển dừng trước khi đến nơi; kiểm tra đường đi rồi tiếp tục.",
+    "Menu operation": "Thao tác menu",
+    "Go to coordinates": "Đến tọa độ chỉ định",
+    "Chat or server command": "Gửi chat hoặc lệnh server"
   }
 }
