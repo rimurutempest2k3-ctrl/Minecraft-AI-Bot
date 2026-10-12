@@ -181,6 +181,14 @@ public final class LocalTaskTest {
             check(TaskPresets.workflows().stream().anyMatch(w->w.filename().equals("collected-wood.taskbot") && w.error()==null));
             // Compatibility aliases allow old command names to find renamed task files.
             check(TaskPresets.workflow("collected-wood.json").filename().equals("collected-wood.taskbot"));
+            var editable=TaskPresets.readWorkflowFile("collected-wood.taskbot");
+            var revised=TaskPresets.updateWorkflow(editable.filename(),custom.replace("\"count\":7","\"count\":19"),editable.revision());
+            check(!revised.revision().equals(editable.revision()) && TaskPresets.workflow(editable.filename()).plan().steps().getFirst().count()==19);
+            try {TaskPresets.updateWorkflow(editable.filename(),custom,editable.revision());throw new AssertionError("Stale edit overwrote file");}catch(IllegalArgumentException expected) {}
+            try {TaskPresets.updateWorkflow(editable.filename(),"{broken",revised.revision());throw new AssertionError("Invalid edit overwrote file");}catch(IllegalArgumentException expected) {}
+            check(TaskPresets.readWorkflowFile(editable.filename()).content().equals(revised.content()));
+            TaskPresets.updateWorkflow(editable.filename(),custom,revised.revision());
+            try {TaskPresets.readWorkflowFile("../outside.taskbot");throw new AssertionError("Read escaped task directory");}catch(IllegalArgumentException expected) {}
             for(String unsafe:List.of("../outside.taskbot","C:\\outside.taskbot","bad.exe","bad.taskbot/extra","has space.taskbot")) {
                 try {TaskPresets.importWorkflow(unsafe,custom);throw new AssertionError("Unsafe import filename accepted");}catch(IllegalArgumentException expected) {}
             }

@@ -1297,6 +1297,15 @@
     "No usable crafting recipe for the missing ingredient; supply it first.": "Không có công thức phù hợp cho nguyên liệu còn thiếu; hãy cung cấp trước.",
     "No available items for ingredient group: ": "Không có vật phẩm phù hợp cho nhóm nguyên liệu: ",
     "Missing crafting ingredient: ": "Thiếu nguyên liệu chế tạo: ",
-    ". Supply it before resuming.": ". Cung cấp nguyên liệu trước khi tiếp tục."
+    ". Supply it before resuming.": ". Cung cấp nguyên liệu trước khi tiếp tục.",
+    "Edit task file": "Chỉnh sửa file nhiệm vụ",
+    "Task file JSON": "Nội dung JSON nhiệm vụ",
+    "Save file changes": "Lưu thay đổi file",
+    "Close editor": "Đóng trình sửa",
+    "Edit the full task JSON, including custom recipes. Saving validates and updates this file; it does not run or change the active task.": "Sửa toàn bộ JSON nhiệm vụ, gồm công thức tùy chỉnh. Lưu sẽ kiểm tra và cập nhật file; không chạy hoặc thay đổi nhiệm vụ đang thực thi.",
+    "Discard unsaved file edits?": "Bỏ các chỉnh sửa file chưa lưu?",
+    "Task file saved. The active task was not changed.": "Đã lưu file nhiệm vụ. Nhiệm vụ đang chạy không bị thay đổi.",
+    "Task file changed elsewhere. Reopen it before saving; your edit was not written.": "File đã thay đổi ở nơi khác. Mở lại trước khi lưu; chỉnh sửa của bạn chưa được ghi.",
+    "Cannot read or save task file; existing file preserved.": "Không đọc hoặc lưu được file nhiệm vụ; giữ nguyên file hiện có."
   }
 }

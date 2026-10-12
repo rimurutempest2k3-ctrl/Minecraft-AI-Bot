@@ -105,6 +105,8 @@ Imported tasks can send chat and server commands when you run them. Review their
 
 Bot notifications appear in your Minecraft chat with the `[AI-bot]` prefix and are visible only on your client. Success messages are green, failures and blocked tasks are red, and other messages are white. To add your own notification, choose **Chat/command → Private notification** in the builder, or use a step with `"action": "local_chat"`, `"count": 1` and `"text": "Task finished"`. This step never sends a message or command to the server. The `chat` and `command` actions still send to the server.
 
+Select a file in the library and click **Edit task file** to edit its full JSON, including custom recipes. **Save file changes** validates and replaces only that file. Invalid edits and stale revisions are rejected; unsaved text remains in the editor. Saving does not start or modify an already-running task. Legacy `.json` filenames are retained when edited.
+
 ## Tiếng Việt
 
 Bộ đi kèm có đủ 1.056 công thức lưới vanilla 26.2. Công thức trong task ưu tiên trước file `core-data/task-recipes.json`, rồi mới tới bộ mặc định. File cũ thiếu công thức sẽ được bù khi đọc, không bị ghi đè. Giữ nhóm nguyên liệu, lựa chọn thay thế và dữ liệu thành phẩm. Nguyên liệu không đào được có thể cần bước săn/nung hoặc cung cấp trước. Bàn rèn, cắt đá và công thức đặc biệt không được thực thi bằng bước chế tạo lưới thông thường; công thức trả lại xô/chai và thay đổi riêng của server cần thử trong game.

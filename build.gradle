@@ -100,7 +100,7 @@ tasks.register('releaseZip', Zip) {
     from(tasks.named('jar')) { into 'mods' }
     from(project(':bot-common').tasks.named('jar')) { into 'tools'; rename { 'bot-console.jar' } }
     from({ zipTree(project(':bot-common').tasks.named('taskPack').get().archiveFile.get().asFile) })
-    from('release-tools')
+    from('release-tools') { exclude 'export-task-recipes.cjs' }
     from('README.md')
     from('THIRD_PARTY.md')
     from('CREDITS.md')

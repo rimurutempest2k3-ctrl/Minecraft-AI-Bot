@@ -66,7 +66,7 @@ function renderSupplies(plan){
     });
 }
 function previewWorkflow(){
-    const file=snapshot?.workflows?.files?.find(f=>f.filename===selectedWorkflow);
+    const file=snapshot?.workflows?.files?.find(f=>f.filename===selectedWorkflow); $('#edit-workflow').disabled=!file;
     text('#workflow-title',file?.title||'Select a task file');text('#workflow-description',file?(file.description+' · '+file.filename+' · '+(file.mode==='loop'?'Repeat continuously':file.mode==='collect'?'Collect requested quantity':'Ensure required stock')):'');
     $('#workflow-error').hidden=!file?.error;text('#workflow-error',file?.error||'');
     const box=$('#workflow-preview');box.replaceChildren();
@@ -125,3 +125,26 @@ $('#language-select').addEventListener('change',()=>action(async()=>{
 
 
 $('#interaction-method').addEventListener('change',()=>send('bot interaction '+$('#interaction-method').value));
+
+let taskEdit;
+async function taskFileRequest(payload){
+    const response=await fetch('/tasks/edit',{method:'POST',headers:{'Content-Type':'application/json','X-Bot-Request':'1'},body:JSON.stringify(payload)});
+    const result=await response.json();if(!response.ok)throw new Error(result.message||'Cannot read or save task file; existing file preserved.');return result;
+}
+$('#edit-workflow').addEventListener('click',()=>action(async()=>{
+    if(taskEdit && $('#task-edit-content').value!==taskEdit.content && !confirm('Discard unsaved file edits?'))return;
+    const file=await taskFileRequest({filename:selectedWorkflow});taskEdit=file;
+    text('#task-edit-title','Edit task file · '+file.filename);$('#task-edit-content').value=file.content;
+    $('#task-file-editor').hidden=false;text('#task-edit-feedback','');$('#task-edit-content').focus();
+}));
+$('#save-task-edit').addEventListener('click',()=>action(async()=>{
+    if(!taskEdit)return;
+    try {
+        taskEdit=await taskFileRequest({filename:taskEdit.filename,revision:taskEdit.revision,content:$('#task-edit-content').value});
+        text('#task-edit-feedback','Task file saved. The active task was not changed.');
+    } catch(error){text('#task-edit-feedback',error.message);throw error;}
+}));
+$('#close-task-edit').addEventListener('click',()=>{
+    if(taskEdit && $('#task-edit-content').value!==taskEdit.content && !confirm('Discard unsaved file edits?'))return;
+    taskEdit=null;$('#task-file-editor').hidden=true;$('#task-edit-content').value='';
+});

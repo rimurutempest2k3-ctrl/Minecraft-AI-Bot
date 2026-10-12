@@ -2,7 +2,9 @@
 
 <p align="center"><img src="assets/minecraft-ai-bot-logo.png" alt="Minecraft AI Bot logo" width="320"></p>
 
-A Minecraft Java client mod with Baritone navigation, ordered JSON tasks, nearby defense and auto eating, chest memory, optional AI control and a local web dashboard.
+A Minecraft Java client automation mod focused on reliable, ordered task chains. Create tasks visually on the local web dashboard or share `.taskbot` files to gather items, craft, smelt, travel, transfer chest items and interact with server menus. AI is optional; local tasks run without an API key.
+
+Version **1.2.0** develops the regular Fabric client as a task automation tool. Nearby defense and auto eating support assigned tasks. The console-only track is archived and is no longer developed.
 
 Press **F8** in game to open bot controls: Start, Pause, Resume and Stop. The shortcut can be reassigned in Minecraft Controls. Pause keeps local task progress; Stop cancels it. Web tasks also support **Repeat continuously**.
 
@@ -72,8 +74,10 @@ Licensed under [MIT](LICENSE). Forks and redistribution are welcome; retain the 
 
 ## Hướng dẫn tiếng Việt
 
-Mod hỗ trợ nhiệm vụ JSON, di chuyển/đào bằng Baritone, sinh tồn, bộ nhớ rương,
-AI tùy chọn và điều khiển trên web local.
+Mod tập trung tự động hóa chuỗi nhiệm vụ: tạo trên web hoặc chia sẻ file `.taskbot`
+để lấy vật phẩm, chế tạo, nung, di chuyển, lấy/cất đồ trong rương và thao tác menu server.
+AI là tùy chọn; nhiệm vụ local không cần API key. Bản 1.2.0 tiếp tục hướng Fabric client;
+bản console-only đã lưu trữ và không phát triển tiếp.
 
 1. Cài Minecraft 26.2 với Fabric Loader 0.19.5+, Java 25+, Fabric API và [Baritone API Fabric 1.19.0](https://github.com/cabaletta/baritone/releases/download/v1.19.0/baritone-api-fabric-1.19.0.jar).
 2. Chép các JAR vào `mods/` của đúng thư mục game trong launcher.

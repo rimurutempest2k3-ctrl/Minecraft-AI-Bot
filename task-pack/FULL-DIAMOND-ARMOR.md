@@ -1,6 +1,6 @@
 # Full diamond equipment
 
-Run `config/minecraft-ai-bot/tasks/full-diamond-armor.taskbot` with the updated 1.0.1 task runner. The filename is retained for compatibility; it now produces armor and tools.
+Run `config/minecraft-ai-bot/tasks/full-diamond-armor.taskbot` with the 1.2.0 task runner. The filename is retained for compatibility; it produces armor and tools.
 
 The task uses `"mode": "collect"`. It prepares food, wood, stone tools, a furnace and iron equipment, then gathers **35 additional diamonds** and crafts one new helmet, chestplate, leggings, boots, pickaxe, axe, shovel, sword and hoe. The five tools also need nine sticks, prepared through the embedded recipes as needed.
 

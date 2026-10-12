@@ -127,6 +127,24 @@ public final class WebConsole implements AutoCloseable {
                 } finally {commands.release();}
                 return;
             }
+            if(method.equals("POST") && path.equals("/tasks/edit")) {
+                if(!url().equals(headers.getFirst("Origin")) || !"1".equals(headers.getFirst("X-Bot-Request"))
+                        || !"application/json".equals(headers.getFirst("Content-Type"))) {reply(exchange,403,"Invalid request origin.");return;}
+                byte[] body=exchange.getRequestBody().readNBytes(1048577);
+                if(body.length>1048576) {reply(exchange,413,"Task file exceeds 256 KB");return;}
+                if(!commands.tryAcquire()){reply(exchange,429,"Previous command is processing; this command was not sent.");return;}
+                try {
+                    var root=JsonParser.parseString(new String(body,StandardCharsets.UTF_8)).getAsJsonObject();
+                    boolean update=root.keySet().equals(Set.of("filename","content","revision"));
+                    if(!update && !root.keySet().equals(Set.of("filename")))throw new IllegalArgumentException("Invalid task edit request.");
+                    for(var value:root.entrySet())if(!value.getValue().isJsonPrimitive() || !value.getValue().getAsJsonPrimitive().isString())throw new IllegalArgumentException("Invalid task edit request.");
+                    var file=update?TaskPresets.updateWorkflow(root.get("filename").getAsString(),root.get("content").getAsString(),root.get("revision").getAsString()):TaskPresets.readWorkflowFile(root.get("filename").getAsString());
+                    byte[] response=json.toJson(file).getBytes(StandardCharsets.UTF_8);
+                    exchange.getResponseHeaders().set("Content-Type","application/json; charset=utf-8");exchange.sendResponseHeaders(200,response.length);exchange.getResponseBody().write(response);
+                } catch(IllegalArgumentException|IOException failure) {reply(exchange,400,failure instanceof IllegalArgumentException?failure.getMessage():"Cannot read or save task file; existing file preserved.");}
+                finally {commands.release();}
+                return;
+            }
             if(method.equals("POST") && path.equals("/command")) {
                 if(!url().equals(headers.getFirst("Origin")) || !"1".equals(headers.getFirst("X-Bot-Request"))
                         || !"application/json".equals(headers.getFirst("Content-Type"))) {reply(exchange,403,"Invalid request origin.");return;}

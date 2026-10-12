@@ -227,6 +227,31 @@ public final class TaskPresets {
         return name!=null && name.matches("[a-z0-9][a-z0-9_-]{0,63}\\.(?:taskbot|json)");
     }
     /** Import data only: validate the existing task schema before creating a new library file. */
+    public record WorkflowFile(String filename,String content,String revision) {}
+    public static synchronized WorkflowFile readWorkflowFile(String filename) throws IOException {
+        if(!workflowFilename(filename))throw invalid("Invalid task filename");
+        Path originalDirectory=workflowDirectory(),directory=originalDirectory.toRealPath(),path=directory.resolve(filename);
+        if(!directory.startsWith(originalDirectory.getParent().toRealPath()))throw invalid("File is outside the task directory");
+        if(!Files.isRegularFile(path,LinkOption.NOFOLLOW_LINKS) || !path.toRealPath().getParent().equals(directory))throw invalid("File is outside the task directory");
+        if(Files.size(path)>262144)throw invalid("Task file exceeds 256 KB");
+        byte[] bytes=Files.readAllBytes(path);
+        if(bytes.length>262144)throw invalid("Task file exceeds 256 KB");
+        try {return new WorkflowFile(filename,new String(bytes,StandardCharsets.UTF_8),java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes)));}
+        catch(java.security.NoSuchAlgorithmException impossible) {throw new IllegalStateException(impossible);}
+    }
+    public static synchronized WorkflowFile updateWorkflow(String filename,String content,String revision) throws IOException {
+        if(content==null || content.getBytes(StandardCharsets.UTF_8).length>262144)throw invalid("Task file exceeds 256 KB");
+        var previous=readWorkflowFile(filename);
+        if(!previous.revision().equals(revision))throw invalid("Task file changed elsewhere. Reopen it before saving; your edit was not written.");
+        parseWorkflow(filename,content.startsWith("\uFEFF")?content.substring(1):content);
+        Path directory=workflowDirectory().toRealPath(),temporary=Files.createTempFile(directory,".edit-",".tmp");
+        try {
+            Files.writeString(temporary,content,StandardCharsets.UTF_8);
+            if(!readWorkflowFile(filename).revision().equals(revision))throw invalid("Task file changed elsewhere. Reopen it before saving; your edit was not written.");
+            Files.move(temporary,directory.resolve(filename),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);
+        } finally {Files.deleteIfExists(temporary);}
+        workflowCache.remove(filename);return readWorkflowFile(filename);
+    }
     public static synchronized Workflow importWorkflow(String uploadedName,String content) throws IOException {
         String name=uploadedName==null?null:uploadedName.toLowerCase(Locale.ROOT);
         if(!workflowFilename(name)) throw invalid("Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json");

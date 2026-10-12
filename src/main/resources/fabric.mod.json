@@ -3,7 +3,7 @@
   "id": "minecraft-ai-bot",
   "version": "${version}",
   "name": "Minecraft AI Bot",
-  "description": "A client automation mod with local JSON tasks, Baritone navigation, survival assistance, an optional multi-provider AI controller and a local web dashboard.",
+  "description": "A Minecraft client automation mod for ordered task chains, with a visual local web editor, Baritone navigation, crafting, smelting, chest transfers and server menu actions. AI and nearby survival assistance are optional.",
   "authors": [
     "rimurutempest2k3-ctrl"
   ],

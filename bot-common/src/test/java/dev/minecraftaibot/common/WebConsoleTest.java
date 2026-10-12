@@ -116,6 +116,21 @@ public final class WebConsoleTest {
             check(ids.containsAll(java.util.List.of("minecraft:oak_log","minecraft:diamond_pickaxe","minecraft:potion","minecraft:zombie_spawn_egg","minecraft:knowledge_book")));
             var internal=client.send(command(url,cookie,"{\"command\":\"@web snapshot\"}"),HttpResponse.BodyHandlers.ofString());
             check(internal.statusCode()==400);
+            var gson=new com.google.gson.Gson();
+            String editRequest="{\"filename\":\"starter-kit.taskbot\"}";
+            var denied=client.send(HttpRequest.newBuilder(URI.create(url+"/tasks/edit")).header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofString(editRequest)).build(),HttpResponse.BodyHandlers.ofString());
+            check(denied.statusCode()==401);
+            var read=client.send(edit(url,cookie,editRequest),HttpResponse.BodyHandlers.ofString());check(read.statusCode()==200);
+            var original=com.google.gson.JsonParser.parseString(read.body()).getAsJsonObject();
+            var task=com.google.gson.JsonParser.parseString(original.get("content").getAsString()).getAsJsonObject();task.addProperty("title","Edited task on web");
+            var update=original.deepCopy();update.addProperty("content",gson.toJson(task));
+            var saved=client.send(edit(url,cookie,gson.toJson(update)),HttpResponse.BodyHandlers.ofString());check(saved.statusCode()==200);
+            check(TaskPresets.workflow("starter-kit.taskbot").title().equals("Edited task on web"));
+            check(client.send(edit(url,cookie,gson.toJson(original)),HttpResponse.BodyHandlers.ofString()).statusCode()==400);
+            var latest=com.google.gson.JsonParser.parseString(saved.body()).getAsJsonObject();latest.addProperty("content","{broken");
+            check(client.send(edit(url,cookie,gson.toJson(latest)),HttpResponse.BodyHandlers.ofString()).statusCode()==400);
+            check(TaskPresets.workflow("starter-kit.taskbot").title().equals("Edited task on web"));
+            check(client.send(edit(url,cookie,"{\"filename\":\"../outside.taskbot\"}"),HttpResponse.BodyHandlers.ofString()).statusCode()==400);
         } finally {Files.deleteIfExists(endpoint);}
         System.out.println("All web console authentication, origin, commands, structured snapshots, UTF-8, SSE and lifecycle checks passed.");
     }
@@ -131,4 +146,9 @@ public final class WebConsoleTest {
                 .POST(HttpRequest.BodyPublishers.ofString(body,StandardCharsets.UTF_8)).build();
     }
     private static void check(boolean condition) {if(!condition) throw new AssertionError("Web console check failed");}
+    private static HttpRequest edit(String url,String cookie,String body) {
+        return HttpRequest.newBuilder(URI.create(url+"/tasks/edit")).header("Cookie",cookie).header("Origin",url)
+                .header("X-Bot-Request","1").header("Content-Type","application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body,StandardCharsets.UTF_8)).build();
+    }
 }

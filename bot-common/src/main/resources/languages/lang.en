@@ -1297,6 +1297,15 @@
     "No usable crafting recipe for the missing ingredient; supply it first.": "No usable crafting recipe for the missing ingredient; supply it first.",
     "No available items for ingredient group: ": "No available items for ingredient group: ",
     "Missing crafting ingredient: ": "Missing crafting ingredient: ",
-    ". Supply it before resuming.": ". Supply it before resuming."
+    ". Supply it before resuming.": ". Supply it before resuming.",
+    "Edit task file": "Edit task file",
+    "Task file JSON": "Task file JSON",
+    "Save file changes": "Save file changes",
+    "Close editor": "Close editor",
+    "Edit the full task JSON, including custom recipes. Saving validates and updates this file; it does not run or change the active task.": "Edit the full task JSON, including custom recipes. Saving validates and updates this file; it does not run or change the active task.",
+    "Discard unsaved file edits?": "Discard unsaved file edits?",
+    "Task file saved. The active task was not changed.": "Task file saved. The active task was not changed.",
+    "Task file changed elsewhere. Reopen it before saving; your edit was not written.": "Task file changed elsewhere. Reopen it before saving; your edit was not written.",
+    "Cannot read or save task file; existing file preserved.": "Cannot read or save task file; existing file preserved."
   }
 }
