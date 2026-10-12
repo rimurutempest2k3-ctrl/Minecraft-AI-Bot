@@ -93,7 +93,6 @@ public final class WebConsoleTest {
             check(failure.statusCode()==503 && !failure.body().contains("private diagnostic"));
         } finally {check(!Files.exists(endpoint));Files.deleteIfExists(directory);}
         try(var server=new WebConsole(endpoint,0,command->{
-            if(command.equals("@web items"))return "[{\"id\":\"minecraft:oak_log\",\"name\":\"Gỗ sồi\"}]";
             if(!command.equals("@web snapshot")) throw new AssertionError("Unexpected snapshot command");
             return "{\"name\":\"Bot kiểm tra\",\"features\":{\"survival\":true},\"ai\":{\"providers\":{\"groq\":{\"configured\":true}}},\"inventory\":[],\"chests\":{\"entries\":[]}}";
         })) {
@@ -108,8 +107,13 @@ public final class WebConsoleTest {
             check(data.statusCode()==200 && data.body().contains("Bot kiểm tra") && !data.body().contains("message"));
             check(com.google.gson.JsonParser.parseString(data.body()).getAsJsonObject().getAsJsonObject("features").get("survival").getAsBoolean());
             var items=client.send(HttpRequest.newBuilder(URI.create(url+"/items")).header("Cookie",cookie).GET().build(),HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            check(items.statusCode()==200 && items.body().contains("Gỗ sồi"));
-            check(com.google.gson.JsonParser.parseString(items.body()).getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString().equals("minecraft:oak_log"));
+            check(items.statusCode()==200);
+            var itemData=com.google.gson.JsonParser.parseString(items.body()).getAsJsonObject();
+            check(itemData.get("minecraftVersion").getAsString().equals("26.2"));
+            var itemEntries=itemData.getAsJsonArray("items");check(itemEntries.size()==1537);
+            var ids=new java.util.HashSet<String>();
+            for(var entry:itemEntries){var item=entry.getAsJsonObject();check(ids.add(item.get("id").getAsString()));check(!item.get("name").getAsString().isBlank()&&!item.get("nameVi").getAsString().isBlank());}
+            check(ids.containsAll(java.util.List.of("minecraft:oak_log","minecraft:diamond_pickaxe","minecraft:potion","minecraft:zombie_spawn_egg","minecraft:knowledge_book")));
             var internal=client.send(command(url,cookie,"{\"command\":\"@web snapshot\"}"),HttpResponse.BodyHandlers.ofString());
             check(internal.statusCode()==400);
         } finally {Files.deleteIfExists(endpoint);}

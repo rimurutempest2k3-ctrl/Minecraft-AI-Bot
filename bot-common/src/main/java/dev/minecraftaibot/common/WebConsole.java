@@ -83,9 +83,17 @@ public final class WebConsole implements AutoCloseable {
                 exchange.sendResponseHeaders(200,body.length);exchange.getResponseBody().write(body);return;
             }
             if(method.equals("GET") && path.equals("/events")) {stream(exchange);return;}
-            if(method.equals("GET") && (path.equals("/data") || path.equals("/items"))) {
+            if(method.equals("GET") && path.equals("/items")) {
+                try(var asset=WebConsole.class.getResourceAsStream("/core-data/items-26.2.json")) {
+                    if(asset==null){reply(exchange,503,"Item catalog unavailable.");return;}
+                    byte[] body=asset.readAllBytes();exchange.getResponseHeaders().set("Content-Type","application/json; charset=utf-8");
+                    exchange.sendResponseHeaders(200,body.length);exchange.getResponseBody().write(body);
+                }
+                return;
+            }
+            if(method.equals("GET") && path.equals("/data")) {
                 try {
-                    var snapshot=JsonParser.parseString(dispatch.apply(path.equals("/items")?"@web items":"@web snapshot"));
+                    var snapshot=JsonParser.parseString(dispatch.apply("@web snapshot")).getAsJsonObject();
                     byte[] body=json.toJson(snapshot).getBytes(StandardCharsets.UTF_8);
                     exchange.getResponseHeaders().set("Content-Type","application/json; charset=utf-8");
                     exchange.sendResponseHeaders(200,body.length);exchange.getResponseBody().write(body);

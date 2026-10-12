@@ -1233,6 +1233,11 @@
     "Item list unavailable; enter an ID manually or try again.": "Item list unavailable; enter an ID manually or try again.",
     "Showing up to 80 matches. Type more to narrow the list.": "Showing up to 80 matches. Type more to narrow the list.",
     "Loading item list…": "Loading item list…",
-    "Matching items": "Matching items"
+    "Matching items": "Matching items",
+    "Zoom in": "Zoom in",
+    "Reset zoom": "Reset zoom",
+    "Hold Ctrl and use the mouse wheel over the canvas to zoom.": "Hold Ctrl and use the mouse wheel over the canvas to zoom.",
+    "Fixed item catalog: Minecraft 26.2 · 1,537 items.": "Fixed item catalog: Minecraft 26.2 · 1,537 items.",
+    "Zoom out": "Zoom out"
   }
 }

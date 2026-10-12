@@ -37,15 +37,15 @@
     if(typeof module!=='undefined'&&module.exports){module.exports=api;return;}
     root.TaskBuilder=api;
     const q=s=>document.querySelector(s),field=name=>q('#builder-step').elements.namedItem(name);
-    let steps=[];
+    let steps=[],zoom=1;
     const pending=new Map();
     let itemCatalog;
     const searchKey=value=>String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/_/g,' ');
     async function catalog(){
         if(!itemCatalog)itemCatalog=fetch('/items').then(async response=>{
             if(!response.ok)throw new Error('Item list unavailable; enter an ID manually or try again.');
-            const data=await response.json();if(!Array.isArray(data))throw new Error('Item list unavailable; enter an ID manually or try again.');
-            return data.filter(item=>id(item.id)&&typeof item.name==='string').sort((a,b)=>a.name.localeCompare(b.name)).map(item=>({...item,key:searchKey(item.name+' '+item.id)}));
+            const data=await response.json();if(!Array.isArray(data.items))throw new Error('Item list unavailable; enter an ID manually or try again.');
+            return data.items.filter(item=>id(item.id)&&typeof item.name==='string').sort((a,b)=>a.name.localeCompare(b.name)).map(item=>({...item,key:searchKey(item.name+' '+(item.nameVi||'')+' '+item.id)}));
         }).catch(error=>{itemCatalog=null;throw error;});
         return itemCatalog;
     }
@@ -59,7 +59,7 @@
             const status=document.createElement('p');status.className='section-hint';status.setAttribute('role','status');
             const choose=button('Use selected item',()=>{if(!choices.value)return;target.value=choices.value;target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}));picker.open=false;});choose.disabled=true;
             let entries=[];
-            function filter(){const tokens=searchKey(search.value).trim().split(/\s+/).filter(Boolean),matches=entries.filter(item=>tokens.every(token=>item.key.includes(token)));choices.replaceChildren();for(const item of matches.slice(0,80)){const option=document.createElement('option');option.value=item.id;option.textContent=item.name+' · '+item.id;choices.append(option);}choices.selectedIndex=matches.length?0:-1;choose.disabled=!matches.length;status.textContent=matches.length?'Showing up to 80 matches. Type more to narrow the list.':'No matching items.';links();}
+            function filter(){const tokens=searchKey(search.value).trim().split(/\s+/).filter(Boolean),matches=entries.filter(item=>tokens.every(token=>item.key.includes(token)));choices.replaceChildren();for(const item of matches.slice(0,80)){const option=document.createElement('option');option.value=item.id;option.textContent=(root.BotLanguage?.language==='vi'?item.nameVi||item.name:item.name)+' · '+item.id;choices.append(option);}choices.selectedIndex=matches.length?0:-1;choose.disabled=!matches.length;status.textContent=matches.length?'Showing up to 80 matches. Type more to narrow the list.':'No matching items.';links();}
             picker.addEventListener('toggle',async()=>{if(!picker.open)return;status.textContent='Loading item list…';try{entries=await catalog();filter();}catch(error){status.textContent=error.message;}links();});
             search.addEventListener('input',event=>{event.stopPropagation();filter();});
             choices.addEventListener('input',event=>event.stopPropagation());
@@ -78,7 +78,7 @@
         input('count').disabled=controls.has(action);if(controls.has(action))input('count').value='1';
         input('count').closest('label').hidden=controls.has(action);
     }
-    function draft(){try{localStorage.setItem('minecraft-ai-bot-task-draft-v1',JSON.stringify({meta:meta(),steps}));}catch{}}
+    function draft(){try{localStorage.setItem('minecraft-ai-bot-task-draft-v1',JSON.stringify({meta:meta(),steps,zoom}));}catch{}}
     function resetStep(){q('#builder-step').reset();visibility();q('#builder-add').textContent='Add step';q('#builder-cancel-edit').hidden=true;}
     function button(text,fn,disabled=false){const b=document.createElement('button');b.type='button';b.className='action';b.textContent=text;b.disabled=disabled;b.addEventListener('click',fn);return b;}
     function nodeForm(step,i){
@@ -113,8 +113,19 @@
     function links(){
         const list=q('#builder-steps'),svg=list.querySelector('svg');if(!svg)return;
         const width=Math.max(900,steps.length*370+60),height=Math.max(500,...Array.from(list.querySelectorAll('.task-node'),node=>node.offsetHeight+60));list.style.width=width+'px';list.style.height=height+'px';svg.setAttribute('width',width);svg.setAttribute('height',height);svg.replaceChildren();
+        list.style.transform='scale('+zoom+')';const scale=q('#builder-scale');scale.style.width=width*zoom+'px';scale.style.height=height*zoom+'px';
+        q('#builder-zoom-value').textContent=Math.round(zoom*100)+'%';q('#builder-zoom-out').disabled=zoom<=0.4;q('#builder-zoom-in').disabled=zoom>=2;
         for(let i=1;i<steps.length;i++){const line=document.createElementNS(svg.namespaceURI,'line');line.setAttribute('x1',30+(i-1)*370+330);line.setAttribute('y1',52);line.setAttribute('x2',30+i*370);line.setAttribute('y2',52);svg.append(line);}
     }
+    function setZoom(value,anchor){
+        const viewport=q('.node-viewport'),rect=viewport.getBoundingClientRect(),x=anchor?anchor.x-rect.left:viewport.clientWidth/2,y=anchor?anchor.y-rect.top:viewport.clientHeight/2;
+        const worldX=(viewport.scrollLeft+x)/zoom,worldY=(viewport.scrollTop+y)/zoom;
+        zoom=Math.max(0.4,Math.min(2,Math.round(value*100)/100));links();viewport.scrollLeft=worldX*zoom-x;viewport.scrollTop=worldY*zoom-y;draft();
+    }
+    q('#builder-zoom-out').addEventListener('click',()=>setZoom(zoom-0.1));
+    q('#builder-zoom-in').addEventListener('click',()=>setZoom(zoom+0.1));
+    q('#builder-zoom-reset').addEventListener('click',()=>setZoom(1));
+    q('.node-viewport').addEventListener('wheel',event=>{if(!event.ctrlKey)return;event.preventDefault();const delta=event.deltaY||event.deltaX;if(delta)setZoom(zoom+(delta<0?0.1:-0.1),{x:event.clientX,y:event.clientY});},{passive:false});
     function savedNodes(){if(pending.size){feedback('Save changes in each task node first.');return false;}return true;}
     function move(i,delta){if(!savedNodes())return;const to=i+delta;[steps[i],steps[to]]=[steps[to],steps[i]];render();draft();}
     new ResizeObserver(links).observe(q('#builder-steps'));
@@ -142,6 +153,7 @@
     q('#builder-clear').addEventListener('click',()=>{if(!confirm('Clear this task draft?'))return;steps=[];pending.clear();q('#builder-meta').reset();resetStep();render();draft();feedback('Draft cleared.');});
     try{
         const raw=localStorage.getItem('minecraft-ai-bot-task-draft-v1');if(raw&&raw.length<=262144){const saved=JSON.parse(raw);if(Array.isArray(saved.steps)&&saved.steps.length<=100){
+            if(Number.isFinite(saved.zoom))zoom=Math.max(0.4,Math.min(2,saved.zoom));
             // Revalidate browser draft data instead of trusting storage.
             steps=saved.steps.map(step=>makeStep({...step,...step.chest,...step.menu,result:step.menu?.closed?'closed':'next'}));
             for(const [key,value]of Object.entries(saved.meta||{})){const input=q('#builder-meta').elements.namedItem(key);if(input&&typeof value==='string')input.value=value;}
