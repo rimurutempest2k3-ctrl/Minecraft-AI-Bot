@@ -20,6 +20,74 @@ import net.minecraft.world.phys.*;
 /** Validated vanilla PICKUP clicks; the server supplies and consumes the recipe result. */
 final class ProductionController {
     private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot");
+    /** Shared one-shot opening gate for storage and production blocks. */
+    static final class BlockOpening {
+        private static java.nio.file.Path settingsFile;
+        private static String method="mouse";
+        static String method() {return method;}
+        static void initialize(java.nio.file.Path directory) throws java.io.IOException {
+            settingsFile=directory.resolve("interaction.json");
+            if(java.nio.file.Files.exists(settingsFile)) {
+                var json=com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(settingsFile)).getAsJsonObject();
+                String value=json.get("method").getAsString();
+                if(!Set.of("mouse","minecraft").contains(value))throw new java.io.IOException("Invalid block interaction method.");
+                method=value;
+            }
+        }
+        static String configure(String value) {
+            if(!Set.of("mouse","minecraft").contains(value))return "Choose mouse or minecraft interaction.";
+            try {
+                java.nio.file.Files.createDirectories(settingsFile.getParent());
+                java.nio.file.Files.writeString(settingsFile,"{\"method\":\""+value+"\"}\n");method=value;
+                return "Block interaction method saved: "+value;
+            } catch(java.io.IOException failure) {return "Cannot save block interaction settings.";}
+        }
+        private final LocalPlayer owner;
+        private final ClientLevel world;
+        private final BlockPos target;
+        private final Block block;
+        private final Vec3 point;
+        private final ItemStack held;
+        private final boolean mouse;
+        private final long deadline=System.nanoTime()+5_000_000_000L;
+        private int aligned;
+        private boolean sent,queued;
+        BlockOpening(Minecraft client,BlockHitResult hit) {
+            owner=client.player;world=client.level;target=hit.getBlockPos().immutable();block=world.getBlockState(target).getBlock();
+            point=hit.getLocation().lerp(Vec3.atCenterOf(target),0.01);mouse=method.equals("mouse");
+            held=owner.getMainHandItem().copy();
+        }
+        boolean sent() {return sent;}
+        BlockPos target() {return target;}
+        void cancel(Minecraft client) {if(queued){client.options.keyUse.consumeClick();queued=false;}}
+        void tick(Minecraft client) {
+            cancel(client);
+            if(sent)return;
+            if(client.player!=owner || client.level!=world || !owner.isAlive() || client.gameMode==null
+                    || client.gui.screen()!=null || owner.containerMenu!=owner.inventoryMenu || owner.isSecondaryUseActive()
+                    || !owner.containerMenu.getCarried().isEmpty() || !ItemStack.matches(held,owner.getMainHandItem())
+                    || !world.hasChunkAt(target) || !world.getBlockState(target).is(block))throw new IllegalArgumentException("Block opening state changed; no click sent.");
+            if(System.nanoTime()>deadline)throw new IllegalArgumentException("Could not aim at the block before opening.");
+            Vec3 delta=point.subtract(owner.getEyePosition());
+            float yaw=(float)Math.toDegrees(Math.atan2(delta.z,delta.x))-90;
+            float pitch=(float)-Math.toDegrees(Math.atan2(delta.y,Math.hypot(delta.x,delta.z)));
+            owner.setYRot(owner.getYRot()+net.minecraft.util.Mth.clamp(net.minecraft.util.Mth.wrapDegrees(yaw-owner.getYRot()),-15f,15f));
+            owner.setXRot(net.minecraft.util.Mth.clamp(owner.getXRot()+net.minecraft.util.Mth.clamp(pitch-owner.getXRot(),-10f,10f),-90f,90f));
+            if(Math.abs(net.minecraft.util.Mth.wrapDegrees(yaw-owner.getYRot()))>2 || Math.abs(pitch-owner.getXRot())>2){aligned=0;return;}
+            if(++aligned<2)return;
+            Vec3 eye=owner.getEyePosition();
+            var ray=world.clip(new ClipContext(eye,eye.add(owner.getLookAngle().scale(owner.blockInteractionRange())),ClipContext.Block.OUTLINE,ClipContext.Fluid.NONE,owner));
+            if(ray.getType()!=HitResult.Type.BLOCK || !ray.getBlockPos().equals(target)
+                    || !(client.hitResult instanceof BlockHitResult actual) || actual.getType()!=HitResult.Type.BLOCK
+                    || !actual.getBlockPos().equals(target) || eye.distanceToSqr(actual.getLocation())>Math.pow(owner.blockInteractionRange(),2))return;
+            if(client.options.keyUse.isDown() || owner.isUsingItem())throw new IllegalArgumentException("Release the use key before opening the block.");
+            if(mouse) {
+                if(client.options.keyUse.isUnbound())throw new IllegalArgumentException("Use key is unbound in Minecraft settings.");
+                net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.getKey(client.options.keyUse.saveString()));queued=true;
+            } else {client.gameMode.useItemOn(owner,InteractionHand.MAIN_HAND,actual);owner.swing(InteractionHand.MAIN_HAND);}
+            sent=true;
+        }
+    }
     private AbstractCraftingMenu menu;
     private List<ChestTransferPlan.Step> steps;
     private List<ChestTransferPlan.Stack> expected;
@@ -369,6 +437,7 @@ final class ProductionController {
         private ItemStack input, fuel, output;
         private Block block;
         private BlockPos target;
+        private BlockOpening opening;
         private ProductionPlan.Smelt plan;
         private long deadline, phaseDeadline, mismatchSince, lastProgress;
         private int lastCooked;
@@ -485,8 +554,8 @@ final class ProductionController {
             if(owner.isSecondaryUseActive()) throw new IllegalArgumentException("Release the sneak key before opening furnace.");
             movement.stop();
             for(int i=0;i<9;i++) if(owner.getInventory().getNonEquipmentItems().get(i).isEmpty()) {owner.getInventory().setSelectedSlot(i);break;}
-            client.gameMode.useItemOn(owner,InteractionHand.MAIN_HAND,hit);
-            phase(Phase.OPEN,8);announce("Opening furnace at "+target.toShortString());
+            opening=new BlockOpening(client,hit);
+            phase(Phase.OPEN,12);announce("Opening furnace at "+target.toShortString());
         }
         private boolean correctMenu(AbstractFurnaceMenu value) {
             return switch(machine) {case "furnace" -> value instanceof FurnaceMenu;case "blast_furnace" -> value instanceof BlastFurnaceMenu;case "smoker" -> value instanceof SmokerMenu;default -> false;};
@@ -546,6 +615,7 @@ final class ProductionController {
                     return;
                 }
                 if(phase==Phase.OPEN) {
+                    opening.tick(client);if(!opening.sent())return;
                     if(!(owner.containerMenu instanceof AbstractFurnaceMenu opened)) return;
                     if(!correctMenu(opened) || opened.slots.size()!=39) throw new IllegalArgumentException("Incorrect furnace menu type.");
                     for(int i=3;i<39;i++) if(opened.getSlot(i).container!=owner.getInventory()) throw new IllegalArgumentException("Nonstandard inventory menu.");
@@ -597,6 +667,7 @@ final class ProductionController {
             } catch(RuntimeException failure) {cancel(client,"Smelting stopped: "+(failure instanceof IllegalArgumentException?failure.getMessage():"Cannot interact with furnace menu."));}
         }
         void cancel(Minecraft client,String reason) {
+            if(opening!=null) {opening.cancel(client);opening=null;}
             if(active) {
                 active=false;steps=null;movement.stop();placement.cancel("Furnace placement step canceled.");
                 if(client.player==owner && client.level==world) {

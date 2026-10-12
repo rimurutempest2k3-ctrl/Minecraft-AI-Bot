@@ -1281,6 +1281,18 @@
     "Cannot load the requested chest area; check connection and coordinates.": "Cannot load the requested chest area; check connection and coordinates.",
     "No chest at the requested coordinates or within 10 blocks after loading the area.": "No chest at the requested coordinates or within 10 blocks after loading the area.",
     "Chest resolved at ": "Chest resolved at ",
-    "; approaching to open.": "; approaching to open."
+    "; approaching to open.": "; approaching to open.",
+    "Block opening method": "Block opening method",
+    "Right-click key": "Right-click key",
+    "Minecraft interaction": "Minecraft interaction",
+    "Both methods aim at the block before opening. Saved for the next game session.": "Both methods aim at the block before opening. Saved for the next game session.",
+    "Choose mouse or minecraft interaction.": "Choose mouse or minecraft interaction.",
+    "Block interaction method saved: ": "Block interaction method saved: ",
+    "Cannot save block interaction settings.": "Cannot save block interaction settings.",
+    "Wait for the current action to finish before changing interaction settings.": "Wait for the current action to finish before changing interaction settings.",
+    "Block opening state changed; no click sent.": "Block opening state changed; no click sent.",
+    "Could not aim at the block before opening.": "Could not aim at the block before opening.",
+    "Release the use key before opening the block.": "Release the use key before opening the block.",
+    "Use key is unbound in Minecraft settings.": "Use key is unbound in Minecraft settings."
   }
 }

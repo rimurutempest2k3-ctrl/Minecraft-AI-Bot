@@ -32,6 +32,7 @@ final class LocalTaskRunner {
     private final BaritoneController movement;
     private final Consumer<String> notify;
     private final ProductionController crafting=new ProductionController();
+    private ProductionController.BlockOpening tableOpening;
     private final ProductionController.BlockPlacement placement;
     private final ProductionController.FurnaceRun furnace;
     private int foodFallbackStep=-1,foodFallbackStage;
@@ -80,6 +81,7 @@ final class LocalTaskRunner {
     }
     void suspendForSurvival() {
         if(!active || suspended)return;
+        if(tableOpening!=null) {tableOpening.cancel(Minecraft.getInstance());tableOpening=null;}
         suspended=true;suspendedAt=System.nanoTime();safeSince=0;productionRecovery=phase==Phase.SMELT;
         releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();if(chest.busy())chest.cancel();
         furnace.cancel(Minecraft.getInstance(),"Smelting suspended; recover loaded items before resuming the task.");
@@ -432,8 +434,9 @@ final class LocalTaskRunner {
                 return;
             }
             if(phase==Phase.OPEN) {
-                if(owner.containerMenu instanceof CraftingMenu) change(Phase.PLAN,"Crafting table opened.");
-                else if(System.nanoTime()-phaseStarted>5_000_000_000L) block("Could not open crafting table; check server permissions.");
+                tableOpening.tick(client);
+                if(tableOpening.sent() && owner.containerMenu instanceof CraftingMenu) {tableOpening=null;change(Phase.PLAN,"Crafting table opened.");}
+                else if(System.nanoTime()-phaseStarted>10_000_000_000L) block("Could not open crafting table; check server permissions.");
                 return;
             }
             if(phase==Phase.APPROACH) {
@@ -663,8 +666,7 @@ final class LocalTaskRunner {
         // Vanilla TryEmptyHandInteraction invokes useWithoutItem only for MAIN_HAND.
         // Prefer an empty hotbar slot; the vanilla table also opens with an occupied main hand.
         for(int i=0;i<9;i++) if(inventory().get(i).isEmpty()) {owner.getInventory().setSelectedSlot(i);break;}
-        var result=client.gameMode.useItemOn(owner,InteractionHand.MAIN_HAND,hit);
-        LOG.info("Open crafting table at {} with MAIN_HAND: {}",hit.getBlockPos().toShortString(),result);
+        movement.stop();tableOpening=new ProductionController.BlockOpening(client,hit);
         change(Phase.OPEN,"Local: opening crafting table with main hand.");
     }
     private void placeTable(Minecraft client) {
@@ -683,6 +685,7 @@ final class LocalTaskRunner {
         return result;
     }
     void cancel(String reason) {
+        if(tableOpening!=null) {tableOpening.cancel(Minecraft.getInstance());tableOpening=null;}
         if(!active) return;active=false;suspended=false;productionRecovery=false;manualHold=false;if(starter!=null)workflowState="CANCELLED";releaseHunting(Minecraft.getInstance());restoreShallow();movement.stop();furnace.cancel(Minecraft.getInstance(),"Local task smelting canceled.");placement.cancel("Local task table placement canceled.");crafting.cancel(Minecraft.getInstance());
         if(owner!=null && Minecraft.getInstance().player==owner) owner.getInventory().setSelectedSlot(oldSelected);
         status=reason+" If items remain on the crafting grid/cursor, store them; items will not be dropped automatically.";LOG.warn("{}",status);notify.accept(status);

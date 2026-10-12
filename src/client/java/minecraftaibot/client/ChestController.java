@@ -53,6 +53,7 @@ final class ChestController {
     private int arrivedTicks;
     private BlockPos requestedChest;
     private long loadWaitUntil;
+    private ProductionController.BlockOpening opening;
     ChestController(BotCore bot, BaritoneController movement, ChestController.MemoryObserver observer, Consumer<String> notifyConsole) {
         this.observer = observer;
         this.bot = bot; this.movement = movement; this.stopMovement = movement::stop; this.notifyConsole = notifyConsole;
@@ -161,10 +162,8 @@ final class ChestController {
         var inventory=client.player.getInventory().getNonEquipmentItems();
         for(int i=0;i<9;i++) if(inventory.get(i).isEmpty()) {client.player.getInventory().setSelectedSlot(i);break;}
         stopMovement.run(); owner = client.player; world = client.level;
-        observer.interaction(client, hit.getBlockPos());
-        var result=client.gameMode.useItemOn(owner, InteractionHand.MAIN_HAND, hit);
-        org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot").info("Open chest at {} with MAIN_HAND: {}",hit.getBlockPos().toShortString(),result);
-        openingUntil = System.nanoTime() + 5_000_000_000L;
+        opening=new ProductionController.BlockOpening(client,hit);
+        openingUntil = System.nanoTime() + 10_000_000_000L;
         status = "Waiting to open chest at " + hit.getBlockPos().toShortString();
         return status + ". Once opened, use bot chest list.";
     }
@@ -252,7 +251,11 @@ final class ChestController {
             return;
         }
         if (openingUntil != 0) {
-            if (owner.containerMenu instanceof ChestMenu) { openingUntil = 0; status = "Chest opened. Use bot chest list."; notifyConsole.accept(status); }
+            try {
+                boolean sent=opening.sent();opening.tick(client);
+                if(!sent && opening.sent()) {observer.interaction(client,opening.target());openingUntil=System.nanoTime()+5_000_000_000L;}
+            } catch(IllegalArgumentException failure) {abandon(failure.getMessage());return;}
+            if (opening.sent() && owner.containerMenu instanceof ChestMenu) { openingUntil = 0; opening=null;status = "Chest opened. Use bot chest list."; notifyConsole.accept(status); }
             else if (System.nanoTime() > openingUntil) abandon("Could not open chest within 5 seconds; check obstacles, locks or permissions.");
             return;
         }
@@ -286,6 +289,7 @@ final class ChestController {
         abandon("Chest action canceled. Store cursor items in an empty slot; the mod will not drop them.");
     }
     private void abandon(String message) {
+        if(opening!=null) {opening.cancel(Minecraft.getInstance());opening=null;}
         if (approaching != null) stopMovement.run();
         approaching = null; requestedChest=null;loadWaitUntil=0;openingUntil = 0; steps = null; status = message; notifyConsole.accept(message);
     }

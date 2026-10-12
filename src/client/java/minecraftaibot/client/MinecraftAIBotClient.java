@@ -127,6 +127,10 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             return movement.webSetting(input.substring(17));
         }
         String normalized=input.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
+        if(normalized.startsWith("bot interaction ")) {
+            if(survival.busy() || localTasks.busy() || furnace.busy() || placement.busy() || chest.busy())return "Wait for the current action to finish before changing interaction settings.";
+            return ProductionController.BlockOpening.configure(normalized.substring(16));
+        }
         // Display preferences must never interrupt an AI/local/survival task.
         if(normalized.equals("bot language") || normalized.startsWith("bot language "))return commands.execute(input);
         if(normalized.equals("bot workflow resume"))return localTasks.resumeSaved(Minecraft.getInstance(),survival.safeForTaskResume(Minecraft.getInstance()),true);
@@ -312,6 +316,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         Minecraft client=Minecraft.getInstance();var data=new com.google.gson.JsonObject();var gson=new com.google.gson.Gson();
         data.addProperty("inWorld",client.player!=null && client.level!=null);data.addProperty("state",bot.state().name());
         data.addProperty("language",I18n.language());
+        data.addProperty("interactionMethod",ProductionController.BlockOpening.method());
         var features=new java.util.TreeMap<String,Boolean>();features.put("ai",agent!=null && agent.autoEnabled());features.put("combat",survival.webFeatures().get("combat"));
         data.add("features",gson.toJsonTree(features));data.add("baritone",movement.webSettings());
         data.add("starter",localTasks.starterSnapshot(client));
@@ -389,6 +394,8 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         });
         try {I18n.initialize(FabricLoader.getInstance().getConfigDir().resolve("minecraft-ai-bot"));}
         catch(java.io.IOException failure) {LOG.error("Could not initialize languages; bundled catalogs remain available",failure);}
+        try {ProductionController.BlockOpening.initialize(FabricLoader.getInstance().getConfigDir().resolve("minecraft-ai-bot"));}
+        catch(java.io.IOException|RuntimeException failure) {LOG.error("Could not initialize interaction settings; using mouse clicks",failure);}
         net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents.CHAT.register((message,signed,sender,params,time)->{
             WebConsole browser=web;if(browser!=null) browser.publish(message.getString(),WebConsole.Channel.CHAT);
         });

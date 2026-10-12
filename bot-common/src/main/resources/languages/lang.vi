@@ -1281,6 +1281,18 @@
     "Cannot load the requested chest area; check connection and coordinates.": "Không tải được vùng rương chỉ định; kiểm tra kết nối và tọa độ.",
     "No chest at the requested coordinates or within 10 blocks after loading the area.": "Không có rương ở tọa độ chỉ định hoặc trong 10 khối quanh đó sau khi tải vùng.",
     "Chest resolved at ": "Đã xác định rương tại ",
-    "; approaching to open.": "; đang tiến lại để mở."
+    "; approaching to open.": "; đang tiến lại để mở.",
+    "Block opening method": "Cách mở block",
+    "Right-click key": "Phím chuột phải",
+    "Minecraft interaction": "Tương tác Minecraft",
+    "Both methods aim at the block before opening. Saved for the next game session.": "Cả hai cách đều ngắm block trước khi mở. Lưu cho lần chơi sau.",
+    "Choose mouse or minecraft interaction.": "Chọn cách tương tác mouse hoặc minecraft.",
+    "Block interaction method saved: ": "Đã lưu cách tương tác block: ",
+    "Cannot save block interaction settings.": "Không lưu được cài đặt tương tác block.",
+    "Wait for the current action to finish before changing interaction settings.": "Chờ thao tác hiện tại kết thúc trước khi đổi cách tương tác.",
+    "Block opening state changed; no click sent.": "Trạng thái mở block đã thay đổi; chưa gửi thao tác bấm.",
+    "Could not aim at the block before opening.": "Không ngắm được block trước khi mở.",
+    "Release the use key before opening the block.": "Thả phím sử dụng trước khi mở block.",
+    "Use key is unbound in Minecraft settings.": "Chưa gán phím sử dụng trong cài đặt Minecraft."
   }
 }
