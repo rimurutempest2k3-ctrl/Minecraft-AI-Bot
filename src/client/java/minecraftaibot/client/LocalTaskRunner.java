@@ -525,7 +525,7 @@ final class LocalTaskRunner {
             change(Phase.TRAVEL,"Traveling to "+target.x()+", "+target.y()+", "+target.z());return;
         }
         if(step.action().equals("local_chat")) {
-            client.gui.hud.getChat().addClientSystemMessage(net.minecraft.network.chat.Component.literal("[Minecraft AI Bot] "+step.text()));
+            client.gui.hud.getChat().addClientSystemMessage(MinecraftAIBotClient.chatNotification(step.text(),false));
             controlDone[supplyIndex]=true;change(Phase.PLAN,"Private notification displayed; checking next step.");return;
         }
         if(step.action().equals("chat") || step.action().equals("command")) {

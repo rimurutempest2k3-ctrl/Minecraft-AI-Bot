@@ -163,6 +163,17 @@ public class MinecraftAIBotClient implements ClientModInitializer {
     }
     private String lastLocalMessage="";
     private long lastLocalMessageAt;
+    private static final java.util.regex.Pattern CHAT_FAILURE=java.util.regex.Pattern.compile(
+            "(?i)\\b(?:cannot|could not|failed|failure|error|timed out|rejected|not confirmed|not enough|unable to)\\b|Task progress saved\\. Resolve the cause|AI task stopped:|Action ended;|server corrected|HTTP [45]\\d\\d");
+    private static final java.util.regex.Pattern CHAT_SUCCESS=java.util.regex.Pattern.compile(
+            "(?i)\\b(?:completed|confirmed|crafted|collected|placed|opened|saved|remembered|equipped|destination reached)\\b|^Enough ");
+    static net.minecraft.network.chat.Component chatNotification(String message,boolean translate) {
+        var color=translate && CHAT_FAILURE.matcher(message).find()?net.minecraft.ChatFormatting.RED:
+                translate && CHAT_SUCCESS.matcher(message).find()?net.minecraft.ChatFormatting.GREEN:net.minecraft.ChatFormatting.WHITE;
+        return net.minecraft.network.chat.Component.literal("[AI-bot] ")
+                .withStyle(net.minecraft.ChatFormatting.GRAY)
+                .append(net.minecraft.network.chat.Component.literal(translate?I18n.text(message):message).withStyle(color));
+    }
     private void notifyLocalChat(String message) {
         if(message==null || message.isBlank())return;
         Minecraft client=Minecraft.getInstance();
@@ -170,7 +181,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             if(client.player==null)return;
             long now=System.nanoTime();if(message.equals(lastLocalMessage) && now-lastLocalMessageAt<10_000_000_000L)return;
             lastLocalMessage=message;lastLocalMessageAt=now;
-            client.gui.hud.getChat().addClientSystemMessage(net.minecraft.network.chat.Component.literal("[Minecraft AI Bot] "+I18n.text(message)));
+            client.gui.hud.getChat().addClientSystemMessage(chatNotification(message,true));
         });
     }
     private void notifyConsole(String message) {

@@ -95,11 +95,11 @@ Adapt titles, slots, item IDs and commands to your server. Menu slots start at *
 
 Imported tasks can send chat and server commands when you run them. Review their steps first; avoid putting passwords or API keys in shared task files.
 
-Bot notifications appear in your Minecraft chat with the `[Minecraft AI Bot]` prefix and are visible only on your client. To add your own notification, choose **Chat/command → Private notification** in the builder, or use a step with `"action": "local_chat"`, `"count": 1` and `"text": "Task finished"`. This step never sends a message or command to the server. The `chat` and `command` actions still send to the server.
+Bot notifications appear in your Minecraft chat with the `[AI-bot]` prefix and are visible only on your client. Success messages are green, failures and blocked tasks are red, and other messages are white. To add your own notification, choose **Chat/command → Private notification** in the builder, or use a step with `"action": "local_chat"`, `"count": 1` and `"text": "Task finished"`. This step never sends a message or command to the server. The `chat` and `command` actions still send to the server.
 
 ## Tiếng Việt
 
-Thông báo bot hiển thị trong chat Minecraft với tiền tố `[Minecraft AI Bot]`, chỉ bạn thấy. Để thêm thông báo vào nhiệm vụ, chọn **Chat/lệnh → Thông báo riêng**. Bước `local_chat` dùng `count: 1` và `text`, không gửi lên server. Các bước `chat` và `command` vẫn gửi lên server như trước.
+Thông báo bot hiển thị trong chat Minecraft với tiền tố `[AI-bot]`, chỉ bạn thấy. Thành công màu xanh, lỗi hoặc nhiệm vụ bị chặn màu đỏ; thông báo khác màu trắng. Để thêm thông báo vào nhiệm vụ, chọn **Chat/lệnh → Thông báo riêng**. Bước `local_chat` dùng `count: 1` và `text`, không gửi lên server. Các bước `chat` và `command` vẫn gửi lên server như trước.
 
 Chọn file `.taskbot` và khởi chạy trên web. Các bước chạy theo thứ tự và kiểm tra kết quả trước khi chuyển tiếp. Tự ăn và đánh trả trong 4 khối chỉ ngắt tạm thời; không tự đi săn, nhặt đồ hay tìm rương.
 
