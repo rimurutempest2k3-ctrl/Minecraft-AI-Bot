@@ -1236,9 +1236,9 @@
     "Matching items": "Vật phẩm phù hợp",
     "Zoom in": "Phóng to",
     "Reset zoom": "Về 100%",
-    "Hold Ctrl and use the mouse wheel over the canvas to zoom.": "Giữ Ctrl và lăn chuột trên vùng sơ đồ để zoom.",
     "Fixed item catalog: Minecraft 26.2 · 1,537 items.": "Danh sách cố định: Minecraft 26.2 · 1.537 vật phẩm.",
     "Zoom out": "Thu nhỏ",
-    "Hold Shift and use the mouse wheel over the canvas to scroll horizontally.": "Giữ Shift và lăn chuột trên vùng sơ đồ để cuộn trái/phải."
+    "Hold Shift and use the mouse wheel over the canvas to scroll horizontally.": "Giữ Shift và lăn chuột trên vùng sơ đồ để cuộn trái/phải.",
+    "Use the − / + buttons to zoom; Reset zoom returns to 100%.": "Dùng nút − / + để zoom; Về 100% để trở lại kích thước mặc định."
   }
 }
