@@ -1221,6 +1221,9 @@
     "Add 1–100 steps and choose a task mode.": "Add 1–100 steps and choose a task mode.",
     "A task can contain at most 100 steps.": "A task can contain at most 100 steps.",
     "Task library is full (100 files).": "Task library is full (100 files).",
-    "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.": "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order."
+    "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.": "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.",
+    "Add a step": "Add a step",
+    "Unsaved changes": "Unsaved changes",
+    "Save changes in each task node first.": "Save changes in each task node first."
   }
 }

@@ -1221,6 +1221,9 @@
     "Add 1–100 steps and choose a task mode.": "Thêm 1–100 bước và chọn chế độ nhiệm vụ.",
     "A task can contain at most 100 steps.": "Nhiệm vụ có tối đa 100 bước.",
     "Task library is full (100 files).": "Thư viện nhiệm vụ đã đầy (100 file).",
-    "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.": "Các khối xếp cố định thành một hàng. Đường thẳng thể hiện thứ tự thực thi; dùng Chuyển lên hoặc Chuyển xuống để đổi thứ tự."
+    "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.": "Các khối xếp cố định thành một hàng. Đường thẳng thể hiện thứ tự thực thi; dùng Chuyển lên hoặc Chuyển xuống để đổi thứ tự.",
+    "Add a step": "Thêm một bước",
+    "Unsaved changes": "Thay đổi chưa lưu",
+    "Save changes in each task node first.": "Hãy lưu thay đổi trong từng khối nhiệm vụ trước."
   }
 }
