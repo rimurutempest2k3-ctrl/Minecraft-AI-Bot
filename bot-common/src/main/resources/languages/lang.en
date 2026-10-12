@@ -1224,6 +1224,15 @@
     "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.": "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.",
     "Add a step": "Add a step",
     "Unsaved changes": "Unsaved changes",
-    "Save changes in each task node first.": "Save changes in each task node first."
+    "Save changes in each task node first.": "Save changes in each task node first.",
+    "Search by item name or ID…": "Search by item name or ID…",
+    "Search items": "Search items",
+    "No matching items.": "No matching items.",
+    "Choose from item list": "Choose from item list",
+    "Use selected item": "Use selected item",
+    "Item list unavailable; enter an ID manually or try again.": "Item list unavailable; enter an ID manually or try again.",
+    "Showing up to 80 matches. Type more to narrow the list.": "Showing up to 80 matches. Type more to narrow the list.",
+    "Loading item list…": "Loading item list…",
+    "Matching items": "Matching items"
   }
 }

@@ -1224,6 +1224,15 @@
     "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.": "Các khối xếp cố định thành một hàng. Đường thẳng thể hiện thứ tự thực thi; dùng Chuyển lên hoặc Chuyển xuống để đổi thứ tự.",
     "Add a step": "Thêm một bước",
     "Unsaved changes": "Thay đổi chưa lưu",
-    "Save changes in each task node first.": "Hãy lưu thay đổi trong từng khối nhiệm vụ trước."
+    "Save changes in each task node first.": "Hãy lưu thay đổi trong từng khối nhiệm vụ trước.",
+    "Search by item name or ID…": "Tìm theo tên vật phẩm hoặc ID…",
+    "Search items": "Tìm vật phẩm",
+    "No matching items.": "Không có vật phẩm phù hợp.",
+    "Choose from item list": "Chọn trong danh sách vật phẩm",
+    "Use selected item": "Dùng vật phẩm đã chọn",
+    "Item list unavailable; enter an ID manually or try again.": "Chưa tải được danh sách; nhập ID thủ công hoặc thử lại.",
+    "Showing up to 80 matches. Type more to narrow the list.": "Hiện tối đa 80 kết quả. Gõ thêm để lọc danh sách.",
+    "Loading item list…": "Đang tải danh sách vật phẩm…",
+    "Matching items": "Vật phẩm phù hợp"
   }
 }

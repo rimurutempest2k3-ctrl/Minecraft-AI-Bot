@@ -93,17 +93,23 @@ public final class WebConsoleTest {
             check(failure.statusCode()==503 && !failure.body().contains("private diagnostic"));
         } finally {check(!Files.exists(endpoint));Files.deleteIfExists(directory);}
         try(var server=new WebConsole(endpoint,0,command->{
+            if(command.equals("@web items"))return "[{\"id\":\"minecraft:oak_log\",\"name\":\"Gỗ sồi\"}]";
             if(!command.equals("@web snapshot")) throw new AssertionError("Unexpected snapshot command");
             return "{\"name\":\"Bot kiểm tra\",\"features\":{\"survival\":true},\"ai\":{\"providers\":{\"groq\":{\"configured\":true}}},\"inventory\":[],\"chests\":{\"entries\":[]}}";
         })) {
             String url=server.url();
             var noAuth=client.send(HttpRequest.newBuilder(URI.create(url+"/data")).GET().build(),HttpResponse.BodyHandlers.ofString());
             check(noAuth.statusCode()==401);
+            var noItems=client.send(HttpRequest.newBuilder(URI.create(url+"/items")).GET().build(),HttpResponse.BodyHandlers.ofString());
+            check(noItems.statusCode()==401);
             var page=client.send(HttpRequest.newBuilder(URI.create(url)).GET().build(),HttpResponse.BodyHandlers.ofString());
             String cookie=page.headers().firstValue("Set-Cookie").orElseThrow().split(";")[0];
             var data=client.send(HttpRequest.newBuilder(URI.create(url+"/data")).header("Cookie",cookie).GET().build(),HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             check(data.statusCode()==200 && data.body().contains("Bot kiểm tra") && !data.body().contains("message"));
             check(com.google.gson.JsonParser.parseString(data.body()).getAsJsonObject().getAsJsonObject("features").get("survival").getAsBoolean());
+            var items=client.send(HttpRequest.newBuilder(URI.create(url+"/items")).header("Cookie",cookie).GET().build(),HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            check(items.statusCode()==200 && items.body().contains("Gỗ sồi"));
+            check(com.google.gson.JsonParser.parseString(items.body()).getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString().equals("minecraft:oak_log"));
             var internal=client.send(command(url,cookie,"{\"command\":\"@web snapshot\"}"),HttpResponse.BodyHandlers.ofString());
             check(internal.statusCode()==400);
         } finally {Files.deleteIfExists(endpoint);}

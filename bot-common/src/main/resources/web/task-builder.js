@@ -39,6 +39,35 @@
     const q=s=>document.querySelector(s),field=name=>q('#builder-step').elements.namedItem(name);
     let steps=[];
     const pending=new Map();
+    let itemCatalog;
+    const searchKey=value=>String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/_/g,' ');
+    async function catalog(){
+        if(!itemCatalog)itemCatalog=fetch('/items').then(async response=>{
+            if(!response.ok)throw new Error('Item list unavailable; enter an ID manually or try again.');
+            const data=await response.json();if(!Array.isArray(data))throw new Error('Item list unavailable; enter an ID manually or try again.');
+            return data.filter(item=>id(item.id)&&typeof item.name==='string').sort((a,b)=>a.name.localeCompare(b.name)).map(item=>({...item,key:searchKey(item.name+' '+item.id)}));
+        }).catch(error=>{itemCatalog=null;throw error;});
+        return itemCatalog;
+    }
+    function itemPickers(form){
+        form.querySelectorAll('.item-picker').forEach(el=>el.remove());
+        for(const name of ['item','input','expectedItem']){
+            const target=form.elements.namedItem(name),picker=document.createElement('details');picker.className='item-picker';
+            const heading=document.createElement('summary');heading.textContent='Choose from item list';
+            const search=document.createElement('input');search.type='search';search.placeholder='Search by item name or ID…';search.setAttribute('aria-label','Search items');
+            const choices=document.createElement('select');choices.size=6;choices.setAttribute('aria-label','Matching items');choices.dataset.noI18n='';
+            const status=document.createElement('p');status.className='section-hint';status.setAttribute('role','status');
+            const choose=button('Use selected item',()=>{if(!choices.value)return;target.value=choices.value;target.dispatchEvent(new Event('input',{bubbles:true}));target.dispatchEvent(new Event('change',{bubbles:true}));picker.open=false;});choose.disabled=true;
+            let entries=[];
+            function filter(){const tokens=searchKey(search.value).trim().split(/\s+/).filter(Boolean),matches=entries.filter(item=>tokens.every(token=>item.key.includes(token)));choices.replaceChildren();for(const item of matches.slice(0,80)){const option=document.createElement('option');option.value=item.id;option.textContent=item.name+' · '+item.id;choices.append(option);}choices.selectedIndex=matches.length?0:-1;choose.disabled=!matches.length;status.textContent=matches.length?'Showing up to 80 matches. Type more to narrow the list.':'No matching items.';links();}
+            picker.addEventListener('toggle',async()=>{if(!picker.open)return;status.textContent='Loading item list…';try{entries=await catalog();filter();}catch(error){status.textContent=error.message;}links();});
+            search.addEventListener('input',event=>{event.stopPropagation();filter();});
+            choices.addEventListener('input',event=>event.stopPropagation());
+            search.addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();choose.click();}});
+            choices.addEventListener('dblclick',()=>choose.click());
+            picker.append(heading,search,choices,choose,status);const label=target.closest('label');picker.dataset.builderActions=target.closest('[data-builder-actions]').dataset.builderActions;label.after(picker);
+        }
+    }
     function feedback(value){q('#builder-feedback').textContent=value;}
     function values(){return Object.fromEntries(new FormData(q('#builder-step')));}
     function meta(){return Object.fromEntries(new FormData(q('#builder-meta')));}
@@ -55,6 +84,7 @@
     function nodeForm(step,i){
         const form=q('#builder-step').cloneNode(true);form.removeAttribute('id');form.reset();
         form.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+        form.querySelectorAll('.item-picker').forEach(el=>el.remove());
         form.querySelector('button[type="button"]').remove();
         const submit=form.querySelector('button[type="submit"]');submit.textContent='Save step';
         const data=pending.get(step)||{...step,...step.chest,...step.menu,result:step.menu?.closed?'closed':'next'};
@@ -64,7 +94,7 @@
         form.addEventListener('input',()=>{pending.set(step,Object.fromEntries(new FormData(form)));status.textContent='Unsaved changes';});
         form.addEventListener('change',()=>{visibility(form);links();});
         form.addEventListener('submit',event=>{event.preventDefault();try{steps[i]=makeStep(Object.fromEntries(new FormData(form)));pending.delete(step);render();draft();feedback('Step saved in the draft.');}catch(error){status.textContent=error.message;}});
-        visibility(form);return form;
+        itemPickers(form);visibility(form);return form;
     }
     function render(){
         const list=q('#builder-steps');list.replaceChildren();q('#builder-step-count').textContent=steps.length+' / 100';
@@ -117,5 +147,5 @@
             for(const [key,value]of Object.entries(saved.meta||{})){const input=q('#builder-meta').elements.namedItem(key);if(input&&typeof value==='string')input.value=value;}
         }}
     }catch{steps=[];feedback('Could not restore the draft; start a new task.');}
-    visibility();render();
+    itemPickers(q('#builder-step'));visibility();render();
 })(globalThis);

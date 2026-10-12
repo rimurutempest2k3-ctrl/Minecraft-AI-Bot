@@ -283,6 +283,17 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         }
         return item;
     }
+    private String webItems() {
+        var items=new com.google.gson.JsonArray();
+        for(var item:BuiltInRegistries.ITEM) {
+            String id=BuiltInRegistries.ITEM.getKey(item).toString();
+            if(id.equals("minecraft:air"))continue;
+            var entry=new com.google.gson.JsonObject();entry.addProperty("id",id);
+            entry.addProperty("name",item.getName(new net.minecraft.world.item.ItemStack(item)).getString());items.add(entry);
+        }
+        return items.toString();
+    }
+
     private String webSnapshot() {
         Minecraft client=Minecraft.getInstance();var data=new com.google.gson.JsonObject();var gson=new com.google.gson.Gson();
         data.addProperty("inWorld",client.player!=null && client.level!=null);data.addProperty("state",bot.state().name());
@@ -410,7 +421,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
                     client.execute(() -> {
                         if(result.isCancelled()) return;
                         try {
-                            String response = input.equals("@web snapshot")?webSnapshot():consoleCommand(input);
+                            String response = input.equals("@web items")?webItems():input.equals("@web snapshot")?webSnapshot():consoleCommand(input);
                             result.complete(response);
                         } catch (RuntimeException failure) {
                             result.completeExceptionally(failure);
