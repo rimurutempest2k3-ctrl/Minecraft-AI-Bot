@@ -12,7 +12,7 @@ The mode applies to mining, crafting, cooking food and smelting. `collect` snaps
 
 In `ensure`, existing equipment and `skipIf` conditions can skip steps, and a satisfied final `goal` can skip the whole workflow. In `collect`, existing items do not skip steps: `skipIf` and the already-owned `goal` shortcut are ignored, including for tools and armor. A nearby furnace can still be reused for smelting, but a `craft` step requesting more furnaces crafts additional blocks.
 
-Use `ensure` for equipment preparation and restocking. Use `collect` for gathering an additional batch. The example `collect-wood.taskbot` requests 16 additional logs. Starting a task again in `collect` creates fresh baselines and requests another batch.
+Use `ensure` for equipment preparation and restocking. Use `collect` for gathering an additional batch. Starting a task again in `collect` creates fresh baselines and requests another batch.
 
 The web preview shows the mode. Execution progress shows current stock for `ensure`/`loop` and net additions for `collect`. In `loop`, each step advances when its required stock is met; chest transfers, messages and menu actions still execute their explicit quantities once per round. Use the 1.2.0 JAR for loop tasks and the in-game controls.
 
@@ -29,4 +29,4 @@ Thêm một dòng ở đầu file:
 
 Mốc đếm của `collect` được chốt khi bắt đầu từng bước. Đồ bị dùng hoặc mất trong bước đó sẽ làm giảm tiến độ; công thức tạo theo bó có thể cho dư một ít. Khởi chạy lại task sẽ yêu cầu một đợt mới.
 
-File cũ không ghi `mode` vẫn chạy như `ensure`. Task bộ giáp và công cụ kim cương dùng `collect` để chế thêm một bộ mới. File mẫu `collect-wood.taskbot` dùng `collect` để thu thêm 16 gỗ.
+File cũ không ghi `mode` vẫn chạy như `ensure`. Dùng `collect` khi muốn thu thêm số lượng mới thay vì bổ sung cho đủ. Gói chỉ chứa `example.taskbot`; tự tạo nhiệm vụ phù hợp trên web.

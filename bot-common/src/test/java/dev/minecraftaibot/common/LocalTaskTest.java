@@ -10,10 +10,19 @@ public final class LocalTaskTest {
         try {
             var empty=java.nio.file.Files.createTempDirectory("bot-no-embedded-tasks");
             TaskPresets.initialize(empty.resolve("local-tasks.json"));
-            check(TaskPresets.workflows().size()==7);
+            check(TaskPresets.workflows().size()==1 && TaskPresets.workflow("example.taskbot").plan().steps().getFirst().action().equals("local_chat"));
             check(java.nio.file.Files.exists(empty.resolve("local-tasks.json")));
             check(java.nio.file.Files.exists(empty.resolve("production-tasks.json")));
-            check(java.nio.file.Files.exists(empty.resolve("tasks/starter-kit.taskbot")));
+            check(java.nio.file.Files.exists(empty.resolve("tasks/example.taskbot")));
+            check(!java.nio.file.Files.exists(empty.resolve("tasks/starter-kit.taskbot")));
+            for(String name:List.of("minecraft-recipes-26.2.json","furnace-rules-26.2.json","task-recipes.json","mining-rules.json")) {
+                var core=empty.resolve("core-data").resolve(name);
+                check(java.nio.file.Files.isRegularFile(core) && java.nio.file.Files.size(core)>0);
+                var original=java.nio.file.Files.readString(core);java.nio.file.Files.delete(core);
+                TaskPresets.initialize(empty.resolve("local-tasks.json"));check(java.nio.file.Files.readString(core).equals(original));
+                java.nio.file.Files.writeString(core,"customized data");TaskPresets.initialize(empty.resolve("local-tasks.json"));
+                check(java.nio.file.Files.readString(core).equals("customized data"));java.nio.file.Files.writeString(core,original);
+            }
             check(!TaskPresets.catalog().tasks().isEmpty());check(!ProductionPlan.tasks().isEmpty());
             var customized=empty.resolve("tasks/full-diamond-armor.taskbot");
             java.nio.file.Files.writeString(customized,"custom content");
@@ -23,7 +32,7 @@ public final class LocalTaskTest {
             check(java.nio.file.Files.readString(empty.resolve("local-tasks.json")).equals("invalid custom catalog"));
             java.nio.file.Files.delete(customized);java.nio.file.Files.delete(empty.resolve("local-tasks.json"));
             TaskPresets.initialize(empty.resolve("local-tasks.json"));
-            check(TaskPresets.workflow("full-diamond-armor.taskbot").mode().equals("collect"));
+            check(!java.nio.file.Files.exists(empty.resolve("tasks/full-diamond-armor.taskbot")));
             installFixtures(empty);
             TaskPresets.initialize(empty.resolve("local-tasks.json"));
         } catch(java.io.IOException e) {throw new AssertionError(e);}
@@ -146,7 +155,7 @@ public final class LocalTaskTest {
             check(TaskPresets.miningCommand("extra_wood").equals("bot mine minecraft:spruce_log 9"));
             TaskPresets.initialize(file);check(TaskPresets.catalog().require("extra_wood").quantity()==9);
             var workflowFolder=TaskPresets.workflowDirectory();
-            check(TaskPresets.workflows().stream().filter(w->w.error()==null).count()==7);
+            check(TaskPresets.workflows().stream().filter(w->w.error()==null).count()==8); // One shipped example plus seven synthetic regression inputs.
             var furnaceTask=TaskPresets.workflow("furnace.json");
             check(furnaceTask.goal().item().equals("minecraft:furnace"));
             check(!furnaceTask.goal().satisfied(0) && furnaceTask.goal().satisfied(1) && furnaceTask.goal().satisfied(3));
@@ -165,10 +174,10 @@ public final class LocalTaskTest {
             }
             check(TaskPresets.workflow("food.json").plan().steps().getFirst().action().equals("food"));
             // Missing defaults are restored, but a legacy JSON task prevents a duplicate default.
-            java.nio.file.Files.delete(workflowFolder.resolve("wood.taskbot"));TaskPresets.initialize(file);
-            check(java.nio.file.Files.exists(workflowFolder.resolve("wood.taskbot")));
-            java.nio.file.Files.move(workflowFolder.resolve("wood.taskbot"),workflowFolder.resolve("wood.json"));
-            TaskPresets.initialize(file);check(!java.nio.file.Files.exists(workflowFolder.resolve("wood.taskbot")));
+            java.nio.file.Files.delete(workflowFolder.resolve("example.taskbot"));TaskPresets.initialize(file);
+            check(java.nio.file.Files.exists(workflowFolder.resolve("example.taskbot")));
+            java.nio.file.Files.move(workflowFolder.resolve("example.taskbot"),workflowFolder.resolve("example.json"));
+            TaskPresets.initialize(file);check(!java.nio.file.Files.exists(workflowFolder.resolve("example.taskbot")));
             // Shared recipes do not depend on the starter mission existing.
             java.nio.file.Files.delete(workflowFolder.resolve("starter-kit.taskbot"));
             check(TaskPresets.workflow("food.json").plan().recipes().containsKey("furnace"));
@@ -289,7 +298,7 @@ public final class LocalTaskTest {
         }
     }
     private static void verifyDiamondWorkflow() {
-        try(var source=LocalTaskTest.class.getResourceAsStream("/task-fixtures/tasks/full-diamond-armor.taskbot")) {
+        try(var source=new java.io.ByteArrayInputStream(TaskTestFixtures.task("full-diamond-armor.taskbot").getBytes(java.nio.charset.StandardCharsets.UTF_8))) {
             check(source!=null);
             String json=new String(source.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8);
             var workflow=TaskPresets.parseWorkflow("full-diamond-armor.taskbot",json);
@@ -336,9 +345,10 @@ public final class LocalTaskTest {
         }catch(java.io.IOException e) {throw new AssertionError(e);}
     }
     static void installFixtures(java.nio.file.Path directory) throws java.io.IOException {
-        for(String name:List.of("local-tasks.json","production-tasks.json","core-data/task-recipes.json","core-data/mining-rules.json","tasks/starter-kit.json","tasks/food.json","tasks/wood.json","tasks/cobblestone.json","tasks/furnace.json")) {
+        for(String name:List.of("local-tasks.json","production-tasks.json","core-data/task-recipes.json","core-data/mining-rules.json","tasks/starter-kit.json","tasks/food.json","tasks/wood.json","tasks/cobblestone.json","tasks/furnace.json","tasks/full-diamond-armor.taskbot","tasks/collect-wood.taskbot")) {
             String resource=name.startsWith("tasks/")?name.replace(".json",".taskbot"):name;
             var target=directory.resolve(resource);java.nio.file.Files.createDirectories(target.getParent());
+            if(resource.startsWith("tasks/")) {java.nio.file.Files.writeString(target,TaskTestFixtures.task(resource.substring(6)));continue;}
             try(var source=LocalTaskTest.class.getResourceAsStream("/task-fixtures/"+resource)) {
                 if(source==null)throw new java.io.IOException("Missing test fixture: "+name);
                 java.nio.file.Files.copy(source,target,java.nio.file.StandardCopyOption.REPLACE_EXISTING);
@@ -374,7 +384,7 @@ public final class LocalTaskTest {
             java.nio.file.Files.writeString(folder.resolve("task-recipes.json"),custom);
             TaskPresets.initialize(file);
             check(java.nio.file.Files.readString(folder.resolve("core-data/task-recipes.json")).equals(custom));
-            check(TaskPresets.starter().recipes().containsKey("vanilla_diamond_helmet"));
+            check(TaskPresets.workflow("example.taskbot").plan().recipes().containsKey("vanilla_diamond_helmet"));
             check(java.nio.file.Files.exists(folder.resolve("task-recipes.json")));
             check(TaskPresets.catalog().preparations().equals(current.preparations()));
             java.nio.file.Files.writeString(folder.resolve("task-recipes.json"),"changed legacy");

@@ -35,7 +35,7 @@ Keep API keys in the game's `config/minecraft-ai-bot/secrets.properties` private
 
 Tasks support `"mode": "ensure"` to replenish missing stock, or `"mode": "collect"` to gather an additional quantity. Older files default to `ensure`. See [Task modes](https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot/blob/main/task-pack/TASK-MODES.md).
 
-The task pack includes `full-diamond-armor.taskbot`: prepare food and tools, smelt iron, make iron equipment, then collect 35 additional diamonds and craft all four armor pieces plus a pickaxe, axe, shovel, sword and hoe. This task uses collect mode to create a new set. See [Diamond armor task](https://github.com/rimurutempest2k3-ctrl/Minecraft-AI-Bot/blob/main/task-pack/FULL-DIAMOND-ARMOR.md). The complete in-game workflow is still awaiting verification.
+The task pack contains only `example.taskbot`, a minimal private-notification example. The earlier experimental tasks are no longer distributed. Create your own tasks on the web or edit the example.
 
 The optional Windows console uses `bot-console.bat` and `tools/` from the release
 package, placed in the game directory. Run `.\bot-console.bat` in PowerShell.
@@ -54,7 +54,7 @@ If a step fails, its progress is held as `BLOCKED`. Resolve the cause, recover i
 | `bot info` | View player and bot status |
 | `bot inventory` | View inventory |
 | `bot workflow list` | List task files |
-| `bot workflow run furnace.taskbot` | Run the furnace task |
+| `bot workflow run example.taskbot` | Run the example task |
 | `bot stop` | Stop the bot and cancel its current task |
 
 ## Build from source
@@ -88,7 +88,7 @@ Nhiệm vụ ở `config/minecraft-ai-bot/tasks/`. Bấm Duyệt file nhiệm v�
 Nhiệm vụ local không cần API. Đổi ngôn ngữ và lưu API key trong Cài đặt.
 Có thể dùng các lệnh trong bảng trên. Dùng `bot stop` để hủy nhiệm vụ.
 
-Thêm `"mode": "ensure"` để bổ sung cho đủ, hoặc `"mode": "collect"` để thu thêm số lượng yêu cầu. File cũ mặc định `ensure`. Gói có task chế thêm đủ giáp và năm công cụ kim cương bằng chế độ collect, hỗ trợ nung sắt và thu 35 kim cương mới. Đã kiểm tra tự động; chuỗi giáp kim cương còn cần thử hoàn tất trong game.
+Thêm `"mode": "ensure"` để bổ sung cho đủ, hoặc `"mode": "collect"` để thu thêm số lượng yêu cầu. File cũ mặc định `ensure`. Gói chỉ chứa `example.taskbot` để minh họa thông báo riêng. Các nhiệm vụ thử nghiệm cũ không còn được phân phối; tạo task trên web hoặc chỉnh sửa ví dụ.
 
 Console là tùy chọn: đặt `bot-console.bat` và `tools/` vào thư mục game, rồi chạy
 `.\bot-console.bat`. Bản đã đóng gói không cần IntelliJ hay Gradle.

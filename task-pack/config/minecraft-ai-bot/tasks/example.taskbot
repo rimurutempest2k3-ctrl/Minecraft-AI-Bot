@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "mode": "ensure",
+  "title": "Example task",
+  "description": "A minimal example that displays a private notification. Edit this file or create your own task on the web.",
+  "steps": [
+    {
+      "label": "Display a private notification",
+      "action": "local_chat",
+      "count": 1,
+      "text": "Example task completed."
+    }
+  ]
+}
