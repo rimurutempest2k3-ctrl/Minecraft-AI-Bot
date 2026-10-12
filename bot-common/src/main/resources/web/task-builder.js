@@ -30,7 +30,7 @@
         if(!/^[a-z0-9][a-z0-9_-]{0,63}\.taskbot$/.test(filename))throw new Error('Filename: use 1–64 letters, digits, hyphens or underscores.');
         const title=String(meta.title||'').trim(),description=String(meta.description||'');
         if(!title||title.length>160||description.length>1000)throw new Error('Enter a task title and a description up to 1000 characters.');
-        if(!['ensure','collect'].includes(meta.mode)||!steps.length||steps.length>64)throw new Error('Add 1–64 steps and choose a task mode.');
+        if(!['ensure','collect'].includes(meta.mode)||!steps.length||steps.length>100)throw new Error('Add 1–100 steps and choose a task mode.');
         return {filename,task:{version:1,mode:meta.mode,title,description,steps:JSON.parse(JSON.stringify(steps))}};
     }
     const api={makeStep,documentFor};
@@ -54,26 +54,37 @@
         resetStep();editing=index;const step=steps[index],data={...step,...step.chest,...step.menu};
         if(step.menu)data.result=step.menu.closed?'closed':'next';
         for(const [key,value]of Object.entries(data)){const input=field(key);if(input&&typeof value!=='object')input.value=value;}
-        visibility();q('#builder-add').textContent='Save step';q('#builder-cancel-edit').hidden=false;q('#builder-step').scrollIntoView({block:'nearest'});
+        visibility();q('#builder-add').textContent='Save step';q('#builder-cancel-edit').hidden=false;
+        q('#builder-steps').querySelectorAll('.task-node').forEach((node,i)=>node.classList.toggle('selected',i===index));
     }
     function button(text,fn,disabled=false){const b=document.createElement('button');b.type='button';b.className='action';b.textContent=text;b.disabled=disabled;b.addEventListener('click',fn);return b;}
     function render(){
-        const list=q('#builder-steps');list.replaceChildren();q('#builder-step-count').textContent=steps.length+' / 64';
+        const list=q('#builder-steps');list.replaceChildren();q('#builder-step-count').textContent=steps.length+' / 100';
+        const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.classList.add('node-links');svg.setAttribute('aria-hidden','true');list.append(svg);
         steps.forEach((step,i)=>{
-            const row=document.createElement('div');row.className='step';const body=document.createElement('div');body.style.flex='1';
+            const row=document.createElement('article');row.className='task-node'+(editing===i?' selected':'');const body=document.createElement('div');
             const title=document.createElement('b');title.textContent=(i+1)+'. '+step.label;title.dataset.noI18n='';
             const detail=document.createElement('small'),actionName=document.createElement('span'),value=document.createElement('span');actionName.textContent=names[step.action];value.textContent=' · '+(step.item||step.text||step.menu?.title)+(controls.has(step.action)?'':' ×'+step.count);value.dataset.noI18n='';detail.append(actionName,value);
             body.append(title,detail);const tools=document.createElement('div');tools.className='actions';
-            tools.append(button('Edit step',()=>loadStep(i)),button('Move up',()=>move(i,-1),i===0),button('Move down',()=>move(i,1),i===steps.length-1),button('Duplicate step',()=>{if(steps.length>=64)return;steps.splice(i+1,0,JSON.parse(JSON.stringify(step)));if(editing>i)editing++;render();draft();},steps.length>=64),button('Remove step',()=>{steps.splice(i,1);if(editing===i)resetStep();else if(editing>i)editing--;render();draft();}));
-            row.append(body,tools);list.append(row);
+            tools.append(button('Edit step',()=>loadStep(i)),button('Move up',()=>move(i,-1),i===0),button('Move down',()=>move(i,1),i===steps.length-1),button('Duplicate step',()=>{if(steps.length>=100)return;steps.splice(i+1,0,JSON.parse(JSON.stringify(step)));if(editing>i)editing++;render();draft();},steps.length>=100),button('Remove step',()=>{steps.splice(i,1);if(editing===i)resetStep();else if(editing>i)editing--;render();draft();}));
+            const handle=document.createElement('button');handle.type='button';handle.className='node-handle';handle.textContent=(i+1)+'. '+step.label;handle.dataset.noI18n='';handle.addEventListener('click',()=>loadStep(i));
+            title.remove();row.append(handle,body,tools);list.append(row);
+            place(row,{x:30+i*310,y:60});
         });
         if(!steps.length){const p=document.createElement('p');p.className='notice';p.textContent='No steps yet. Add the first action below.';list.append(p);}
-        try{q('#builder-json').textContent=JSON.stringify(documentFor(meta(),steps).task,null,2);}catch{q('#builder-json').textContent='';}
+        links();try{q('#builder-json').textContent=JSON.stringify(documentFor(meta(),steps).task,null,2);}catch{q('#builder-json').textContent='';}
+    }
+    function place(node,p){node.style.left=p.x+'px';node.style.top=p.y+'px';}
+    function links(){
+        const list=q('#builder-steps'),svg=list.querySelector('svg');if(!svg)return;
+        const width=Math.max(900,steps.length*310+60),height=430;list.style.width=width+'px';list.style.height=height+'px';svg.setAttribute('width',width);svg.setAttribute('height',height);svg.replaceChildren();
+        for(let i=1;i<steps.length;i++){const a={x:30+(i-1)*310,y:60},b={x:30+i*310,y:60},line=document.createElementNS(svg.namespaceURI,'line');line.setAttribute('x1',a.x+270);line.setAttribute('y1',a.y+22);line.setAttribute('x2',b.x);line.setAttribute('y2',b.y+22);svg.append(line);}
     }
     function move(i,delta){const to=i+delta;[steps[i],steps[to]]=[steps[to],steps[i]];if(editing===i)editing=to;else if(editing===to)editing=i;render();draft();}
+    new ResizeObserver(links).observe(q('#builder-steps'));
     field('action').addEventListener('change',visibility);field('result').addEventListener('change',visibility);
     q('#builder-step').addEventListener('submit',event=>{event.preventDefault();try{
-        const step=makeStep(values());if(editing<0){if(steps.length>=64)throw new Error('A task can contain at most 64 steps.');steps.push(step);}else steps[editing]=step;
+        const step=makeStep(values());if(editing<0){if(steps.length>=100)throw new Error('A task can contain at most 100 steps.');steps.push(step);}else steps[editing]=step;
         resetStep();render();draft();feedback('Step saved in the draft.');
     }catch(error){feedback(error.message);}});
     q('#builder-cancel-edit').addEventListener('click',resetStep);
@@ -94,7 +105,7 @@
     }));
     q('#builder-clear').addEventListener('click',()=>{if(!confirm('Clear this task draft?'))return;steps=[];q('#builder-meta').reset();resetStep();render();draft();feedback('Draft cleared.');});
     try{
-        const raw=localStorage.getItem('minecraft-ai-bot-task-draft-v1');if(raw&&raw.length<=262144){const saved=JSON.parse(raw);if(Array.isArray(saved.steps)&&saved.steps.length<=64){
+        const raw=localStorage.getItem('minecraft-ai-bot-task-draft-v1');if(raw&&raw.length<=262144){const saved=JSON.parse(raw);if(Array.isArray(saved.steps)&&saved.steps.length<=100){
             // Revalidate browser draft data instead of trusting storage.
             steps=saved.steps.map(step=>makeStep({...step,...step.chest,...step.menu,result:step.menu?.closed?'closed':'next'}));
             for(const [key,value]of Object.entries(saved.meta||{})){const input=q('#builder-meta').elements.namedItem(key);if(input&&typeof value==='string')input.value=value;}

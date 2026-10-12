@@ -183,7 +183,7 @@ public final class TaskPresets {
             var result=new ArrayList<Workflow>();
             Path sharedFile=file.resolveSibling("core-data").resolve("task-recipes.json");
             String shared=Files.exists(sharedFile)?Files.getLastModifiedTime(sharedFile).toString()+Files.size(sharedFile):"absent";
-            for(Path path:paths.filter(p->p.getFileName().toString().endsWith(".json") || p.getFileName().toString().endsWith(".taskbot")).sorted().limit(64).toList()) {
+            for(Path path:paths.filter(p->p.getFileName().toString().endsWith(".json") || p.getFileName().toString().endsWith(".taskbot")).sorted().limit(100).toList()) {
                 String filename=path.getFileName().toString();
                 try {
                     String stamp=shared+Files.getLastModifiedTime(path,LinkOption.NOFOLLOW_LINKS)+Files.size(path);
@@ -210,7 +210,7 @@ public final class TaskPresets {
         Path directory=workflowDirectory();
         if(!directory.toRealPath().startsWith(directory.getParent().toRealPath())) throw invalid("File is outside the task directory");
         try(var entries=Files.list(directory)) {
-            if(entries.filter(p->workflowFilename(p.getFileName().toString())).count()>=64) throw invalid("Task library is full (64 files).");
+            if(entries.filter(p->workflowFilename(p.getFileName().toString())).count()>=100) throw invalid("Task library is full (100 files).");
         }
         // Write a complete temporary file before publishing it; never replace an existing task/symlink.
         Path target=directory.resolve(name);
@@ -253,7 +253,7 @@ public final class TaskPresets {
             validateKeys(root,Set.of("version","steps","recipes"));exactNumbers(root);
             if(root.get("version").getAsInt()!=1) throw invalid("Invalid starter version");
             Starter s=new Gson().fromJson(root,Starter.class);
-            if(s.steps()==null || s.steps().isEmpty() || s.steps().size()>64) throw invalid("Invalid starter step count");
+            if(s.steps()==null || s.steps().isEmpty() || s.steps().size()>100) throw invalid("Invalid starter step count");
             // Reuse the existing strict recipe validator.
             var wrapper=JsonParser.parseString("{\"version\":1,\"tasks\":{\"kit\":{\"label\":\"kit\",\"goal\":\"minecraft:stone\",\"resultItem\":\"minecraft:cobblestone\",\"quantity\":1}},\"preparations\":{}}").getAsJsonObject();
             wrapper.add("recipes",root.get("recipes"));parse(wrapper.toString());

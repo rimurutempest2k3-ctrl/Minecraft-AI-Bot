@@ -2,6 +2,8 @@
 
 Choose a `.taskbot` file on the web and run it. The content is JSON. Steps execute in order, and the next step starts only after its result is checked. Existing `mine`, `craft`, `smelt` and `food` steps remain supported.
 
+The editor displays fixed nodes on a grid connected by straight lines. Click a node to edit it in the side panel. Scroll horizontally to reach later steps; moving nodes up/down changes execution order. A chain supports up to 100 steps, and the library supports up to 100 files.
+
 To create a file without writing JSON, open **Tasks & progress → Create task**. Enter a title, filename and mode; add each step with its item ID, quantity or menu/chest details. Edit, duplicate or move steps up/down to arrange the sequence. Save the step being edited before saving the task. **Save to task library** validates the complete file through the mod, adds it to the library and never starts it automatically or replaces an existing file. Choose a new filename if it already exists. **Download .taskbot** exports the draft for sharing; the mod still validates it when imported. Saved draft steps and task details are kept in this browser. Custom recipe definitions still require editing the task file directly.
 
 Auto eating and defense against mobs within 4 blocks temporarily suspend the chain. They do not start autonomous hunting, looting or retreat. The chain resumes after the intervention ends and the crafting grid/cursor is empty. You can toggle nearby defense with `bot survival combat on/off`.

@@ -56,6 +56,11 @@ public final class LocalTaskTest {
         String starterJson=new Gson().toJson(starter);
         var starterRoot=JsonParser.parseString(starterJson).getAsJsonObject();starterRoot.addProperty("version",1);
         check(TaskPresets.parseStarter(starterRoot.toString()).steps().size()==10);
+        var longChain=starterRoot.deepCopy();var hundred=new JsonArray();
+        for(int i=0;i<100;i++)hundred.add(starterRoot.getAsJsonArray("steps").get(1).deepCopy());
+        longChain.add("steps",hundred);check(TaskPresets.parseStarter(longChain.toString()).steps().size()==100);
+        hundred.add(hundred.get(0).deepCopy());
+        try {TaskPresets.parseStarter(longChain.toString());throw new AssertionError("101 steps accepted");} catch(IllegalArgumentException expected) {}
         starterRoot.getAsJsonArray("steps").get(0).getAsJsonObject().addProperty("action","console");
         try {TaskPresets.parseStarter(starterRoot.toString());throw new AssertionError("Unsafe action accepted");} catch(IllegalArgumentException expected) {}
         starterRoot.getAsJsonArray("steps").get(0).getAsJsonObject().addProperty("action","mine");

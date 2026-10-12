@@ -1109,7 +1109,6 @@
     "Task import failed.": "Không nhập được nhiệm vụ.",
     "Invalid task filename.": "Tên file nhiệm vụ không hợp lệ.",
     "Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json": "Tên file phải dùng chữ thường, số, -/_ và đuôi .taskbot hoặc .json",
-    "Task library is full (64 files).": "Thư viện nhiệm vụ đã đầy (64 file).",
     "Task file already exists. Rename the imported file first.": "File nhiệm vụ đã tồn tại. Hãy đổi tên file cần nhập trước.",
     "Cannot save task file. Check the task directory.": "Không lưu được file nhiệm vụ. Kiểm tra thư mục nhiệm vụ.",
     "Task imported: ": "Đã nhập nhiệm vụ: ",
@@ -1217,8 +1216,11 @@
     "Choose the expected menu result.": "Chọn kết quả menu dự kiến.",
     "Filename: use 1–64 letters, digits, hyphens or underscores.": "Tên file dùng 1–64 chữ cái, chữ số, dấu gạch ngang hoặc gạch dưới.",
     "Enter a task title and a description up to 1000 characters.": "Nhập tên nhiệm vụ; mô tả tối đa 1000 ký tự.",
-    "Add 1–64 steps and choose a task mode.": "Thêm 1–64 bước và chọn chế độ nhiệm vụ.",
-    "A task can contain at most 64 steps.": "Nhiệm vụ có tối đa 64 bước.",
-    "Save or cancel the step being edited first.": "Hãy lưu hoặc hủy bước đang sửa trước."
+    "Save or cancel the step being edited first.": "Hãy lưu hoặc hủy bước đang sửa trước.",
+    "Task node canvas": "Vùng sơ đồ nhiệm vụ",
+    "Add 1–100 steps and choose a task mode.": "Thêm 1–100 bước và chọn chế độ nhiệm vụ.",
+    "A task can contain at most 100 steps.": "Nhiệm vụ có tối đa 100 bước.",
+    "Task library is full (100 files).": "Thư viện nhiệm vụ đã đầy (100 file).",
+    "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.": "Các khối xếp cố định thành một hàng. Đường thẳng thể hiện thứ tự thực thi; dùng Chuyển lên hoặc Chuyển xuống để đổi thứ tự."
   }
 }

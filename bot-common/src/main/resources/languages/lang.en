@@ -1109,7 +1109,6 @@
     "Task import failed.": "Task import failed.",
     "Invalid task filename.": "Invalid task filename.",
     "Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json": "Filename must use lowercase letters, digits, -/_ and end in .taskbot or .json",
-    "Task library is full (64 files).": "Task library is full (64 files).",
     "Task file already exists. Rename the imported file first.": "Task file already exists. Rename the imported file first.",
     "Cannot save task file. Check the task directory.": "Cannot save task file. Check the task directory.",
     "Task imported: ": "Task imported: ",
@@ -1217,8 +1216,11 @@
     "Choose the expected menu result.": "Choose the expected menu result.",
     "Filename: use 1–64 letters, digits, hyphens or underscores.": "Filename: use 1–64 letters, digits, hyphens or underscores.",
     "Enter a task title and a description up to 1000 characters.": "Enter a task title and a description up to 1000 characters.",
-    "Add 1–64 steps and choose a task mode.": "Add 1–64 steps and choose a task mode.",
-    "A task can contain at most 64 steps.": "A task can contain at most 64 steps.",
-    "Save or cancel the step being edited first.": "Save or cancel the step being edited first."
+    "Save or cancel the step being edited first.": "Save or cancel the step being edited first.",
+    "Task node canvas": "Task node canvas",
+    "Add 1–100 steps and choose a task mode.": "Add 1–100 steps and choose a task mode.",
+    "A task can contain at most 100 steps.": "A task can contain at most 100 steps.",
+    "Task library is full (100 files).": "Task library is full (100 files).",
+    "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order.": "Nodes stay in a fixed row. Straight links show execution order; use Move up or Move down to change the order."
   }
 }
