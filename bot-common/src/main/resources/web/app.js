@@ -70,7 +70,7 @@ function previewWorkflow(){
     text('#workflow-title',file?.title||'Select a task file');text('#workflow-description',file?(file.description+' · '+file.filename+' · '+(file.mode==='loop'?'Repeat continuously':file.mode==='collect'?'Collect requested quantity':'Ensure required stock')):'');
     $('#workflow-error').hidden=!file?.error;text('#workflow-error',file?.error||'');
     const box=$('#workflow-preview');box.replaceChildren();
-    const actions={goto:'Go to coordinates',mine:'Gather materials',craft:'Craft',food:'Hunt and cook food',smelt:'Smelt',chest_take:'Take from specified chest',chest_put:'Store in specified chest',chat:'Send chat',command:'Run server command',menu_open:'Open server menu',menu_click:'Click server menu'};
+    const actions={goto:'Go to coordinates',mine:'Get items',craft:'Craft',food:'Hunt and cook food',smelt:'Smelt',chest_take:'Take from specified chest',chest_put:'Store in specified chest',chat:'Send chat',command:'Run server command',menu_open:'Open server menu',menu_click:'Click server menu'};
     (file?.steps||[]).forEach((s,i)=>{const row=node('div',undefined,'step'),content=node('div');row.append(node('span',String(i+1),'num'));
         content.append(node('b',s.label),node('small',(actions[s.action]||s.action)+' · '+(s.item||s.text||s.menu?.title||(s.target?[s.target.x,s.target.y,s.target.z].join(', '):''))+(['chat','command','menu_open','menu_click','goto'].includes(s.action)?'':' ×'+s.count)));
         if(s.menu)content.append(node('br'),node('small',s.menu.title+(s.menu.slot!==undefined?' · Slot '+s.menu.slot:'')));
