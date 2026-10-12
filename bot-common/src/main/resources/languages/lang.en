@@ -1238,6 +1238,7 @@
     "Reset zoom": "Reset zoom",
     "Hold Ctrl and use the mouse wheel over the canvas to zoom.": "Hold Ctrl and use the mouse wheel over the canvas to zoom.",
     "Fixed item catalog: Minecraft 26.2 · 1,537 items.": "Fixed item catalog: Minecraft 26.2 · 1,537 items.",
-    "Zoom out": "Zoom out"
+    "Zoom out": "Zoom out",
+    "Hold Shift and use the mouse wheel over the canvas to scroll horizontally.": "Hold Shift and use the mouse wheel over the canvas to scroll horizontally."
   }
 }

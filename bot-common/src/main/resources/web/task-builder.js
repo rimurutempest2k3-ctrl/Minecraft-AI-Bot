@@ -37,7 +37,7 @@
     if(typeof module!=='undefined'&&module.exports){module.exports=api;return;}
     root.TaskBuilder=api;
     const q=s=>document.querySelector(s),field=name=>q('#builder-step').elements.namedItem(name);
-    let steps=[],zoom=1;
+    let steps=[],zoom=1,canvasX=0,canvasY=0;
     const pending=new Map();
     let itemCatalog;
     const searchKey=value=>String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/_/g,' ');
@@ -113,19 +113,30 @@
     function links(){
         const list=q('#builder-steps'),svg=list.querySelector('svg');if(!svg)return;
         const width=Math.max(900,steps.length*370+60),height=Math.max(500,...Array.from(list.querySelectorAll('.task-node'),node=>node.offsetHeight+60));list.style.width=width+'px';list.style.height=height+'px';svg.setAttribute('width',width);svg.setAttribute('height',height);svg.replaceChildren();
-        list.style.transform='scale('+zoom+')';const scale=q('#builder-scale');scale.style.width=width*zoom+'px';scale.style.height=height*zoom+'px';
+        list.style.transform='translate('+canvasX+'px,'+canvasY+'px) scale('+zoom+')';
+        const scale=q('#builder-scale'),viewport=q('.node-viewport');
+        // Leave room on both axes so browser scroll clamping cannot move the zoom anchor.
+        scale.style.width=canvasX+width*zoom+viewport.clientWidth+'px';scale.style.height=canvasY+height*zoom+viewport.clientHeight+'px';
         q('#builder-zoom-value').textContent=Math.round(zoom*100)+'%';q('#builder-zoom-out').disabled=zoom<=0.4;q('#builder-zoom-in').disabled=zoom>=2;
         for(let i=1;i<steps.length;i++){const line=document.createElementNS(svg.namespaceURI,'line');line.setAttribute('x1',30+(i-1)*370+330);line.setAttribute('y1',52);line.setAttribute('x2',30+i*370);line.setAttribute('y2',52);svg.append(line);}
     }
     function setZoom(value,anchor){
-        const viewport=q('.node-viewport'),rect=viewport.getBoundingClientRect(),x=anchor?anchor.x-rect.left:viewport.clientWidth/2,y=anchor?anchor.y-rect.top:viewport.clientHeight/2;
-        const worldX=(viewport.scrollLeft+x)/zoom,worldY=(viewport.scrollTop+y)/zoom;
-        zoom=Math.max(0.4,Math.min(2,Math.round(value*100)/100));links();viewport.scrollLeft=worldX*zoom-x;viewport.scrollTop=worldY*zoom-y;draft();
+        const viewport=q('.node-viewport'),rect=viewport.getBoundingClientRect(),x=anchor?anchor.x-rect.left-viewport.clientLeft:viewport.clientWidth/2,y=anchor?anchor.y-rect.top-viewport.clientTop:viewport.clientHeight/2;
+        const worldX=(viewport.scrollLeft+x-canvasX)/zoom,worldY=(viewport.scrollTop+y-canvasY)/zoom;
+        const next=Math.max(0.4,Math.min(2,Math.round(value*100)/100));if(next===zoom)return;
+        zoom=next;
+        let left=canvasX+worldX*zoom-x,top=canvasY+worldY*zoom-y;
+        if(left<0){canvasX-=left;left=0;}if(top<0){canvasY-=top;top=0;}
+        links();viewport.scrollLeft=left;viewport.scrollTop=top;draft();
     }
     q('#builder-zoom-out').addEventListener('click',()=>setZoom(zoom-0.1));
     q('#builder-zoom-in').addEventListener('click',()=>setZoom(zoom+0.1));
     q('#builder-zoom-reset').addEventListener('click',()=>setZoom(1));
-    q('.node-viewport').addEventListener('wheel',event=>{if(!event.ctrlKey)return;event.preventDefault();const delta=event.deltaY||event.deltaX;if(delta)setZoom(zoom+(delta<0?0.1:-0.1),{x:event.clientX,y:event.clientY});},{passive:false});
+    q('.node-viewport').addEventListener('wheel',event=>{
+        const delta=event.deltaY||event.deltaX;if(!delta)return;
+        if(event.ctrlKey){event.preventDefault();setZoom(zoom+(delta<0?0.1:-0.1),{x:event.clientX,y:event.clientY});}
+        else if(event.shiftKey){event.preventDefault();const viewport=q('.node-viewport');viewport.scrollLeft+=delta*(event.deltaMode===1?24:event.deltaMode===2?viewport.clientWidth:1);}
+    },{passive:false});
     function savedNodes(){if(pending.size){feedback('Save changes in each task node first.');return false;}return true;}
     function move(i,delta){if(!savedNodes())return;const to=i+delta;[steps[i],steps[to]]=[steps[to],steps[i]];render();draft();}
     new ResizeObserver(links).observe(q('#builder-steps'));
