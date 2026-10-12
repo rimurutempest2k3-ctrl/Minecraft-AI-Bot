@@ -35,11 +35,18 @@
         if(!['ensure','collect','loop'].includes(meta.mode)||!steps.length||steps.length>100)throw new Error('Add 1–100 steps and choose a task mode.');
         return {filename,task:{version:1,mode:meta.mode,title,description,steps:JSON.parse(JSON.stringify(steps))}};
     }
-    const api={makeStep,documentFor};
+    function editableStep(step,values){const result=makeStep(values);if(step.action===result.action && step.skipIf)result.skipIf=JSON.parse(JSON.stringify(step.skipIf));return result;}
+    function readDocument(content){
+        const task=JSON.parse(content.replace(/^\uFEFF/,''));
+        if(task.version!==1 || !Array.isArray(task.steps) || !task.steps.length || task.steps.length>100)throw new Error('Invalid task file. Use the advanced JSON editor to repair it.');
+        task.steps=task.steps.map(step=>editableStep(step,{...step,...step.chest,...step.target,...step.menu,result:step.menu?.closed?'closed':'next'}));return task;
+    }
+    function editedDocument(meta,steps,original){return {...JSON.parse(JSON.stringify(original||{})),...documentFor(meta,steps).task};}
+    const api={makeStep,documentFor,readDocument,editedDocument,editableStep};
     if(typeof module!=='undefined'&&module.exports){module.exports=api;return;}
     root.TaskBuilder=api;
     const q=s=>document.querySelector(s),field=name=>q('#builder-step').elements.namedItem(name);
-    let steps=[],zoom=1;
+    let steps=[],zoom=1,editing=null,original=null;
     const pending=new Map();
     let itemCatalog;
     const searchKey=value=>String(value).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/_/g,' ');
@@ -73,7 +80,7 @@
     }
     function feedback(value){q('#builder-feedback').textContent=value;}
     function values(){return Object.fromEntries(new FormData(q('#builder-step')));}
-    function meta(){return Object.fromEntries(new FormData(q('#builder-meta')));}
+    function meta(){const form=q('#builder-meta');return {...Object.fromEntries(new FormData(form)),filename:form.elements.namedItem('filename').value};}
     function visibility(form=q('#builder-step')){
         const input=name=>form.elements.namedItem(name),group=input('action').value,action=actionFor(Object.fromEntries(new FormData(form)));
         form.querySelectorAll('[data-builder-groups]').forEach(el=>{el.hidden=el.dataset.builderGroups!==group;});
@@ -82,7 +89,15 @@
         input('count').disabled=controls.has(action);if(controls.has(action))input('count').value='1';
         input('count').closest('label').hidden=controls.has(action);
     }
-    function draft(){try{localStorage.setItem('minecraft-ai-bot-task-draft-v1',JSON.stringify({meta:meta(),steps,zoom}));}catch{}}
+    function draft(){try{localStorage.setItem('minecraft-ai-bot-task-draft-v1',JSON.stringify({meta:meta(),steps,zoom,editing,original}));}catch{}}
+    function editState(){q('#builder-update').hidden=!editing;q('#builder-save').hidden=!!editing;q('#builder-editing').hidden=!editing;q('#builder-editing').textContent=editing?'Editing file: '+editing.filename:'';q('#builder-meta').elements.namedItem('filename').disabled=!!editing;}
+    api.openFile=file=>{
+        const loaded=readDocument(file.content);
+        if((steps.length || pending.size) && !confirm('Replace the current task draft with this file?'))return false;
+        editing={filename:file.filename,revision:file.revision};original=loaded;steps=JSON.parse(JSON.stringify(loaded.steps));pending.clear();
+        const form=q('#builder-meta');form.reset();for(const [key,value]of Object.entries({filename:file.filename.replace(/\.(taskbot|json)$/,''),title:loaded.title||file.filename,description:loaded.description||'',mode:loaded.mode||'ensure'}))form.elements.namedItem(key).value=value;
+        resetStep();editState();render();draft();feedback('File loaded into task nodes. Save each changed step, then save file changes.');return true;
+    };
     function resetStep(){q('#builder-step').reset();visibility();q('#builder-add').textContent='Add step';q('#builder-cancel-edit').hidden=true;}
     function button(text,fn,disabled=false){const b=document.createElement('button');b.type='button';b.className='action';b.textContent=text;b.disabled=disabled;b.addEventListener('click',fn);return b;}
     function nodeForm(step,i){
@@ -100,7 +115,7 @@
         const status=document.createElement('p');status.className='section-hint';status.setAttribute('role','status');status.textContent=pending.has(step)?'Unsaved changes':'';form.append(status);
         form.addEventListener('input',()=>{pending.set(step,Object.fromEntries(new FormData(form)));status.textContent='Unsaved changes';});
         form.addEventListener('change',()=>{visibility(form);links();});
-        form.addEventListener('submit',event=>{event.preventDefault();try{steps[i]=makeStep(Object.fromEntries(new FormData(form)));pending.delete(step);render();draft();feedback('Step saved in the draft.');}catch(error){status.textContent=error.message;}});
+        form.addEventListener('submit',event=>{event.preventDefault();try{steps[i]=editableStep(step,Object.fromEntries(new FormData(form)));pending.delete(step);render();draft();feedback('Step saved in the draft.');}catch(error){status.textContent=error.message;}});
         itemPickers(form);visibility(form);return form;
     }
     function render(){
@@ -114,7 +129,7 @@
             place(row,{x:20+i*370,y:20});
         });
         if(!steps.length){const p=document.createElement('p');p.className='notice';p.textContent='No steps yet. Add the first action below.';list.append(p);}
-        links();try{q('#builder-json').textContent=JSON.stringify(documentFor(meta(),steps).task,null,2);}catch{q('#builder-json').textContent='';}
+        links();try{q('#builder-json').textContent=JSON.stringify(editedDocument(meta(),steps,original),null,2);}catch{q('#builder-json').textContent='';}
     }
     function place(node,p){node.style.left=p.x+'px';node.style.top=p.y+'px';}
     function links(){
@@ -148,7 +163,11 @@
     q('#builder-cancel-edit').addEventListener('click',resetStep);
     q('#builder-meta').addEventListener('input',()=>{draft();render();});
     q('#builder-meta').addEventListener('submit',event=>event.preventDefault());
-    function ready(){if(pending.size)throw new Error('Save changes in each task node first.');return documentFor(meta(),steps);}
+    function ready(){if(pending.size)throw new Error('Save changes in each task node first.');const metadata=meta();if(editing)metadata.filename=editing.filename.replace(/\.(taskbot|json)$/,'');return {filename:documentFor(metadata,steps).filename,task:editedDocument(metadata,steps,original)};}
+    q('#builder-update').addEventListener('click',()=>action(async()=>{
+        if(!editing)return;
+        try{const {task}=ready();const saved=await taskFileRequest({...editing,content:JSON.stringify(task,null,2)+'\n'});editing={filename:saved.filename,revision:saved.revision};original=JSON.parse(saved.content);draft();librarySignature='';feedback('Task file saved. The active task was not changed.');}catch(error){feedback(error.message);throw error;}
+    }));
     q('#builder-download').addEventListener('click',()=>{try{
         const {filename,task}=ready(),url=URL.createObjectURL(new Blob([JSON.stringify(task,null,2)+'\n'],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);feedback('Task file downloaded.');
     }catch(error){feedback(error.message);}});
@@ -161,14 +180,15 @@
             selectedWorkflow=result.filename;librarySignature='';q('#workflow-search').value='';feedback(result.message);append(result.message,'RESPONSE');showWorkflowTab('workflow-library');
         }catch(error){feedback(error.message);throw error;}finally{button.disabled=false;}
     }));
-    q('#builder-clear').addEventListener('click',()=>{if(!confirm('Clear this task draft?'))return;steps=[];pending.clear();q('#builder-meta').reset();resetStep();render();draft();feedback('Draft cleared.');});
+    q('#builder-clear').addEventListener('click',()=>{if(!confirm('Clear this task draft?'))return;steps=[];pending.clear();editing=null;original=null;q('#builder-meta').reset();resetStep();editState();render();draft();feedback('Draft cleared.');});
     try{
         const raw=localStorage.getItem('minecraft-ai-bot-task-draft-v1');if(raw&&raw.length<=262144){const saved=JSON.parse(raw);if(Array.isArray(saved.steps)&&saved.steps.length<=100){
             if(Number.isFinite(saved.zoom))zoom=Math.max(0.4,Math.min(2,saved.zoom));
             // Revalidate browser draft data instead of trusting storage.
-            steps=saved.steps.map(step=>makeStep({...step,...step.chest,...step.target,...step.menu,result:step.menu?.closed?'closed':'next'}));
+            steps=saved.steps.map(step=>editableStep(step,{...step,...step.chest,...step.target,...step.menu,result:step.menu?.closed?'closed':'next'}));
+            if(saved.editing && /^[a-z0-9][a-z0-9_-]{0,63}\.(taskbot|json)$/.test(saved.editing.filename) && /^[a-f0-9]{64}$/.test(saved.editing.revision)){editing=saved.editing;original=saved.original||null;}
             for(const [key,value]of Object.entries(saved.meta||{})){const input=q('#builder-meta').elements.namedItem(key);if(input&&typeof value==='string')input.value=value;}
         }}
     }catch{steps=[];feedback('Could not restore the draft; start a new task.');}
-    itemPickers(q('#builder-step'));visibility();render();
+    itemPickers(q('#builder-step'));visibility();editState();render();
 })(globalThis);

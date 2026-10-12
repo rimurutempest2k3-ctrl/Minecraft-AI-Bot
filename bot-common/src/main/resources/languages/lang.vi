@@ -1306,6 +1306,12 @@
     "Discard unsaved file edits?": "Bỏ các chỉnh sửa file chưa lưu?",
     "Task file saved. The active task was not changed.": "Đã lưu file nhiệm vụ. Nhiệm vụ đang chạy không bị thay đổi.",
     "Task file changed elsewhere. Reopen it before saving; your edit was not written.": "File đã thay đổi ở nơi khác. Mở lại trước khi lưu; chỉnh sửa của bạn chưa được ghi.",
-    "Cannot read or save task file; existing file preserved.": "Không đọc hoặc lưu được file nhiệm vụ; giữ nguyên file hiện có."
+    "Cannot read or save task file; existing file preserved.": "Không đọc hoặc lưu được file nhiệm vụ; giữ nguyên file hiện có.",
+    "Edit JSON (advanced)": "Sửa JSON (nâng cao)",
+    "Editing file: ": "Đang sửa file: ",
+    "Replace the current task draft with this file?": "Thay bản nháp hiện tại bằng file này?",
+    "File loaded into task nodes. Save each changed step, then save file changes.": "Đã mở file thành các node. Lưu từng bước đã sửa rồi lưu thay đổi file.",
+    "Create or edit tasks using the same node settings. Saving validates the file and does not start the bot. Custom recipes and conditions are preserved.": "Tạo hoặc sửa nhiệm vụ bằng cùng bảng tùy chỉnh node. Lưu có kiểm tra và không chạy bot. Giữ công thức và điều kiện tùy chỉnh.",
+    "Invalid task file. Use the advanced JSON editor to repair it.": "File nhiệm vụ không hợp lệ. Dùng trình sửa JSON nâng cao để sửa lỗi."
   }
 }

@@ -132,6 +132,10 @@ async function taskFileRequest(payload){
     const result=await response.json();if(!response.ok)throw new Error(result.message||'Cannot read or save task file; existing file preserved.');return result;
 }
 $('#edit-workflow').addEventListener('click',()=>action(async()=>{
+    const file=await taskFileRequest({filename:selectedWorkflow});
+    if(window.TaskBuilder.openFile(file)){showWorkflowTab('workflow-builder');$('#task-file-editor').hidden=true;}
+}));
+$('#edit-workflow-json').addEventListener('click',()=>action(async()=>{
     if(taskEdit && $('#task-edit-content').value!==taskEdit.content && !confirm('Discard unsaved file edits?'))return;
     const file=await taskFileRequest({filename:selectedWorkflow});taskEdit=file;
     text('#task-edit-title','Edit task file · '+file.filename);$('#task-edit-content').value=file.content;

@@ -1306,6 +1306,12 @@
     "Discard unsaved file edits?": "Discard unsaved file edits?",
     "Task file saved. The active task was not changed.": "Task file saved. The active task was not changed.",
     "Task file changed elsewhere. Reopen it before saving; your edit was not written.": "Task file changed elsewhere. Reopen it before saving; your edit was not written.",
-    "Cannot read or save task file; existing file preserved.": "Cannot read or save task file; existing file preserved."
+    "Cannot read or save task file; existing file preserved.": "Cannot read or save task file; existing file preserved.",
+    "Edit JSON (advanced)": "Edit JSON (advanced)",
+    "Editing file: ": "Editing file: ",
+    "Replace the current task draft with this file?": "Replace the current task draft with this file?",
+    "File loaded into task nodes. Save each changed step, then save file changes.": "File loaded into task nodes. Save each changed step, then save file changes.",
+    "Create or edit tasks using the same node settings. Saving validates the file and does not start the bot. Custom recipes and conditions are preserved.": "Create or edit tasks using the same node settings. Saving validates the file and does not start the bot. Custom recipes and conditions are preserved.",
+    "Invalid task file. Use the advanced JSON editor to repair it.": "Invalid task file. Use the advanced JSON editor to repair it."
   }
 }
