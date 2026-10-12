@@ -51,6 +51,8 @@ final class ChestController {
     private BlockPos approaching;
     private long approachUntil;
     private int arrivedTicks;
+    private BlockPos requestedChest;
+    private long loadWaitUntil;
     ChestController(BotCore bot, BaritoneController movement, ChestController.MemoryObserver observer, Consumer<String> notifyConsole) {
         this.observer = observer;
         this.bot = bot; this.movement = movement; this.stopMovement = movement::stop; this.notifyConsole = notifyConsole;
@@ -94,7 +96,18 @@ final class ChestController {
         Vec3 eye = client.player.getEyePosition(); BlockPos target = null; double nearest = Double.MAX_VALUE;
         BlockPos origin = client.player.blockPosition();
         List<BlockPos> candidates = new ArrayList<>();
-        if (parts.length == 4) candidates.add(new BlockPos(Integer.parseInt(parts[1]), Integer.parseInt(parts[2]), Integer.parseInt(parts[3])));
+        if (parts.length == 4) {
+            BlockPos specified=new BlockPos(Integer.parseInt(parts[1]),Integer.parseInt(parts[2]),Integer.parseInt(parts[3]));
+            if(Math.abs((long)specified.getX())>29999984 || Math.abs((long)specified.getZ())>29999984
+                    || specified.getY()<client.level.getMinY() || specified.getY()>client.level.getMaxY())return "Chest coordinates outside world bounds.";
+            if(specified.distSqr(origin)>100 || !client.level.hasChunkAt(specified) || !isChest(client,specified)) {
+                owner=client.player;world=client.level;requestedChest=specified;approaching=specified;
+                approachUntil=System.nanoTime()+120_000_000_000L;loadWaitUntil=0;arrivedTicks=0;
+                movement.approachChestArea(specified);
+                return status="Traveling within 10 blocks of requested chest "+specified.toShortString()+"; waiting for chunks before choosing the chest.";
+            }
+            candidates.add(specified);
+        }
         else {
             for (int x = (origin.getX() - 64) >> 4; x <= (origin.getX() + 64) >> 4; x++)
                 for (int z = (origin.getZ() - 64) >> 4; z <= (origin.getZ() + 64) >> 4; z++) {
@@ -122,6 +135,19 @@ final class ChestController {
     private boolean isChest(Minecraft client, BlockPos pos) {
         var block = client.level.getBlockState(pos);
         return block.is(Blocks.CHEST) || block.is(Blocks.TRAPPED_CHEST);
+    }
+    private BlockPos nearestRequestedChest(Minecraft client) {
+        BlockPos best=null;double distance=Double.MAX_VALUE;
+        for(int x=(requestedChest.getX()-10)>>4;x<=(requestedChest.getX()+10)>>4;x++)
+            for(int z=(requestedChest.getZ()-10)>>4;z<=(requestedChest.getZ()+10)>>4;z++) {
+                var chunk=client.level.getChunkSource().getChunk(x,z,net.minecraft.world.level.chunk.status.ChunkStatus.FULL,false);
+                if(chunk==null)continue;
+                for(BlockPos pos:chunk.getBlockEntities().keySet()) {
+                    double d=pos.distSqr(requestedChest);
+                    if(d<=100 && isChest(client,pos) && (d<distance || d==distance && best!=null && pos.compareTo(best)<0)) {best=pos.immutable();distance=d;}
+                }
+            }
+        return best;
     }
     private BlockHitResult reachable(Minecraft client, BlockPos target) {
         if (!client.level.hasChunkAt(target) || !isChest(client, target)) return null;
@@ -199,6 +225,21 @@ final class ChestController {
             if (client.isPaused()) return;
             if (owner.containerMenu != owner.inventoryMenu || client.gui.screen() != null) { abandon("Chest approach stopped because another menu opened."); return; }
             if (System.nanoTime() > approachUntil) { abandon("Could not reach/open chest within 120 seconds. Check route and coordinates."); return; }
+            if(requestedChest!=null) {
+                if(owner.blockPosition().distSqr(requestedChest)>100)return;
+                if(loadWaitUntil==0) {stopMovement.run();loadWaitUntil=System.nanoTime()+5_000_000_000L;}
+                BlockPos resolved=client.level.hasChunkAt(requestedChest) && isChest(client,requestedChest)?requestedChest:null;
+                if(resolved==null) {
+                    if(System.nanoTime()<loadWaitUntil)return;
+                    if(!client.level.hasChunkAt(requestedChest)) {abandon("Cannot load the requested chest area; check connection and coordinates.");return;}
+                    resolved=nearestRequestedChest(client);
+                    if(resolved==null) {abandon("No chest at the requested coordinates or within 10 blocks after loading the area.");return;}
+                }
+                approaching=resolved;requestedChest=null;loadWaitUntil=0;arrivedTicks=0;
+                movement.approachChest(approaching);
+                status="Chest resolved at "+approaching.toShortString()+"; approaching to open.";notifyConsole.accept(status);
+                return;
+            }
             if (client.level.hasChunkAt(approaching) && !isChest(client, approaching)) { abandon("Target chest no longer exists; movement stopped."); return; }
             BlockHitResult hit = reachable(client, approaching);
             if (hit != null) {
@@ -246,7 +287,7 @@ final class ChestController {
     }
     private void abandon(String message) {
         if (approaching != null) stopMovement.run();
-        approaching = null; openingUntil = 0; steps = null; status = message; notifyConsole.accept(message);
+        approaching = null; requestedChest=null;loadWaitUntil=0;openingUntil = 0; steps = null; status = message; notifyConsole.accept(message);
     }
 
     /** Binds only a witnessed block interaction to a chest menu; never guesses from nearby blocks. */

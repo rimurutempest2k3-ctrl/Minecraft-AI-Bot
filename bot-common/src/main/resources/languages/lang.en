@@ -1274,6 +1274,13 @@
     "Fire extinguished; resuming the saved task.": "Fire extinguished; resuming the saved task.",
     "Water extinguishing not confirmed; resuming with a retry cooldown.": "Water extinguishing not confirmed; resuming with a retry cooldown.",
     "Cannot place water because player or inventory state changed.": "Cannot place water because player or inventory state changed.",
-    "Cannot reach the ground face for placing water.": "Cannot reach the ground face for placing water."
+    "Cannot reach the ground face for placing water.": "Cannot reach the ground face for placing water.",
+    "Chest coordinates outside world bounds.": "Chest coordinates outside world bounds.",
+    "Traveling within 10 blocks of requested chest ": "Traveling within 10 blocks of requested chest ",
+    "; waiting for chunks before choosing the chest.": "; waiting for chunks before choosing the chest.",
+    "Cannot load the requested chest area; check connection and coordinates.": "Cannot load the requested chest area; check connection and coordinates.",
+    "No chest at the requested coordinates or within 10 blocks after loading the area.": "No chest at the requested coordinates or within 10 blocks after loading the area.",
+    "Chest resolved at ": "Chest resolved at ",
+    "; approaching to open.": "; approaching to open."
   }
 }

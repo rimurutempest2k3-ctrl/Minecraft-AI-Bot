@@ -1274,6 +1274,13 @@
     "Fire extinguished; resuming the saved task.": "Đã dập lửa; tiếp tục nhiệm vụ đã lưu.",
     "Water extinguishing not confirmed; resuming with a retry cooldown.": "Chưa xác nhận dập lửa bằng nước; tiếp tục và chờ trước khi thử lại.",
     "Cannot place water because player or inventory state changed.": "Không đặt được nước vì trạng thái người chơi hoặc hành trang đã thay đổi.",
-    "Cannot reach the ground face for placing water.": "Không tương tác được mặt đất để đặt nước."
+    "Cannot reach the ground face for placing water.": "Không tương tác được mặt đất để đặt nước.",
+    "Chest coordinates outside world bounds.": "Tọa độ rương nằm ngoài giới hạn thế giới.",
+    "Traveling within 10 blocks of requested chest ": "Đang đi đến trong phạm vi 10 khối quanh rương chỉ định ",
+    "; waiting for chunks before choosing the chest.": "; chờ vùng tải trước khi xác định rương.",
+    "Cannot load the requested chest area; check connection and coordinates.": "Không tải được vùng rương chỉ định; kiểm tra kết nối và tọa độ.",
+    "No chest at the requested coordinates or within 10 blocks after loading the area.": "Không có rương ở tọa độ chỉ định hoặc trong 10 khối quanh đó sau khi tải vùng.",
+    "Chest resolved at ": "Đã xác định rương tại ",
+    "; approaching to open.": "; đang tiến lại để mở."
   }
 }

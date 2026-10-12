@@ -87,6 +87,11 @@ final class BaritoneController {
     void approachChest(BlockPos position) {
         approachBlock(position, "chest");
     }
+    void approachChestArea(BlockPos position) {
+        Minecraft client=Minecraft.getInstance();engine();stop();owner=client.player;world=client.level;
+        task="Go within 10 blocks of chest "+position.toShortString();
+        baritone.getCustomGoalProcess().setGoalAndPath(new baritone.api.pathing.goals.GoalNear(position,10));
+    }
     void approachBlock(BlockPos position, String label) {
         Minecraft client = Minecraft.getInstance();
         engine(); stop();
