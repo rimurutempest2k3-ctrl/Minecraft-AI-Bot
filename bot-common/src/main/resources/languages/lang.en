@@ -1249,6 +1249,17 @@
     "Travel stopped before reaching the destination; check the path and resume.": "Travel stopped before reaching the destination; check the path and resume.",
     "Menu operation": "Menu operation",
     "Go to coordinates": "Go to coordinates",
-    "Chat or server command": "Chat or server command"
+    "Chat or server command": "Chat or server command",
+    "Close": "Close",
+    "Round": "Round",
+    "Pause bot": "Pause bot",
+    "Task manually paused; progress saved. Use Resume to continue.": "Task manually paused; progress saved. Use Resume to continue.",
+    " completed; repeating in five seconds. bot stop to cancel.": " completed; repeating in five seconds. bot stop to cancel.",
+    "Repeat continuously": "Repeat continuously",
+    "Starting task round ": "Starting task round ",
+    "Task mode must be ensure, collect or loop": "Task mode must be ensure, collect or loop",
+    "Resume bot": "Resume bot",
+    "Task round ": "Task round ",
+    "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume.": "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume."
   }
 }

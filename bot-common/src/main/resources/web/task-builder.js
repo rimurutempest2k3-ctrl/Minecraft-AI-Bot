@@ -32,7 +32,7 @@
         if(!/^[a-z0-9][a-z0-9_-]{0,63}\.taskbot$/.test(filename))throw new Error('Filename: use 1–64 letters, digits, hyphens or underscores.');
         const title=String(meta.title||'').trim(),description=String(meta.description||'');
         if(!title||title.length>160||description.length>1000)throw new Error('Enter a task title and a description up to 1000 characters.');
-        if(!['ensure','collect'].includes(meta.mode)||!steps.length||steps.length>100)throw new Error('Add 1–100 steps and choose a task mode.');
+        if(!['ensure','collect','loop'].includes(meta.mode)||!steps.length||steps.length>100)throw new Error('Add 1–100 steps and choose a task mode.');
         return {filename,task:{version:1,mode:meta.mode,title,description,steps:JSON.parse(JSON.stringify(steps))}};
     }
     const api={makeStep,documentFor};

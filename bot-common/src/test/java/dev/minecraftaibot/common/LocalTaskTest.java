@@ -255,6 +255,11 @@ public final class LocalTaskTest {
         check(TaskPresets.parseWorkflow("legacy.taskbot",task).mode().equals("ensure"));
         var root=JsonParser.parseString(task).getAsJsonObject();root.addProperty("mode","collect");
         check(TaskPresets.parseWorkflow("collect.taskbot",root.toString()).mode().equals("collect"));
+        root.addProperty("mode","loop");
+        check(TaskPresets.parseWorkflow("loop.taskbot",root.toString()).mode().equals("loop"));
+        check(TaskPresets.supplyProgress("loop",26,10)==26);
+        check(TaskPresets.supplyProgress("loop",26,26)==26); // Each round ensures current stock, not additions.
+        check(TaskPresets.supplyProgress("loop",3,26)==3); // Consumed supplies need refilling.
         root.addProperty("mode","ensure");
         check(TaskPresets.parseWorkflow("ensure.taskbot",root.toString()).mode().equals("ensure"));
         root.addProperty("mode","unknown");

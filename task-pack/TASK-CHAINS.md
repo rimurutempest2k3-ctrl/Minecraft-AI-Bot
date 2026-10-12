@@ -12,6 +12,10 @@ A failed step becomes `BLOCKED`, preserving completed steps and collection basel
 
 The main action selector groups chest take/store, chat/command, and menu open/click. Choose the operation inside each node. The exported JSON keeps the existing action IDs. Use Go to coordinates to travel to a block position in the current dimension: {"label":"Go home","action":"goto","count":1,"target":{"x":10,"y":64,"z":-20}}. No item is required. The bot checks actual arrival before advancing; a stopped path or the normal three-minute step timeout blocks the task for manual resume.
 
+Set `"mode":"loop"` or select **Repeat continuously** to repeat the entire chain until stopped. Each round ensures the required current stock: already enough skips to the next step, shortages collect only the missing quantity. After the final step it waits five seconds and starts again, resetting step markers, chest transfer counters and one-shot command/menu confirmations. Chest transfers still move their explicitly requested quantity each round. The progress tab shows the round number. A failed step blocks rather than restarting or skipping it. Resume continues that step. Normal step and round timeouts still apply; the overall timer resets for each new round. `bot stop` cancels both execution and the pending repeat.
+
+In game, **F8** opens Start / Pause / Resume / Stop controls. Pause saves local task progress and requires manual Resume; furnace contents may need recovering before continuing. Start and Resume close the GUI so movement can proceed. Stop cancels the task and loop. Nearby defense/auto eating remain separate features.
+
 ## Explicit chest deliveries
 
 Save the following as `delivery.taskbot`, replace both chest coordinates, import it on the web and run it:

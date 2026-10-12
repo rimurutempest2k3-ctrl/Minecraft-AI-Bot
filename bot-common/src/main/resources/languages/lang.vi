@@ -1249,6 +1249,17 @@
     "Travel stopped before reaching the destination; check the path and resume.": "Di chuyển dừng trước khi đến nơi; kiểm tra đường đi rồi tiếp tục.",
     "Menu operation": "Thao tác menu",
     "Go to coordinates": "Đến tọa độ chỉ định",
-    "Chat or server command": "Gửi chat hoặc lệnh server"
+    "Chat or server command": "Gửi chat hoặc lệnh server",
+    "Close": "Đóng",
+    "Round": "Vòng",
+    "Pause bot": "Tạm dừng bot",
+    "Task manually paused; progress saved. Use Resume to continue.": "Đã tạm dừng nhiệm vụ và giữ tiến độ. Bấm Tiếp tục để chạy tiếp.",
+    " completed; repeating in five seconds. bot stop to cancel.": " đã xong; lặp lại sau năm giây. bot stop để hủy.",
+    "Repeat continuously": "Lặp liên tục",
+    "Starting task round ": "Bắt đầu vòng nhiệm vụ ",
+    "Task mode must be ensure, collect or loop": "Chế độ nhiệm vụ phải là ensure, collect hoặc loop",
+    "Resume bot": "Tiếp tục bot",
+    "Task round ": "Vòng nhiệm vụ ",
+    "Ensure skips items already available. Collect gathers additional items. Loop repeats using required stock: enough items means the next step, then restart the chain after five seconds. Stop cancels the loop; errors save progress for manual resume.": "Bổ sung bỏ qua đồ đã đủ. Thu thập lấy thêm đồ. Lặp luôn lấy đủ số lượng cần có: đủ thì qua bước sau, hết chuỗi nghỉ năm giây rồi chạy lại. Dừng để hủy; lỗi giữ tiến độ để tiếp tục thủ công."
   }
 }

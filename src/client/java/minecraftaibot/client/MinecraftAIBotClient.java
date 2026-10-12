@@ -355,6 +355,13 @@ public class MinecraftAIBotClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
+        var controlsKey=net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.registerKeyMapping(new net.minecraft.client.KeyMapping("key.minecraft-ai-bot.controls",org.lwjgl.glfw.GLFW.GLFW_KEY_F8,net.minecraft.client.KeyMapping.Category.MISC));
+        ClientTickEvents.END_CLIENT_TICK.register(client->{
+            while(controlsKey.consumeClick()) {
+                if(client.gui.screen() instanceof BotControlScreen)client.gui.setScreen(null);
+                else if(client.gui.screen()==null)client.gui.setScreen(new BotControlScreen(this::guiCommand,()->bot.state().name()+" · "+localTasks.status()));
+            }
+        });
         try {I18n.initialize(FabricLoader.getInstance().getConfigDir().resolve("minecraft-ai-bot"));}
         catch(java.io.IOException failure) {LOG.error("Could not initialize languages; bundled catalogs remain available",failure);}
         net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents.CHAT.register((message,signed,sender,params,time)->{
@@ -456,4 +463,15 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             }
         });
 	}
+
+    private String guiCommand(String action) {
+        Minecraft client=Minecraft.getInstance();String response;
+        if(action.equals("pause")) {localTasks.pauseManually();survival.cancel(client);if(agent!=null && agent.active())agent.cancel("AI task paused from in-game controls.");response=bot.pause();}
+        else if(action.equals("resume") && bot.state()==BotState.STOPPED)response="Start bot first.";
+        else if(action.equals("resume")) {
+            response=bot.state()==BotState.PAUSED?bot.resume():"Bot is already active.";
+            if(localTasks.busy())response+=" "+localTasks.resumeSaved(client,survival.safeForTaskResume(client),true);
+        } else response=consoleCommand(action.equals("start")?"bot start":"bot stop");
+        notifyConsole(response);return response;
+    }
 }

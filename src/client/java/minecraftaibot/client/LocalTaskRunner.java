@@ -26,7 +26,7 @@ import java.util.function.*;
 /** JSON local task executor, using vanilla crafting and Baritone only. */
 final class LocalTaskRunner {
     private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot");
-    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT, FOOD_CROP, CHEST_OPEN, CHEST_TRANSFER, MENU_OPEN, MENU_CONFIRM, MENU_READY, TRAVEL }
+    private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT, FOOD_CROP, CHEST_OPEN, CHEST_TRANSFER, MENU_OPEN, MENU_CONFIRM, MENU_READY, TRAVEL, LOOP_WAIT }
     private final ChestController chest;
     private final BotCore bot;
     private final BaritoneController movement;
@@ -67,6 +67,11 @@ final class LocalTaskRunner {
     private String taskId=UUID.randomUUID().toString();
     private final Deque<com.google.gson.JsonObject> taskHistory=new ArrayDeque<>();
     boolean executing() {return active && !suspended;}
+    void pauseManually() {
+        if(!active)return;
+        manualHold=true;suspendForSurvival();workflowState="SUSPENDED";
+        status="Task manually paused; progress saved. Use Resume to continue.";notify.accept(status);
+    }
     private void block(String reason) {
         if(!active || suspended)return;
         manualHold=true;suspendForSurvival();workflowState="BLOCKED";
@@ -116,6 +121,7 @@ final class LocalTaskRunner {
     private String workflowFile="",workflowTitle="",workflowState="IDLE";
     private boolean[] initiallySatisfied=new boolean[0];
     private String workflowMode="ensure";
+    private long loopCycle=1;
     private int[] supplyBaselines=new int[0];
     private int supplyIndex;
     private boolean[] controlDone=new boolean[0],controlSent=new boolean[0];
@@ -183,11 +189,11 @@ final class LocalTaskRunner {
         if(starter!=null) {taskHistory.addLast(starterSnapshot(client));while(taskHistory.size()>20)taskHistory.removeFirst();}
         taskId=UUID.randomUUID().toString();suspended=false;productionRecovery=false;manualHold=false;
         starter=workflow.plan();workflowFile=workflow.filename();workflowTitle=workflow.title();workflowState="RUNNING";
-        workflowMode=workflow.mode();supplyBaselines=new int[starter.steps().size()];Arrays.fill(supplyBaselines,-1);
+        workflowMode=workflow.mode();loopCycle=1;supplyBaselines=new int[starter.steps().size()];Arrays.fill(supplyBaselines,-1);
         controlDone=new boolean[starter.steps().size()];controlSent=new boolean[starter.steps().size()];
         chestProgress=new int[starter.steps().size()];pendingChest=false;
         initiallySatisfied=new boolean[starter.steps().size()];
-        for(int i=0;i<initiallySatisfied.length;i++)initiallySatisfied[i]=workflowMode.equals("ensure") && !TaskPresets.controlAction(starter.steps().get(i).action()) && !starter.steps().get(i).action().startsWith("chest_") && supplyCount(client,starter.steps().get(i))>=starter.steps().get(i).count();
+        for(int i=0;i<initiallySatisfied.length;i++)initiallySatisfied[i]=!workflowMode.equals("collect") && !TaskPresets.controlAction(starter.steps().get(i).action()) && !starter.steps().get(i).action().startsWith("chest_") && supplyCount(client,starter.steps().get(i))>=starter.steps().get(i).count();
         boolean finished=workflowMode.equals("ensure") && workflow.goal()!=null && workflow.goal().satisfied(supplyCount(client,starter.steps().getLast()));
         if(finished)Arrays.fill(initiallySatisfied,true);
         supplyIndex=finished?starter.steps().size():0;clock=batches=0;started=System.nanoTime();active=true;foodFallbackStep=-1;
@@ -199,6 +205,7 @@ final class LocalTaskRunner {
         data.addProperty("status",status);data.addProperty("step",supplyIndex);
         data.addProperty("file",workflowFile);data.addProperty("title",workflowTitle);data.addProperty("state",workflowState);
         data.addProperty("mode",workflowMode);
+        data.addProperty("cycle",loopCycle);
         data.addProperty("id",taskId);data.addProperty("priority",30);data.addProperty("suspended",suspended);
         data.addProperty("phase",phase==null?"":phase.name());
         var steps=new com.google.gson.JsonArray();
@@ -213,8 +220,8 @@ final class LocalTaskRunner {
     }
     private int supplyCount(Minecraft client,TaskPresets.Supply step) {
         if(TaskPresets.controlAction(step.action()))return 0;
-        if(workflowMode.equals("ensure") && step.skipIf()!=null && step.skipIf().stream().allMatch(id->ownedRequirement(client,id))) return step.count();
-        if(workflowMode.equals("ensure") && step.item().equals("minecraft:furnace") && furnace.nearby(client,"furnace")) return 1;
+        if(!workflowMode.equals("collect") && step.skipIf()!=null && step.skipIf().stream().allMatch(id->ownedRequirement(client,id))) return step.count();
+        if(!workflowMode.equals("collect") && step.item().equals("minecraft:furnace") && furnace.nearby(client,"furnace")) return 1;
         return ownedItems(client).stream().filter(s->{
             if(s.isEmpty()) return false;
             if("logs".equals(step.role())) return logType(s)!=null;
@@ -331,7 +338,18 @@ final class LocalTaskRunner {
         releaseHuntAttack(client);
         if(!active) return;
         if(suspended)return;
+        if(client.gui.screen() instanceof BotControlScreen)return;
         if(client.player!=owner || client.level!=world || !owner.isAlive() || bot.state()!=BotState.RUNNING) { block("Local stopped: world/player changed, player died or bot state changed.");return; }
+        if(phase==Phase.LOOP_WAIT) {
+            if(client.isPaused() || client.gui.screen()!=null || client.gui.overlay()!=null)return;
+            if(System.nanoTime()-phaseStarted>=5_000_000_000L) {
+                Arrays.fill(supplyBaselines,-1);Arrays.fill(controlDone,false);Arrays.fill(controlSent,false);Arrays.fill(chestProgress,0);Arrays.fill(initiallySatisfied,false);
+                pendingChest=false;supplyIndex=0;clock=batches=0;foodFallbackStep=-1;loopCycle++;started=System.nanoTime();
+                for(int i=0;i<initiallySatisfied.length;i++)initiallySatisfied[i]=!TaskPresets.controlAction(starter.steps().get(i).action()) && !starter.steps().get(i).action().startsWith("chest_") && supplyCount(client,starter.steps().get(i))>=starter.steps().get(i).count();
+                change(Phase.PLAN,"Starting task round "+loopCycle+".");
+            }
+            return;
+        }
         if(phase==Phase.HUNT && System.nanoTime()-phaseStarted>180_000_000_000L) beginFoodFallback(client,"Animal search timed out.");
         if(System.nanoTime()-started>(starter==null?900_000_000_000L:1_800_000_000_000L)
                 || System.nanoTime()-phaseStarted>(phase==Phase.SMELT?900_000_000_000L:180_000_000_000L)) { block("Local stopped: current step timed out.");return; }
@@ -484,6 +502,7 @@ final class LocalTaskRunner {
             supplyIndex++;
         }
         if(supplyIndex==starter.steps().size()) {
+            if(workflowMode.equals("loop")) {closeForMovement();movement.stop();change(Phase.LOOP_WAIT,"Task round "+loopCycle+" completed; repeating in five seconds. bot stop to cancel.");return true;}
             closeForMovement();finish("Task "+workflowTitle+" completed. Checked "+supplyIndex+" steps; no AI calls.");return true;
         }
         var step=starter.steps().get(supplyIndex);

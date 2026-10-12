@@ -119,12 +119,12 @@ public final class TaskPresets {
     public record Workflow(String filename,String title,String description,Starter plan,String error,Goal goal,String mode) {
         public Workflow(String filename,String title,String description,Starter plan,String error) {this(filename,title,description,plan,error,null,"ensure");}
         public Workflow(String filename,String title,String description,Starter plan,String error,Goal goal) {this(filename,title,description,plan,error,goal,"ensure");}
-        public Workflow {if(!Set.of("ensure","collect").contains(mode))throw invalid("Task mode must be ensure or collect");}
+        public Workflow {if(!Set.of("ensure","collect","loop").contains(mode))throw invalid("Task mode must be ensure, collect or loop");}
     }
     /** Collect measures net additions since entering a step; ensure measures current stock. */
     public static int supplyProgress(String mode,int present,int baseline) {
         if(present<0 || baseline<0)throw invalid("Negative supply count");
-        return switch(mode) {case "ensure" -> present;case "collect" -> Math.max(0,present-baseline);default -> throw invalid("Task mode must be ensure or collect");};
+        return switch(mode) {case "ensure", "loop" -> present;case "collect" -> Math.max(0,present-baseline);default -> throw invalid("Task mode must be ensure, collect or loop");};
     }
     public static Path workflowDirectory() {
         if(file==null) throw invalid("Task directory not initialized");
@@ -147,7 +147,7 @@ public final class TaskPresets {
         }
         var root=JsonParser.parseString(json).getAsJsonObject();validateKeys(root,Set.of("version","mode","title","description","steps","recipes","goal"));
         String mode=root.has("mode")?root.remove("mode").getAsString():"ensure";
-        if(!Set.of("ensure","collect").contains(mode))throw invalid("Task mode must be ensure or collect");
+        if(!Set.of("ensure","collect","loop").contains(mode))throw invalid("Task mode must be ensure, collect or loop");
         Goal goal=null;
         if(root.has("goal")) {
             var target=root.remove("goal").getAsJsonObject();validateKeys(target,Set.of("item","count"));exactNumbers(target);

@@ -4,6 +4,8 @@
 
 A Minecraft Java client mod with Baritone navigation, ordered JSON tasks, nearby defense and auto eating, chest memory, optional AI control and a local web dashboard.
 
+Press **F8** in game to open bot controls: Start, Pause, Resume and Stop. The shortcut can be reassigned in Minecraft Controls. Pause keeps local task progress; Stop cancels it. Web tasks also support **Repeat continuously**.
+
 ## Requirements
 
 - Minecraft Java 26.2 and Java 25+.

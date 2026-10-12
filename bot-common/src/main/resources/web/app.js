@@ -58,7 +58,7 @@ function renderSupplies(plan){
     text('#running-workflow-title',plan?.title?(plan.title+' · '+plan.file):'No task file running');
     const states={BLOCKED:'Blocked · progress saved',RUNNING:'Running',COMPLETED:'Completed',CANCELLED:'Stopped',IDLE:'Not started',SUSPENDED:'Waiting for safety',WAITING_RECOVERY:'Waiting for furnace recovery'};
     const done=(plan?.steps||[]).filter(s=>['COMPLETED','SKIPPED'].includes(s.state)).length;
-    text('#workflow-summary',(states[plan?.state]||'Not started')+' · '+done+' / '+(plan?.steps?.length||0)+' steps finished');
+    text('#workflow-summary',(states[plan?.state]||'Not started')+' · '+done+' / '+(plan?.steps?.length||0)+' steps finished'+(plan?.mode==='loop'?' · '+BotLanguage.translate('Round')+' '+plan.cycle:''));
     const labels={BLOCKED:'Blocked · resolve and resume',COMPLETED:'Done',SKIPPED:'Already available · skipped',RUNNING:'In progress',STOPPED:'Stopped here',WAITING:'Pending',SUSPENDED:'Saved · temporarily interrupted'};
     const box=$('#supply-list');box.replaceChildren();
     (plan?.steps||[]).forEach((s,i)=>{const row=node('div',undefined,'step '+(s.state==='RUNNING'?'current':['COMPLETED','SKIPPED'].includes(s.state)?'completed':s.state==='STOPPED'?'stopped':'waiting')),content=node('div');
@@ -67,7 +67,7 @@ function renderSupplies(plan){
 }
 function previewWorkflow(){
     const file=snapshot?.workflows?.files?.find(f=>f.filename===selectedWorkflow);
-    text('#workflow-title',file?.title||'Select a task file');text('#workflow-description',file?(file.description+' · '+file.filename+' · '+(file.mode==='collect'?'Collect requested quantity':'Ensure required stock')):'');
+    text('#workflow-title',file?.title||'Select a task file');text('#workflow-description',file?(file.description+' · '+file.filename+' · '+(file.mode==='loop'?'Repeat continuously':file.mode==='collect'?'Collect requested quantity':'Ensure required stock')):'');
     $('#workflow-error').hidden=!file?.error;text('#workflow-error',file?.error||'');
     const box=$('#workflow-preview');box.replaceChildren();
     const actions={goto:'Go to coordinates',mine:'Gather materials',craft:'Craft',food:'Hunt and cook food',smelt:'Smelt',chest_take:'Take from specified chest',chest_put:'Store in specified chest',chat:'Send chat',command:'Run server command',menu_open:'Open server menu',menu_click:'Click server menu'};
