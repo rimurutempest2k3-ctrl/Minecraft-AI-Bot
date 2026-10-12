@@ -1267,6 +1267,13 @@
     "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.": "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.",
     "Missing suitable mining tool for ": "Missing suitable mining tool for ",
     "Private notification displayed; checking next step.": "Private notification displayed; checking next step.",
-    "Private notification": "Private notification"
+    "Private notification": "Private notification",
+    "Creeper nearby; holding shield and backing away on safe ground.": "Creeper nearby; holding shield and backing away on safe ground.",
+    "Cannot select water bucket; skipping extinguishing.": "Cannot select water bucket; skipping extinguishing.",
+    "On fire; placing water to extinguish before resuming the task.": "On fire; placing water to extinguish before resuming the task.",
+    "Fire extinguished; resuming the saved task.": "Fire extinguished; resuming the saved task.",
+    "Water extinguishing not confirmed; resuming with a retry cooldown.": "Water extinguishing not confirmed; resuming with a retry cooldown.",
+    "Cannot place water because player or inventory state changed.": "Cannot place water because player or inventory state changed.",
+    "Cannot reach the ground face for placing water.": "Cannot reach the ground face for placing water."
   }
 }

@@ -40,7 +40,7 @@ import net.minecraft.world.phys.*;
 
 /** One owner for food, melee/bow defence and bounded escape. No API requests or attacks on players. */
 final class SurvivalController {
-    private enum Mode { WATCH, EAT, DEFEND, RANGED, RETREAT, CREEPER, PILLAR, EQUIP, CLEAN, LOOT }
+    private enum Mode { WATCH, EAT, EXTINGUISH, DEFEND, RANGED, RETREAT, CREEPER, PILLAR, EQUIP, CLEAN, LOOT }
     private record Seen(LivingEntity entity, SurvivalPolicy.Threat threat) {}
     private static final Set<String> DEFENDABLE=Set.of("minecraft:zombie","minecraft:husk","minecraft:drowned",
             "minecraft:skeleton","minecraft:stray","minecraft:bogged","minecraft:spider",
@@ -113,6 +113,58 @@ final class SurvivalController {
     private double escapeRadius=8;
     private double minimumEscapeRadius=8;
     private long nextCreeperShield;
+    private boolean creeperBacking;
+    private long nextExtinguish;
+    private BlockPos extinguishFloor;
+    private int extinguishTicks;
+    private boolean waterSent;
+    private boolean startExtinguishing(Minecraft client) {
+        var player=client.player;
+        if(!player.isOnFire() || player.isInWater() || !player.onGround() || player.isPassenger()
+                || client.level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.WATER_EVAPORATES,player.blockPosition()) || System.nanoTime()<nextExtinguish
+                || client.gui.screen()!=null || player.containerMenu!=player.inventoryMenu || !player.containerMenu.getCarried().isEmpty())return false;
+        var items=player.getInventory().getNonEquipmentItems();
+        int bucket=-1;for(int i=0;i<items.size();i++)if(items.get(i).is(Items.WATER_BUCKET)){bucket=i;break;}
+        if(bucket<0)return false;
+        BlockPos feet=player.blockPosition(),floor=feet.below();
+        if(!client.level.hasChunkAt(floor) || !client.level.getBlockState(floor).isCollisionShapeFullBlock(client.level,floor)
+                || !client.level.getBlockState(feet).canBeReplaced() || !client.level.getFluidState(feet).isEmpty())return false;
+        if(busy())cancel(client);
+        if(!claim(client))return false;
+        movement.stop();mode=Mode.EXTINGUISH;extinguishFloor=floor.immutable();extinguishTicks=0;waterSent=false;
+        nextExtinguish=System.nanoTime()+5_000_000_000L;
+        if(!select(client,bucket)) {finish(client,"Cannot select water bucket; skipping extinguishing.");return true;}
+        announce("On fire; placing water to extinguish before resuming the task.");return true;
+    }
+    private void tickExtinguishing(Minecraft client) {
+        if(!owner.isOnFire()) {finish(client,"Fire extinguished; resuming the saved task.");return;}
+        if(++extinguishTicks>60) {finish(client,"Water extinguishing not confirmed; resuming with a retry cooldown.");return;}
+        if(waterSent)return;
+        if(!owner.onGround() || !owner.blockPosition().below().equals(extinguishFloor)
+                || client.gui.screen()!=null || !owner.getMainHandItem().is(Items.WATER_BUCKET)) {
+            finish(client,"Cannot place water because player or inventory state changed.");return;
+        }
+        Vec3 point=Vec3.atCenterOf(extinguishFloor).add(0,0.5,0),delta=point.subtract(owner.getEyePosition());
+        float yaw=(float)Math.toDegrees(Math.atan2(delta.z,delta.x))-90;
+        float pitch=(float)-Math.toDegrees(Math.atan2(delta.y,Math.hypot(delta.x,delta.z)));
+        owner.setYRot(owner.getYRot()+Mth.clamp(Mth.wrapDegrees(yaw-owner.getYRot()),-30f,30f));
+        owner.setXRot(Mth.clamp(owner.getXRot()+Mth.clamp(pitch-owner.getXRot(),-20f,20f),-90f,90f));
+        if(extinguishTicks<3 || Math.abs(Mth.wrapDegrees(yaw-owner.getYRot()))>2 || Math.abs(pitch-owner.getXRot())>2)return;
+        Vec3 eye=owner.getEyePosition();
+        var hit=world.clip(new ClipContext(eye,eye.add(owner.getLookAngle().scale(owner.blockInteractionRange())),ClipContext.Block.OUTLINE,ClipContext.Fluid.NONE,owner));
+        if(hit.getType()!=HitResult.Type.BLOCK || !hit.getBlockPos().equals(extinguishFloor) || hit.getDirection()!=Direction.UP) {
+            finish(client,"Cannot reach the ground face for placing water.");return;
+        }
+        waterSent=true;client.gameMode.useItem(owner,InteractionHand.MAIN_HAND);
+    }
+    private List<Seen> supportThreats(Minecraft client) {
+        double radius=mode==Mode.CREEPER?8:4;
+        return scan(client).stream().filter(v->client.player.distanceTo(v.entity())<=radius
+                && (!v.threat.creeper() || client.player.hasLineOfSight(v.entity()) || v.threat.ignited())).toList();
+    }
+    private void releaseCreeperBacking(Minecraft client) {
+        if(creeperBacking) {client.options.keyDown.setDown(false);creeperBacking=false;}
+    }
     private int shieldFailures;
     private SurvivalPolicy.Assessment assessment=new SurvivalPolicy.Assessment(SurvivalPolicy.Danger.CLEAR,SurvivalPolicy.Action.IDLE,8,"Not assessed yet.");
     private String previousRisk="";
@@ -417,15 +469,18 @@ final class SurvivalController {
     boolean busy() {return mode!=Mode.WATCH;}
     boolean safeForTaskResume(Minecraft client) {
         return client.player!=null && client.level!=null && client.player.isAlive() && !busy()
-                && (!combat || scan(client).stream().noneMatch(v->client.player.distanceTo(v.entity())<=4));
+                && (!combat || supportThreats(client).isEmpty());
     }
     /** Limited support for explicit tasks: eat and defend locally, without autonomous travel. */
     void supportTick(Minecraft client) {
+        releaseCreeperBacking(client);
         releaseAttack(client);
         if(!enabled || bot.state()!=BotState.RUNNING || client.player==null || client.level==null || client.gameMode==null || !client.player.isAlive()) {cancel(client);return;}
         if(client.isPaused() || client.gui.overlay()!=null) {cancel(client);return;}
         if(busy() && (client.player!=owner || client.level!=world)) {cancel(client);return;}
         try {
+            if(mode==Mode.EXTINGUISH) {tickExtinguishing(client);return;}
+            if(startExtinguishing(client))return;
             if(mode==Mode.EAT) {tickEating(client);return;}
             if(client.gui.screen()!=null || client.player.containerMenu!=client.player.inventoryMenu || !client.player.containerMenu.getCarried().isEmpty()) {if(busy())cancel(client);return;}
             long now=System.nanoTime();
@@ -435,11 +490,14 @@ final class SurvivalController {
                 if(claim(client))eat(client,food);
                 return;
             }
-            var nearby=scan(client).stream().filter(v->client.player.distanceTo(v.entity())<=4).toList();
+            var nearby=supportThreats(client);
             if(combat && !nearby.isEmpty()) {
                 if(!claim(client))return;
                 var creeper=nearby.stream().filter(v->v.threat.creeper()).findFirst();
-                if(creeper.isPresent()) {mode=Mode.CREEPER;shieldCreeper(client,List.of(creeper.get()));return;}
+                if(creeper.isPresent()) {
+                    if(mode!=Mode.CREEPER) {movement.stop();mode=Mode.CREEPER;announce("Creeper nearby; holding shield and backing away on safe ground.");}
+                    shieldCreeper(client,nearby);return;
+                }
                 if(mode!=Mode.DEFEND) {releaseShield(client);movement.stop();mode=Mode.DEFEND;weaponDelay=0;alignedTicks=0;aimedMob=null;}
                 defend(client,nearby.getFirst().entity());return;
             }
@@ -581,6 +639,7 @@ final class SurvivalController {
         return items.stream().anyMatch(s->s.is(Items.SHIELD) && s.getMaxDamage()-s.getDamageValue()>3 && !client.player.getCooldowns().isOnCooldown(s));
     }
     private void shieldCreeper(Minecraft client,List<Seen> seen) {
+        releaseCreeperBacking(client);
         var nearest=seen.stream().filter(s->s.threat.creeper() && s.entity.isAlive() && !s.entity.isRemoved())
                 .min(Comparator.comparingDouble(s->owner.distanceTo(s.entity))).orElse(null);
         if(nearest==null) {scanTicks=5;return;}
@@ -590,7 +649,23 @@ final class SurvivalController {
         owner.setYRot(owner.getYRot()+Mth.clamp(Mth.wrapDegrees(yaw-owner.getYRot()),-15f,15f));
         owner.setXRot(Mth.clamp(owner.getXRot()+Mth.clamp(pitch-owner.getXRot(),-10f,10f),-90f,90f));
         releaseAttack(client);
-        if(raiseShield(client)) shieldFailures=0;
+        if(raiseShield(client)) {
+            shieldFailures=0;
+            // Walk backwards only once facing the threat; test the entire short corridor each tick.
+            double angle=Math.toRadians(owner.getYRot());
+            Vec3 backwards=new Vec3(Math.sin(angle),0,-Math.cos(angle));
+            boolean clear=owner.onGround() && !owner.isPassenger() && Math.abs(Mth.wrapDegrees(yaw-owner.getYRot()))<=25;
+            for(double distance:new double[]{0.25,0.5,0.8}) {
+                Vec3 point=owner.position().add(backwards.scale(distance));
+                if(!safe(point) || point.distanceToSqr(nearest.entity.position())<=owner.distanceToSqr(nearest.entity)
+                        || seen.stream().anyMatch(s->!s.entity.equals(nearest.entity)
+                            && point.distanceToSqr(s.entity.position())<4 && point.distanceToSqr(s.entity.position())<owner.distanceToSqr(s.entity))) {clear=false;break;}
+            }
+            if(clear && !client.options.keyDown.isUnbound() && !client.options.keyDown.isDown() && !client.options.keyUp.isDown()
+                    && !client.options.keyLeft.isDown() && !client.options.keyRight.isDown()) {
+                client.options.keyDown.setDown(true);creeperBacking=true;
+            }
+        }
         else if(++shieldFailures>=20) {
             nextCreeperShield=System.nanoTime()+2_000_000_000L;
             endAction(client,"Cannot keep shield up against creeper; retreating.");
@@ -1413,6 +1488,7 @@ final class SurvivalController {
     }
     private void finish(Minecraft client,String message) {cancel(client);announce(message);}
     void cancel(Minecraft client) {
+        releaseCreeperBacking(client);
 
         abortBow(client);
         releaseAttack(client);
@@ -1422,6 +1498,7 @@ final class SurvivalController {
         cleanup=null;
         pickup=null;
         emergencyEating=false;strikeWindow=0;
+        extinguishFloor=null;extinguishTicks=0;waterSent=false;
         releaseFood(client);
         if(busy()) {
             movement.stop();if(client.player==owner) owner.getInventory().setSelectedSlot(selected);

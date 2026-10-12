@@ -1267,6 +1267,13 @@
     "Gathering stopped: selected tool is no longer suitable. Restore the tool and resume the task.": "Đã dừng lấy vật phẩm vì công cụ đang cầm không còn phù hợp. Trang bị lại công cụ rồi tiếp tục nhiệm vụ.",
     "Missing suitable mining tool for ": "Thiếu công cụ đào phù hợp cho ",
     "Private notification displayed; checking next step.": "Đã hiển thị thông báo riêng; kiểm tra bước tiếp theo.",
-    "Private notification": "Thông báo riêng"
+    "Private notification": "Thông báo riêng",
+    "Creeper nearby; holding shield and backing away on safe ground.": "Creeper ở gần; giữ khiên và lùi trên nền an toàn.",
+    "Cannot select water bucket; skipping extinguishing.": "Không chọn được xô nước; bỏ qua dập lửa.",
+    "On fire; placing water to extinguish before resuming the task.": "Đang cháy; đặt nước dập lửa trước khi tiếp tục nhiệm vụ.",
+    "Fire extinguished; resuming the saved task.": "Đã dập lửa; tiếp tục nhiệm vụ đã lưu.",
+    "Water extinguishing not confirmed; resuming with a retry cooldown.": "Chưa xác nhận dập lửa bằng nước; tiếp tục và chờ trước khi thử lại.",
+    "Cannot place water because player or inventory state changed.": "Không đặt được nước vì trạng thái người chơi hoặc hành trang đã thay đổi.",
+    "Cannot reach the ground face for placing water.": "Không tương tác được mặt đất để đặt nước."
   }
 }
