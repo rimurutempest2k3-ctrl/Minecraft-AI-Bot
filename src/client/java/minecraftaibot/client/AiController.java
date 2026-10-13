@@ -93,7 +93,7 @@ final class AiController implements AutoCloseable {
         Path file = directory.resolve("ai.properties");
         Path temporary = Files.createTempFile(directory, "ai-config-", ".tmp");
         try {
-            try (Writer writer = Files.newBufferedWriter(temporary, StandardCharsets.UTF_8)) { value.store(writer, "Minecraft AI Bot providers"); }
+            try (Writer writer = Files.newBufferedWriter(temporary, StandardCharsets.UTF_8)) { value.store(writer, "TaskFlow Bot providers"); }
             try { Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE); }
             catch (AtomicMoveNotSupportedException ignored) { Files.move(temporary, file, StandardCopyOption.REPLACE_EXISTING); }
         } finally { Files.deleteIfExists(temporary); }

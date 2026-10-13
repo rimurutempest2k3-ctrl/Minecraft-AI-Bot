@@ -1,5 +1,5 @@
 plugins {
-	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'net.fabricmc.fabric-loom-remap' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -15,13 +15,14 @@ loom {
 }
 
 dependencies {
-	implementation files('libs/baritone-api-fabric-1.19.0.jar')
+	modImplementation files('libs/baritone-api-fabric-1.17.0.jar')
 	implementation project(':bot-common')
 	include project(':bot-common')
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
 tasks.withType(ProcessResources).configureEach {
@@ -39,14 +40,14 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = 'UTF-8'
-	it.options.release = 25
+	it.options.release = 21
 }
 
 java {
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_25
-	targetCompatibility = JavaVersion.VERSION_25
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
@@ -74,8 +75,8 @@ tasks.register('releaseZip', Zip) {
     dependsOn ':bot-common:check'
     dependsOn tasks.named('build'), project(':bot-common').tasks.named('jar'), project(':bot-common').tasks.named('taskPack')
     destinationDirectory = layout.buildDirectory.dir('releases')
-    archiveFileName = "minecraft-ai-bot-${project.version}-mc${project.minecraft_version}.zip"
-    from(tasks.named('jar')) { into 'mods' }
+    archiveFileName = "taskflow-bot-${project.version}-mc${project.minecraft_version}.zip"
+    from(tasks.named('remapJar')) { into 'mods' }
     from(project(':bot-common').tasks.named('jar')) { into 'tools'; rename { 'bot-console.jar' } }
     from({ zipTree(project(':bot-common').tasks.named('taskPack').get().archiveFile.get().asFile) })
     from('release-tools') { exclude 'export-task-recipes.cjs' }
@@ -87,3 +88,24 @@ tasks.register('releaseZip', Zip) {
     from('INVENTORY.md')
 }
 
+
+base { archivesName = 'taskflow-bot' }
+
+tasks.named('remapJar') { archiveFileName = 'taskflow-bot-' + project.version + '-mc' + project.minecraft_version + '.jar' }
+
+// Loom's development launch needs Baritone's nested native library on the runtime classpath.
+def baritoneNative = layout.buildDirectory.file('dev-libs/nether-pathfinder-1.6.jar')
+def extractBaritoneNative = tasks.register('extractBaritoneNative', Copy) {
+    from({ zipTree(file('libs/baritone-api-fabric-1.17.0.jar')) }) {
+        include 'META-INF/jars/nether-pathfinder-1.6.jar'
+        eachFile { path = name }
+        includeEmptyDirs = false
+    }
+    into layout.buildDirectory.dir('dev-libs')
+}
+dependencies { runtimeOnly files(baritoneNative).builtBy(extractBaritoneNative) }
+java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
+tasks.named('runClient', JavaExec) {
+    dependsOn extractBaritoneNative
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}

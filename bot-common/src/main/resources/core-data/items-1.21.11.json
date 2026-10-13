@@ -1,13 +1,12 @@
 {
   "version": 1,
-  "minecraftVersion": "26.2",
+  "minecraftVersion": "1.21.11",
   "source": {
     "file": "minecraft-client.jar",
-    "sha256": "40896ee9f1e2bec3c934daac7e93d41e9e3d9c2f8ae0ca366d52ffbfd1afa290",
+    "sha256": "1473c9489ac50fda3c435049a76a70d61a10b8610db27f5ba9d8756b686cd3bd",
     "itemPath": "assets/minecraft/items",
-    "vietnameseAssetSha1": "3ebbeb78d9507effab38fda9697d9c6eb43d9b5a",
-    "blockLootSourceSha256": "47a10e257a012d4b416a38459c2e3e98f38c0cdd4afbad07c2b014fcf0a6cfc8",
-    "blockLootPath": "data/minecraft/loot_table/blocks"
+    "blockLootSourceSha256": "cba4273fb252f95404eb09cb4c9168171bacfe50c3d5905d912c318849c4bfe0",
+    "notes": "English names use the 1.21.11 catalog; retained Vietnamese translations and mining mappings are filtered to valid 1.21.11 items and blocks."
   },
   "items": [
     {
@@ -47,24 +46,24 @@
       ]
     },
     {
-      "id": "minecraft:acacia_fence_gate",
-      "name": "Acacia Fence Gate",
-      "nameVi": "Cổng rào gỗ xiêm gai",
-      "miningSources": [
-        {
-          "block": "minecraft:acacia_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:acacia_fence",
       "name": "Acacia Fence",
       "nameVi": "Hàng rào gỗ xiêm gai",
       "miningSources": [
         {
           "block": "minecraft:acacia_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:acacia_fence_gate",
+      "name": "Acacia Fence Gate",
+      "nameVi": "Cổng rào gỗ xiêm gai",
+      "miningSources": [
+        {
+          "block": "minecraft:acacia_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -319,6 +318,18 @@
       ]
     },
     {
+      "id": "minecraft:andesite",
+      "name": "Andesite",
+      "nameVi": "Đá andesit",
+      "miningSources": [
+        {
+          "block": "minecraft:andesite",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:andesite_slab",
       "name": "Andesite Slab",
       "nameVi": "Phiến đá andesit",
@@ -349,18 +360,6 @@
       "miningSources": [
         {
           "block": "minecraft:andesite_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:andesite",
-      "name": "Andesite",
-      "nameVi": "Đá andesit",
-      "miningSources": [
-        {
-          "block": "minecraft:andesite",
           "silkTouch": false,
           "tools": []
         }
@@ -450,21 +449,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:azalea_leaves",
-      "name": "Azalea Leaves",
-      "nameVi": "Lá đỗ quyên",
-      "miningSources": [
-        {
-          "block": "minecraft:azalea_leaves",
-          "silkTouch": false,
-          "tools": [
-            "shears",
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
       "id": "minecraft:azalea",
       "name": "Azalea",
       "nameVi": "Đỗ quyên",
@@ -483,6 +467,21 @@
           "block": "minecraft:potted_azalea_bush",
           "silkTouch": false,
           "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:azalea_leaves",
+      "name": "Azalea Leaves",
+      "nameVi": "Lá đỗ quyên",
+      "miningSources": [
+        {
+          "block": "minecraft:azalea_leaves",
+          "silkTouch": false,
+          "tools": [
+            "shears",
+            "silk_touch"
+          ]
         }
       ]
     },
@@ -508,6 +507,28 @@
       "name": "Baked Potato",
       "nameVi": "Khoai tây bỏ lò",
       "miningSources": []
+    },
+    {
+      "id": "minecraft:bamboo",
+      "name": "Bamboo",
+      "nameVi": "Cây tre",
+      "miningSources": [
+        {
+          "block": "minecraft:bamboo",
+          "silkTouch": false,
+          "tools": []
+        },
+        {
+          "block": "minecraft:bamboo_sapling",
+          "silkTouch": false,
+          "tools": []
+        },
+        {
+          "block": "minecraft:potted_bamboo",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
     },
     {
       "id": "minecraft:bamboo_block",
@@ -552,18 +573,6 @@
       ]
     },
     {
-      "id": "minecraft:bamboo_fence_gate",
-      "name": "Bamboo Fence Gate",
-      "nameVi": "Cổng rào gỗ tre",
-      "miningSources": [
-        {
-          "block": "minecraft:bamboo_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:bamboo_fence",
       "name": "Bamboo Fence",
       "nameVi": "Hàng rào gỗ tre",
@@ -576,12 +585,36 @@
       ]
     },
     {
+      "id": "minecraft:bamboo_fence_gate",
+      "name": "Bamboo Fence Gate",
+      "nameVi": "Cổng rào gỗ tre",
+      "miningSources": [
+        {
+          "block": "minecraft:bamboo_fence_gate",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:bamboo_hanging_sign",
       "name": "Bamboo Hanging Sign",
       "nameVi": "Tấm biển treo gỗ tre",
       "miningSources": [
         {
           "block": "minecraft:bamboo_hanging_sign",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:bamboo_mosaic",
+      "name": "Bamboo Mosaic",
+      "nameVi": "Khảm tre",
+      "miningSources": [
+        {
+          "block": "minecraft:bamboo_mosaic",
           "silkTouch": false,
           "tools": []
         }
@@ -606,18 +639,6 @@
       "miningSources": [
         {
           "block": "minecraft:bamboo_mosaic_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:bamboo_mosaic",
-      "name": "Bamboo Mosaic",
-      "nameVi": "Khảm tre",
-      "miningSources": [
-        {
-          "block": "minecraft:bamboo_mosaic",
           "silkTouch": false,
           "tools": []
         }
@@ -708,28 +729,6 @@
       "miningSources": [
         {
           "block": "minecraft:bamboo_trapdoor",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:bamboo",
-      "name": "Bamboo",
-      "nameVi": "Cây tre",
-      "miningSources": [
-        {
-          "block": "minecraft:bamboo",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:bamboo_sapling",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:potted_bamboo",
           "silkTouch": false,
           "tools": []
         }
@@ -828,6 +827,18 @@
       ]
     },
     {
+      "id": "minecraft:beetroot",
+      "name": "Beetroot",
+      "nameVi": "Củ dền",
+      "miningSources": [
+        {
+          "block": "minecraft:beetroots",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:beetroot_seeds",
       "name": "Beetroot Seeds",
       "nameVi": "Hạt củ dền",
@@ -844,18 +855,6 @@
       "name": "Beetroot Soup",
       "nameVi": "Súp củ dền",
       "miningSources": []
-    },
-    {
-      "id": "minecraft:beetroot",
-      "name": "Beetroot",
-      "nameVi": "Củ dền",
-      "miningSources": [
-        {
-          "block": "minecraft:beetroots",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
     },
     {
       "id": "minecraft:bell",
@@ -923,24 +922,24 @@
       ]
     },
     {
-      "id": "minecraft:birch_fence_gate",
-      "name": "Birch Fence Gate",
-      "nameVi": "Cổng rào gỗ bạch dương",
-      "miningSources": [
-        {
-          "block": "minecraft:birch_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:birch_fence",
       "name": "Birch Fence",
       "nameVi": "Hàng rào gỗ bạch dương",
       "miningSources": [
         {
           "block": "minecraft:birch_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:birch_fence_gate",
+      "name": "Birch Fence Gate",
+      "nameVi": "Cổng rào gỗ bạch dương",
+      "miningSources": [
+        {
+          "block": "minecraft:birch_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -1163,24 +1162,24 @@
       ]
     },
     {
-      "id": "minecraft:black_concrete_powder",
-      "name": "Black Concrete Powder",
-      "nameVi": "Bột bê tông đen",
-      "miningSources": [
-        {
-          "block": "minecraft:black_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:black_concrete",
       "name": "Black Concrete",
       "nameVi": "Bê tông đen",
       "miningSources": [
         {
           "block": "minecraft:black_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:black_concrete_powder",
+      "name": "Black Concrete Powder",
+      "nameVi": "Bột bê tông đen",
+      "miningSources": [
+        {
+          "block": "minecraft:black_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -1223,12 +1222,12 @@
       ]
     },
     {
-      "id": "minecraft:black_stained_glass_pane",
-      "name": "Black Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm đen",
+      "id": "minecraft:black_stained_glass",
+      "name": "Black Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm đen",
       "miningSources": [
         {
-          "block": "minecraft:black_stained_glass_pane",
+          "block": "minecraft:black_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -1237,12 +1236,12 @@
       ]
     },
     {
-      "id": "minecraft:black_stained_glass",
-      "name": "Black Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm đen",
+      "id": "minecraft:black_stained_glass_pane",
+      "name": "Black Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm đen",
       "miningSources": [
         {
-          "block": "minecraft:black_stained_glass",
+          "block": "minecraft:black_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -1269,6 +1268,18 @@
       "miningSources": [
         {
           "block": "minecraft:black_wool",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:blackstone",
+      "name": "Blackstone",
+      "nameVi": "Đá đen",
+      "miningSources": [
+        {
+          "block": "minecraft:blackstone",
           "silkTouch": false,
           "tools": []
         }
@@ -1305,18 +1316,6 @@
       "miningSources": [
         {
           "block": "minecraft:blackstone_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:blackstone",
-      "name": "Blackstone",
-      "nameVi": "Đá đen",
-      "miningSources": [
-        {
-          "block": "minecraft:blackstone",
           "silkTouch": false,
           "tools": []
         }
@@ -1418,24 +1417,24 @@
       ]
     },
     {
-      "id": "minecraft:blue_concrete_powder",
-      "name": "Blue Concrete Powder",
-      "nameVi": "Bột bê tông xanh nước biển",
-      "miningSources": [
-        {
-          "block": "minecraft:blue_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:blue_concrete",
       "name": "Blue Concrete",
       "nameVi": "Bê tông xanh nước biển",
       "miningSources": [
         {
           "block": "minecraft:blue_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:blue_concrete_powder",
+      "name": "Blue Concrete Powder",
+      "nameVi": "Bột bê tông xanh nước biển",
+      "miningSources": [
+        {
+          "block": "minecraft:blue_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -1515,12 +1514,12 @@
       ]
     },
     {
-      "id": "minecraft:blue_stained_glass_pane",
-      "name": "Blue Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm xanh nước biển",
+      "id": "minecraft:blue_stained_glass",
+      "name": "Blue Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm xanh nước biển",
       "miningSources": [
         {
-          "block": "minecraft:blue_stained_glass_pane",
+          "block": "minecraft:blue_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -1529,12 +1528,12 @@
       ]
     },
     {
-      "id": "minecraft:blue_stained_glass",
-      "name": "Blue Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm xanh nước biển",
+      "id": "minecraft:blue_stained_glass_pane",
+      "name": "Blue Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm xanh nước biển",
       "miningSources": [
         {
-          "block": "minecraft:blue_stained_glass",
+          "block": "minecraft:blue_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -1579,6 +1578,12 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:bone",
+      "name": "Bone",
+      "nameVi": "Xương",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:bone_block",
       "name": "Bone Block",
       "nameVi": "Khối xương",
@@ -1601,12 +1606,6 @@
           "tools": []
         }
       ]
-    },
-    {
-      "id": "minecraft:bone",
-      "name": "Bone",
-      "nameVi": "Xương",
-      "miningSources": []
     },
     {
       "id": "minecraft:book",
@@ -1653,6 +1652,20 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:brain_coral",
+      "name": "Brain Coral",
+      "nameVi": "San hô não",
+      "miningSources": [
+        {
+          "block": "minecraft:brain_coral",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
+    },
+    {
       "id": "minecraft:brain_coral_block",
       "name": "Brain Coral Block",
       "nameVi": "Khối san hô não",
@@ -1673,20 +1686,6 @@
       "miningSources": [
         {
           "block": "minecraft:brain_coral_fan",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "minecraft:brain_coral",
-      "name": "Brain Coral",
-      "nameVi": "San hô não",
-      "miningSources": [
-        {
-          "block": "minecraft:brain_coral",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -1731,6 +1730,12 @@
       ]
     },
     {
+      "id": "minecraft:brick",
+      "name": "Brick",
+      "nameVi": "Viên gạch",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:brick_slab",
       "name": "Brick Slab",
       "nameVi": "Phiến gạch",
@@ -1765,12 +1770,6 @@
           "tools": []
         }
       ]
-    },
-    {
-      "id": "minecraft:brick",
-      "name": "Brick",
-      "nameVi": "Viên gạch",
-      "miningSources": []
     },
     {
       "id": "minecraft:bricks",
@@ -1844,24 +1843,24 @@
       ]
     },
     {
-      "id": "minecraft:brown_concrete_powder",
-      "name": "Brown Concrete Powder",
-      "nameVi": "Bột bê tông nâu",
-      "miningSources": [
-        {
-          "block": "minecraft:brown_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:brown_concrete",
       "name": "Brown Concrete",
       "nameVi": "Bê tông nâu",
       "miningSources": [
         {
           "block": "minecraft:brown_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:brown_concrete_powder",
+      "name": "Brown Concrete Powder",
+      "nameVi": "Bột bê tông nâu",
+      "miningSources": [
+        {
+          "block": "minecraft:brown_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -1898,20 +1897,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:brown_mushroom_block",
-      "name": "Brown Mushroom Block",
-      "nameVi": "Khối nấm nâu",
-      "miningSources": [
-        {
-          "block": "minecraft:brown_mushroom_block",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
       "id": "minecraft:brown_mushroom",
       "name": "Brown Mushroom",
       "nameVi": "Nấm nâu",
@@ -1934,6 +1919,20 @@
       ]
     },
     {
+      "id": "minecraft:brown_mushroom_block",
+      "name": "Brown Mushroom Block",
+      "nameVi": "Khối nấm nâu",
+      "miningSources": [
+        {
+          "block": "minecraft:brown_mushroom_block",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
+    },
+    {
       "id": "minecraft:brown_shulker_box",
       "name": "Brown Shulker Box",
       "nameVi": "Hộp Shulker nâu",
@@ -1946,12 +1945,12 @@
       ]
     },
     {
-      "id": "minecraft:brown_stained_glass_pane",
-      "name": "Brown Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm nâu",
+      "id": "minecraft:brown_stained_glass",
+      "name": "Brown Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm nâu",
       "miningSources": [
         {
-          "block": "minecraft:brown_stained_glass_pane",
+          "block": "minecraft:brown_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -1960,12 +1959,12 @@
       ]
     },
     {
-      "id": "minecraft:brown_stained_glass",
-      "name": "Brown Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm nâu",
+      "id": "minecraft:brown_stained_glass_pane",
+      "name": "Brown Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm nâu",
       "miningSources": [
         {
-          "block": "minecraft:brown_stained_glass",
+          "block": "minecraft:brown_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -2004,6 +2003,20 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:bubble_coral",
+      "name": "Bubble Coral",
+      "nameVi": "San hô bong bóng",
+      "miningSources": [
+        {
+          "block": "minecraft:bubble_coral",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
+    },
+    {
       "id": "minecraft:bubble_coral_block",
       "name": "Bubble Coral Block",
       "nameVi": "Khối san hô bong bóng",
@@ -2024,20 +2037,6 @@
       "miningSources": [
         {
           "block": "minecraft:bubble_coral_fan",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "minecraft:bubble_coral",
-      "name": "Bubble Coral",
-      "nameVi": "San hô bong bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:bubble_coral",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -2085,18 +2084,6 @@
       ]
     },
     {
-      "id": "minecraft:cactus_flower",
-      "name": "Cactus Flower",
-      "nameVi": "Hoa xương rồng",
-      "miningSources": [
-        {
-          "block": "minecraft:cactus_flower",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:cactus",
       "name": "Cactus",
       "nameVi": "Xương rồng",
@@ -2108,6 +2095,18 @@
         },
         {
           "block": "minecraft:potted_cactus",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:cactus_flower",
+      "name": "Cactus Flower",
+      "nameVi": "Hoa xương rồng",
+      "miningSources": [
+        {
+          "block": "minecraft:cactus_flower",
           "silkTouch": false,
           "tools": []
         }
@@ -2189,12 +2188,6 @@
       ]
     },
     {
-      "id": "minecraft:carrot_on_a_stick",
-      "name": "Carrot on a Stick",
-      "nameVi": "Cần câu gắn cà rốt",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:carrot",
       "name": "Carrot",
       "nameVi": "Cà rốt",
@@ -2205,6 +2198,12 @@
           "tools": []
         }
       ]
+    },
+    {
+      "id": "minecraft:carrot_on_a_stick",
+      "name": "Carrot on a Stick",
+      "nameVi": "Cần câu gắn cà rốt",
+      "miningSources": []
     },
     {
       "id": "minecraft:cartography_table",
@@ -2348,24 +2347,24 @@
       ]
     },
     {
-      "id": "minecraft:cherry_fence_gate",
-      "name": "Cherry Fence Gate",
-      "nameVi": "Cổng rào gỗ anh đào",
-      "miningSources": [
-        {
-          "block": "minecraft:cherry_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:cherry_fence",
       "name": "Cherry Fence",
       "nameVi": "Hàng rào gỗ anh đào",
       "miningSources": [
         {
           "block": "minecraft:cherry_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:cherry_fence_gate",
+      "name": "Cherry Fence Gate",
+      "nameVi": "Cổng rào gỗ anh đào",
+      "miningSources": [
+        {
+          "block": "minecraft:cherry_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -2529,12 +2528,6 @@
       ]
     },
     {
-      "id": "minecraft:chest_minecart",
-      "name": "Minecart with Chest",
-      "nameVi": "Xe mỏ có rương",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:chest",
       "name": "Chest",
       "nameVi": "Rương",
@@ -2547,15 +2540,21 @@
       ]
     },
     {
-      "id": "minecraft:chicken_spawn_egg",
-      "name": "Chicken Spawn Egg",
-      "nameVi": "Trứng sinh ra Con gà",
+      "id": "minecraft:chest_minecart",
+      "name": "Minecart with Chest",
+      "nameVi": "Xe mỏ có rương",
       "miningSources": []
     },
     {
       "id": "minecraft:chicken",
       "name": "Raw Chicken",
       "nameVi": "Thịt gà sống",
+      "miningSources": []
+    },
+    {
+      "id": "minecraft:chicken_spawn_egg",
+      "name": "Chicken Spawn Egg",
+      "nameVi": "Trứng sinh ra Con gà",
       "miningSources": []
     },
     {
@@ -2581,18 +2580,6 @@
           "tools": [
             "silk_touch"
           ]
-        }
-      ]
-    },
-    {
-      "id": "minecraft:chiseled_cinnabar",
-      "name": "Chiseled Cinnabar",
-      "nameVi": "Đá chu sa được đục",
-      "miningSources": [
-        {
-          "block": "minecraft:chiseled_cinnabar",
-          "silkTouch": false,
-          "tools": []
         }
       ]
     },
@@ -2712,12 +2699,12 @@
       ]
     },
     {
-      "id": "minecraft:chiseled_sulfur",
-      "name": "Chiseled Sulfur",
-      "nameVi": "Lưu huỳnh được đục",
+      "id": "minecraft:chiseled_tuff",
+      "name": "Chiseled Tuff",
+      "nameVi": "Đá túp được đục",
       "miningSources": [
         {
-          "block": "minecraft:chiseled_sulfur",
+          "block": "minecraft:chiseled_tuff",
           "silkTouch": false,
           "tools": []
         }
@@ -2730,18 +2717,6 @@
       "miningSources": [
         {
           "block": "minecraft:chiseled_tuff_bricks",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:chiseled_tuff",
-      "name": "Chiseled Tuff",
-      "nameVi": "Đá túp được đục",
-      "miningSources": [
-        {
-          "block": "minecraft:chiseled_tuff",
           "silkTouch": false,
           "tools": []
         }
@@ -2778,98 +2753,16 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:cinnabar_brick_slab",
-      "name": "Cinnabar Brick Slab",
-      "nameVi": "Phiến gạch đá chu sa",
+      "id": "minecraft:clay",
+      "name": "Clay",
+      "nameVi": "Đất sét",
       "miningSources": [
         {
-          "block": "minecraft:cinnabar_brick_slab",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:cinnabar_brick_stairs",
-      "name": "Cinnabar Brick Stairs",
-      "nameVi": "Cầu thang gạch đá chu sa",
-      "miningSources": [
-        {
-          "block": "minecraft:cinnabar_brick_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:cinnabar_brick_wall",
-      "name": "Cinnabar Brick Wall",
-      "nameVi": "Tường gạch đá chu sa",
-      "miningSources": [
-        {
-          "block": "minecraft:cinnabar_brick_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:cinnabar_bricks",
-      "name": "Cinnabar Bricks",
-      "nameVi": "Gạch đá chu sa",
-      "miningSources": [
-        {
-          "block": "minecraft:cinnabar_bricks",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:cinnabar_slab",
-      "name": "Cinnabar Slab",
-      "nameVi": "Phiến đá chu sa",
-      "miningSources": [
-        {
-          "block": "minecraft:cinnabar_slab",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:cinnabar_stairs",
-      "name": "Cinnabar Stairs",
-      "nameVi": "Cầu thang đá chu sa",
-      "miningSources": [
-        {
-          "block": "minecraft:cinnabar_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:cinnabar_wall",
-      "name": "Cinnabar Wall",
-      "nameVi": "Tường đá chu sa",
-      "miningSources": [
-        {
-          "block": "minecraft:cinnabar_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:cinnabar",
-      "name": "Cinnabar",
-      "nameVi": "Đá chu sa",
-      "miningSources": [
-        {
-          "block": "minecraft:cinnabar",
-          "silkTouch": false,
-          "tools": []
+          "block": "minecraft:clay",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
         }
       ]
     },
@@ -2882,20 +2775,6 @@
           "block": "minecraft:clay",
           "silkTouch": false,
           "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:clay",
-      "name": "Clay",
-      "nameVi": "Đất sét",
-      "miningSources": [
-        {
-          "block": "minecraft:clay",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
         }
       ]
     },
@@ -2917,6 +2796,23 @@
         },
         {
           "block": "minecraft:potted_closed_eyeblossom",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:coal",
+      "name": "Coal",
+      "nameVi": "Than",
+      "miningSources": [
+        {
+          "block": "minecraft:coal_ore",
+          "silkTouch": false,
+          "tools": []
+        },
+        {
+          "block": "minecraft:deepslate_coal_ore",
           "silkTouch": false,
           "tools": []
         }
@@ -2949,23 +2845,6 @@
       ]
     },
     {
-      "id": "minecraft:coal",
-      "name": "Coal",
-      "nameVi": "Than",
-      "miningSources": [
-        {
-          "block": "minecraft:coal_ore",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:deepslate_coal_ore",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:coarse_dirt",
       "name": "Coarse Dirt",
       "nameVi": "Đất thô",
@@ -2982,6 +2861,23 @@
       "name": "Smithing Template",
       "nameVi": "Mẫu rèn",
       "miningSources": []
+    },
+    {
+      "id": "minecraft:cobbled_deepslate",
+      "name": "Cobbled Deepslate",
+      "nameVi": "Đá cuội bảng sâu",
+      "miningSources": [
+        {
+          "block": "minecraft:cobbled_deepslate",
+          "silkTouch": false,
+          "tools": []
+        },
+        {
+          "block": "minecraft:deepslate",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
     },
     {
       "id": "minecraft:cobbled_deepslate_slab",
@@ -3020,17 +2916,24 @@
       ]
     },
     {
-      "id": "minecraft:cobbled_deepslate",
-      "name": "Cobbled Deepslate",
-      "nameVi": "Đá cuội bảng sâu",
+      "id": "minecraft:cobblestone",
+      "name": "Cobblestone",
+      "nameVi": "Đá cuội",
       "miningSources": [
         {
-          "block": "minecraft:cobbled_deepslate",
+          "block": "minecraft:cobblestone",
           "silkTouch": false,
           "tools": []
         },
         {
-          "block": "minecraft:deepslate",
+          "block": "minecraft:infested_cobblestone",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        },
+        {
+          "block": "minecraft:stone",
           "silkTouch": false,
           "tools": []
         }
@@ -3073,30 +2976,6 @@
       ]
     },
     {
-      "id": "minecraft:cobblestone",
-      "name": "Cobblestone",
-      "nameVi": "Đá cuội",
-      "miningSources": [
-        {
-          "block": "minecraft:cobblestone",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:infested_cobblestone",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        },
-        {
-          "block": "minecraft:stone",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:cobweb",
       "name": "Cobweb",
       "nameVi": "Mạng nhện",
@@ -3124,6 +3003,12 @@
       ]
     },
     {
+      "id": "minecraft:cod",
+      "name": "Raw Cod",
+      "nameVi": "Cá tuyết sống",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:cod_bucket",
       "name": "Bucket of Cod",
       "nameVi": "Xô cá tuyết",
@@ -3136,21 +3021,15 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:cod",
-      "name": "Raw Cod",
-      "nameVi": "Cá tuyết sống",
+      "id": "minecraft:command_block",
+      "name": "Command Block",
+      "nameVi": "Khối lệnh",
       "miningSources": []
     },
     {
       "id": "minecraft:command_block_minecart",
       "name": "Minecart with Command Block",
       "nameVi": "Xe mỏ có khối lệnh",
-      "miningSources": []
-    },
-    {
-      "id": "minecraft:command_block",
-      "name": "Command Block",
-      "nameVi": "Khối lệnh",
       "miningSources": []
     },
     {
@@ -3662,24 +3541,24 @@
       ]
     },
     {
-      "id": "minecraft:crimson_fence_gate",
-      "name": "Crimson Fence Gate",
-      "nameVi": "Cổng rào đỏ thẫm",
-      "miningSources": [
-        {
-          "block": "minecraft:crimson_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:crimson_fence",
       "name": "Crimson Fence",
       "nameVi": "Hàng rào đỏ thẫm",
       "miningSources": [
         {
           "block": "minecraft:crimson_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:crimson_fence_gate",
+      "name": "Crimson Fence Gate",
+      "nameVi": "Cổng rào đỏ thẫm",
+      "miningSources": [
+        {
+          "block": "minecraft:crimson_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -3872,6 +3751,18 @@
       ]
     },
     {
+      "id": "minecraft:cut_copper",
+      "name": "Cut Copper",
+      "nameVi": "Khối đồng được cắt",
+      "miningSources": [
+        {
+          "block": "minecraft:cut_copper",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:cut_copper_slab",
       "name": "Cut Copper Slab",
       "nameVi": "Phiến đồng được cắt",
@@ -3896,12 +3787,12 @@
       ]
     },
     {
-      "id": "minecraft:cut_copper",
-      "name": "Cut Copper",
-      "nameVi": "Khối đồng được cắt",
+      "id": "minecraft:cut_red_sandstone",
+      "name": "Cut Red Sandstone",
+      "nameVi": "Cát kết đỏ được cắt",
       "miningSources": [
         {
-          "block": "minecraft:cut_copper",
+          "block": "minecraft:cut_red_sandstone",
           "silkTouch": false,
           "tools": []
         }
@@ -3920,12 +3811,12 @@
       ]
     },
     {
-      "id": "minecraft:cut_red_sandstone",
-      "name": "Cut Red Sandstone",
-      "nameVi": "Cát kết đỏ được cắt",
+      "id": "minecraft:cut_sandstone",
+      "name": "Cut Sandstone",
+      "nameVi": "Cát kết được cắt",
       "miningSources": [
         {
-          "block": "minecraft:cut_red_sandstone",
+          "block": "minecraft:cut_sandstone",
           "silkTouch": false,
           "tools": []
         }
@@ -3938,18 +3829,6 @@
       "miningSources": [
         {
           "block": "minecraft:cut_sandstone_slab",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:cut_sandstone",
-      "name": "Cut Sandstone",
-      "nameVi": "Cát kết được cắt",
-      "miningSources": [
-        {
-          "block": "minecraft:cut_sandstone",
           "silkTouch": false,
           "tools": []
         }
@@ -4015,24 +3894,24 @@
       ]
     },
     {
-      "id": "minecraft:cyan_concrete_powder",
-      "name": "Cyan Concrete Powder",
-      "nameVi": "Bột bê tông lục lam",
-      "miningSources": [
-        {
-          "block": "minecraft:cyan_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:cyan_concrete",
       "name": "Cyan Concrete",
       "nameVi": "Bê tông lục lam",
       "miningSources": [
         {
           "block": "minecraft:cyan_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:cyan_concrete_powder",
+      "name": "Cyan Concrete Powder",
+      "nameVi": "Bột bê tông lục lam",
+      "miningSources": [
+        {
+          "block": "minecraft:cyan_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -4075,12 +3954,12 @@
       ]
     },
     {
-      "id": "minecraft:cyan_stained_glass_pane",
-      "name": "Cyan Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm lục lam",
+      "id": "minecraft:cyan_stained_glass",
+      "name": "Cyan Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm lục lam",
       "miningSources": [
         {
-          "block": "minecraft:cyan_stained_glass_pane",
+          "block": "minecraft:cyan_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -4089,12 +3968,12 @@
       ]
     },
     {
-      "id": "minecraft:cyan_stained_glass",
-      "name": "Cyan Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm lục lam",
+      "id": "minecraft:cyan_stained_glass_pane",
+      "name": "Cyan Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm lục lam",
       "miningSources": [
         {
-          "block": "minecraft:cyan_stained_glass",
+          "block": "minecraft:cyan_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -4198,24 +4077,24 @@
       ]
     },
     {
-      "id": "minecraft:dark_oak_fence_gate",
-      "name": "Dark Oak Fence Gate",
-      "nameVi": "Cổng rào gỗ sồi sẫm",
-      "miningSources": [
-        {
-          "block": "minecraft:dark_oak_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:dark_oak_fence",
       "name": "Dark Oak Fence",
       "nameVi": "Hàng rào gỗ sồi sẫm",
       "miningSources": [
         {
           "block": "minecraft:dark_oak_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:dark_oak_fence_gate",
+      "name": "Dark Oak Fence Gate",
+      "nameVi": "Cổng rào gỗ sồi sẫm",
+      "miningSources": [
+        {
+          "block": "minecraft:dark_oak_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -4379,6 +4258,18 @@
       ]
     },
     {
+      "id": "minecraft:dark_prismarine",
+      "name": "Dark Prismarine",
+      "nameVi": "Prismarin sẫm màu",
+      "miningSources": [
+        {
+          "block": "minecraft:dark_prismarine",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:dark_prismarine_slab",
       "name": "Dark Prismarine Slab",
       "nameVi": "Phiến Prismarin sẫm màu",
@@ -4403,18 +4294,6 @@
       ]
     },
     {
-      "id": "minecraft:dark_prismarine",
-      "name": "Dark Prismarine",
-      "nameVi": "Prismarin sẫm màu",
-      "miningSources": [
-        {
-          "block": "minecraft:dark_prismarine",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:daylight_detector",
       "name": "Daylight Detector",
       "nameVi": "Máy dò ánh sáng",
@@ -4423,6 +4302,20 @@
           "block": "minecraft:daylight_detector",
           "silkTouch": false,
           "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:dead_brain_coral",
+      "name": "Dead Brain Coral",
+      "nameVi": "San hô não chết",
+      "miningSources": [
+        {
+          "block": "minecraft:dead_brain_coral",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
         }
       ]
     },
@@ -4458,12 +4351,12 @@
       ]
     },
     {
-      "id": "minecraft:dead_brain_coral",
-      "name": "Dead Brain Coral",
-      "nameVi": "San hô não chết",
+      "id": "minecraft:dead_bubble_coral",
+      "name": "Dead Bubble Coral",
+      "nameVi": "San hô bong bóng chết",
       "miningSources": [
         {
-          "block": "minecraft:dead_brain_coral",
+          "block": "minecraft:dead_bubble_coral",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -4503,20 +4396,6 @@
       ]
     },
     {
-      "id": "minecraft:dead_bubble_coral",
-      "name": "Dead Bubble Coral",
-      "nameVi": "San hô bong bóng chết",
-      "miningSources": [
-        {
-          "block": "minecraft:dead_bubble_coral",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
       "id": "minecraft:dead_bush",
       "name": "Dead Bush",
       "nameVi": "Bụi cây khô",
@@ -4532,6 +4411,20 @@
           "block": "minecraft:potted_dead_bush",
           "silkTouch": false,
           "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:dead_fire_coral",
+      "name": "Dead Fire Coral",
+      "nameVi": "San hô lửa chết",
+      "miningSources": [
+        {
+          "block": "minecraft:dead_fire_coral",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
         }
       ]
     },
@@ -4567,12 +4460,12 @@
       ]
     },
     {
-      "id": "minecraft:dead_fire_coral",
-      "name": "Dead Fire Coral",
-      "nameVi": "San hô lửa chết",
+      "id": "minecraft:dead_horn_coral",
+      "name": "Dead Horn Coral",
+      "nameVi": "San hô sừng chết",
       "miningSources": [
         {
-          "block": "minecraft:dead_fire_coral",
+          "block": "minecraft:dead_horn_coral",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -4612,12 +4505,12 @@
       ]
     },
     {
-      "id": "minecraft:dead_horn_coral",
-      "name": "Dead Horn Coral",
-      "nameVi": "San hô sừng chết",
+      "id": "minecraft:dead_tube_coral",
+      "name": "Dead Tube Coral",
+      "nameVi": "San hô ống tròn chết",
       "miningSources": [
         {
-          "block": "minecraft:dead_horn_coral",
+          "block": "minecraft:dead_tube_coral",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -4657,20 +4550,6 @@
       ]
     },
     {
-      "id": "minecraft:dead_tube_coral",
-      "name": "Dead Tube Coral",
-      "nameVi": "San hô ống tròn chết",
-      "miningSources": [
-        {
-          "block": "minecraft:dead_tube_coral",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
       "id": "minecraft:debug_stick",
       "name": "Debug Stick",
       "nameVi": "Gậy gỡ lỗi",
@@ -4685,6 +4564,27 @@
           "block": "minecraft:decorated_pot",
           "silkTouch": false,
           "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:deepslate",
+      "name": "Deepslate",
+      "nameVi": "Đá bảng sâu",
+      "miningSources": [
+        {
+          "block": "minecraft:deepslate",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        },
+        {
+          "block": "minecraft:infested_deepslate",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
         }
       ]
     },
@@ -4897,33 +4797,29 @@
       ]
     },
     {
-      "id": "minecraft:deepslate",
-      "name": "Deepslate",
-      "nameVi": "Đá bảng sâu",
-      "miningSources": [
-        {
-          "block": "minecraft:deepslate",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        },
-        {
-          "block": "minecraft:infested_deepslate",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
       "id": "minecraft:detector_rail",
       "name": "Detector Rail",
       "nameVi": "Đường ray cảm biến",
       "miningSources": [
         {
           "block": "minecraft:detector_rail",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:diamond",
+      "name": "Diamond",
+      "nameVi": "Kim cương",
+      "miningSources": [
+        {
+          "block": "minecraft:deepslate_diamond_ore",
+          "silkTouch": false,
+          "tools": []
+        },
+        {
+          "block": "minecraft:diamond_ore",
           "silkTouch": false,
           "tools": []
         }
@@ -5028,17 +4924,12 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:diamond",
-      "name": "Diamond",
-      "nameVi": "Kim cương",
+      "id": "minecraft:diorite",
+      "name": "Diorite",
+      "nameVi": "Đá diorit",
       "miningSources": [
         {
-          "block": "minecraft:deepslate_diamond_ore",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:diamond_ore",
+          "block": "minecraft:diorite",
           "silkTouch": false,
           "tools": []
         }
@@ -5081,24 +4972,6 @@
       ]
     },
     {
-      "id": "minecraft:diorite",
-      "name": "Diorite",
-      "nameVi": "Đá diorit",
-      "miningSources": [
-        {
-          "block": "minecraft:diorite",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:dirt_path",
-      "name": "Dirt Path",
-      "nameVi": "Đường đất",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:dirt",
       "name": "Dirt",
       "nameVi": "Đất",
@@ -5134,6 +5007,12 @@
           "tools": []
         }
       ]
+    },
+    {
+      "id": "minecraft:dirt_path",
+      "name": "Dirt Path",
+      "nameVi": "Đường đất",
+      "miningSources": []
     },
     {
       "id": "minecraft:disc_fragment_5",
@@ -5208,6 +5087,12 @@
       ]
     },
     {
+      "id": "minecraft:dried_kelp",
+      "name": "Dried Kelp",
+      "nameVi": "Tảo bẹ khô",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:dried_kelp_block",
       "name": "Dried Kelp Block",
       "nameVi": "Khối tảo bẹ khô",
@@ -5218,12 +5103,6 @@
           "tools": []
         }
       ]
-    },
-    {
-      "id": "minecraft:dried_kelp",
-      "name": "Dried Kelp",
-      "nameVi": "Tảo bẹ khô",
-      "miningSources": []
     },
     {
       "id": "minecraft:dripstone_block",
@@ -5286,6 +5165,23 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:emerald",
+      "name": "Emerald",
+      "nameVi": "Ngọc lục bảo",
+      "miningSources": [
+        {
+          "block": "minecraft:deepslate_emerald_ore",
+          "silkTouch": false,
+          "tools": []
+        },
+        {
+          "block": "minecraft:emerald_ore",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:emerald_block",
       "name": "Block of Emerald",
       "nameVi": "Khối ngọc lục bảo",
@@ -5308,23 +5204,6 @@
           "tools": [
             "silk_touch"
           ]
-        }
-      ]
-    },
-    {
-      "id": "minecraft:emerald",
-      "name": "Emerald",
-      "nameVi": "Ngọc lục bảo",
-      "miningSources": [
-        {
-          "block": "minecraft:deepslate_emerald_ore",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:emerald_ore",
-          "silkTouch": false,
-          "tools": []
         }
       ]
     },
@@ -5377,6 +5256,18 @@
       ]
     },
     {
+      "id": "minecraft:end_stone",
+      "name": "End Stone",
+      "nameVi": "Đá End",
+      "miningSources": [
+        {
+          "block": "minecraft:end_stone",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:end_stone_brick_slab",
       "name": "End Stone Brick Slab",
       "nameVi": "Phiến gạch đá End",
@@ -5419,18 +5310,6 @@
       "miningSources": [
         {
           "block": "minecraft:end_stone_bricks",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:end_stone",
-      "name": "End Stone",
-      "nameVi": "Đá End",
-      "miningSources": [
-        {
-          "block": "minecraft:end_stone",
           "silkTouch": false,
           "tools": []
         }
@@ -5505,6 +5384,18 @@
       "miningSources": [
         {
           "block": "minecraft:exposed_chiseled_copper",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:exposed_copper",
+      "name": "Exposed Copper",
+      "nameVi": "Khối đồng bị phơi ra",
+      "miningSources": [
+        {
+          "block": "minecraft:exposed_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -5619,12 +5510,12 @@
       ]
     },
     {
-      "id": "minecraft:exposed_copper",
-      "name": "Exposed Copper",
-      "nameVi": "Khối đồng bị phơi ra",
+      "id": "minecraft:exposed_cut_copper",
+      "name": "Exposed Cut Copper",
+      "nameVi": "Khối đồng được cắt bị phơi ra",
       "miningSources": [
         {
-          "block": "minecraft:exposed_copper",
+          "block": "minecraft:exposed_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -5649,18 +5540,6 @@
       "miningSources": [
         {
           "block": "minecraft:exposed_cut_copper_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:exposed_cut_copper",
-      "name": "Exposed Cut Copper",
-      "nameVi": "Khối đồng được cắt bị phơi ra",
-      "miningSources": [
-        {
-          "block": "minecraft:exposed_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -5747,6 +5626,20 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:fire_coral",
+      "name": "Fire Coral",
+      "nameVi": "San hô lửa",
+      "miningSources": [
+        {
+          "block": "minecraft:fire_coral",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
+    },
+    {
       "id": "minecraft:fire_coral_block",
       "name": "Fire Coral Block",
       "nameVi": "Khối san hô lửa",
@@ -5767,20 +5660,6 @@
       "miningSources": [
         {
           "block": "minecraft:fire_coral_fan",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "minecraft:fire_coral",
-      "name": "Fire Coral",
-      "nameVi": "San hô lửa",
-      "miningSources": [
-        {
-          "block": "minecraft:fire_coral",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -5831,12 +5710,6 @@
       ]
     },
     {
-      "id": "minecraft:flint_and_steel",
-      "name": "Flint and Steel",
-      "nameVi": "Dụng cụ đánh lửa",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:flint",
       "name": "Flint",
       "nameVi": "Đá lửa",
@@ -5847,6 +5720,12 @@
           "tools": []
         }
       ]
+    },
+    {
+      "id": "minecraft:flint_and_steel",
+      "name": "Flint and Steel",
+      "nameVi": "Dụng cụ đánh lửa",
+      "miningSources": []
     },
     {
       "id": "minecraft:flow_armor_trim_smithing_template",
@@ -5978,11 +5857,6 @@
           "tools": []
         },
         {
-          "block": "minecraft:potted_golden_dandelion",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
           "block": "minecraft:potted_jungle_sapling",
           "silkTouch": false,
           "tools": []
@@ -6075,21 +5949,6 @@
       ]
     },
     {
-      "id": "minecraft:flowering_azalea_leaves",
-      "name": "Flowering Azalea Leaves",
-      "nameVi": "Lá đỗ quyên có hoa",
-      "miningSources": [
-        {
-          "block": "minecraft:flowering_azalea_leaves",
-          "silkTouch": false,
-          "tools": [
-            "shears",
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
       "id": "minecraft:flowering_azalea",
       "name": "Flowering Azalea",
       "nameVi": "Đỗ quyên đang trổ bông",
@@ -6108,6 +5967,21 @@
           "block": "minecraft:potted_flowering_azalea_bush",
           "silkTouch": false,
           "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:flowering_azalea_leaves",
+      "name": "Flowering Azalea Leaves",
+      "nameVi": "Lá đỗ quyên có hoa",
+      "miningSources": [
+        {
+          "block": "minecraft:flowering_azalea_leaves",
+          "silkTouch": false,
+          "tools": [
+            "shears",
+            "silk_touch"
+          ]
         }
       ]
     },
@@ -6136,12 +6010,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:furnace_minecart",
-      "name": "Minecart with Furnace",
-      "nameVi": "Xe mỏ có lò nung",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:furnace",
       "name": "Furnace",
       "nameVi": "Lò nung",
@@ -6152,6 +6020,12 @@
           "tools": []
         }
       ]
+    },
+    {
+      "id": "minecraft:furnace_minecart",
+      "name": "Minecart with Furnace",
+      "nameVi": "Xe mỏ có lò nung",
+      "miningSources": []
     },
     {
       "id": "minecraft:ghast_spawn_egg",
@@ -6178,6 +6052,20 @@
       ]
     },
     {
+      "id": "minecraft:glass",
+      "name": "Glass",
+      "nameVi": "Thủy tinh",
+      "miningSources": [
+        {
+          "block": "minecraft:glass",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
+    },
+    {
       "id": "minecraft:glass_bottle",
       "name": "Glass Bottle",
       "nameVi": "Chai thuỷ tinh",
@@ -6190,20 +6078,6 @@
       "miningSources": [
         {
           "block": "minecraft:glass_pane",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "minecraft:glass",
-      "name": "Glass",
-      "nameVi": "Thủy tinh",
-      "miningSources": [
-        {
-          "block": "minecraft:glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -6273,18 +6147,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:glowstone_dust",
-      "name": "Glowstone Dust",
-      "nameVi": "Bột đá phát sáng",
-      "miningSources": [
-        {
-          "block": "minecraft:glowstone",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:glowstone",
       "name": "Glowstone",
       "nameVi": "Đá phát sáng",
@@ -6295,6 +6157,18 @@
           "tools": [
             "silk_touch"
           ]
+        }
+      ]
+    },
+    {
+      "id": "minecraft:glowstone_dust",
+      "name": "Glowstone Dust",
+      "nameVi": "Bột đá phát sáng",
+      "miningSources": [
+        {
+          "block": "minecraft:glowstone",
+          "silkTouch": false,
+          "tools": []
         }
       ]
     },
@@ -6390,23 +6264,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:golden_dandelion",
-      "name": "Golden Dandelion",
-      "nameVi": "Bồ công anh vàng",
-      "miningSources": [
-        {
-          "block": "minecraft:golden_dandelion",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:potted_golden_dandelion",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:golden_helmet",
       "name": "Golden Helmet",
       "nameVi": "Mũ vàng",
@@ -6461,6 +6318,18 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:granite",
+      "name": "Granite",
+      "nameVi": "Đá hoa cương",
+      "miningSources": [
+        {
+          "block": "minecraft:granite",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:granite_slab",
       "name": "Granite Slab",
       "nameVi": "Phiến đá hoa cương",
@@ -6491,18 +6360,6 @@
       "miningSources": [
         {
           "block": "minecraft:granite_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:granite",
-      "name": "Granite",
-      "nameVi": "Đá hoa cương",
-      "miningSources": [
-        {
-          "block": "minecraft:granite",
           "silkTouch": false,
           "tools": []
         }
@@ -6594,24 +6451,24 @@
       ]
     },
     {
-      "id": "minecraft:gray_concrete_powder",
-      "name": "Gray Concrete Powder",
-      "nameVi": "Bột bê tông xám",
-      "miningSources": [
-        {
-          "block": "minecraft:gray_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:gray_concrete",
       "name": "Gray Concrete",
       "nameVi": "Bê tông xám",
       "miningSources": [
         {
           "block": "minecraft:gray_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:gray_concrete_powder",
+      "name": "Gray Concrete Powder",
+      "nameVi": "Bột bê tông xám",
+      "miningSources": [
+        {
+          "block": "minecraft:gray_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -6654,12 +6511,12 @@
       ]
     },
     {
-      "id": "minecraft:gray_stained_glass_pane",
-      "name": "Gray Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm xám",
+      "id": "minecraft:gray_stained_glass",
+      "name": "Gray Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm xám",
       "miningSources": [
         {
-          "block": "minecraft:gray_stained_glass_pane",
+          "block": "minecraft:gray_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -6668,12 +6525,12 @@
       ]
     },
     {
-      "id": "minecraft:gray_stained_glass",
-      "name": "Gray Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm xám",
+      "id": "minecraft:gray_stained_glass_pane",
+      "name": "Gray Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm xám",
       "miningSources": [
         {
-          "block": "minecraft:gray_stained_glass",
+          "block": "minecraft:gray_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -6765,24 +6622,24 @@
       ]
     },
     {
-      "id": "minecraft:green_concrete_powder",
-      "name": "Green Concrete Powder",
-      "nameVi": "Bột bê tông xanh lá cây",
-      "miningSources": [
-        {
-          "block": "minecraft:green_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:green_concrete",
       "name": "Green Concrete",
       "nameVi": "Bê tông xanh lá cây",
       "miningSources": [
         {
           "block": "minecraft:green_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:green_concrete_powder",
+      "name": "Green Concrete Powder",
+      "nameVi": "Bột bê tông xanh lá cây",
+      "miningSources": [
+        {
+          "block": "minecraft:green_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -6825,12 +6682,12 @@
       ]
     },
     {
-      "id": "minecraft:green_stained_glass_pane",
-      "name": "Green Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm xanh lá cây",
+      "id": "minecraft:green_stained_glass",
+      "name": "Green Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm xanh lá cây",
       "miningSources": [
         {
-          "block": "minecraft:green_stained_glass_pane",
+          "block": "minecraft:green_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -6839,12 +6696,12 @@
       ]
     },
     {
-      "id": "minecraft:green_stained_glass",
-      "name": "Green Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm xanh lá cây",
+      "id": "minecraft:green_stained_glass_pane",
+      "name": "Green Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm xanh lá cây",
       "miningSources": [
         {
-          "block": "minecraft:green_stained_glass",
+          "block": "minecraft:green_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -7011,6 +6868,12 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:honeycomb",
+      "name": "Honeycomb",
+      "nameVi": "Sáp ong",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:honeycomb_block",
       "name": "Honeycomb Block",
       "nameVi": "Khối sáp ong",
@@ -7023,18 +6886,6 @@
       ]
     },
     {
-      "id": "minecraft:honeycomb",
-      "name": "Honeycomb",
-      "nameVi": "Sáp ong",
-      "miningSources": []
-    },
-    {
-      "id": "minecraft:hopper_minecart",
-      "name": "Minecart with Hopper",
-      "nameVi": "Xe mỏ có phễu",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:hopper",
       "name": "Hopper",
       "nameVi": "Cái phễu",
@@ -7043,6 +6894,26 @@
           "block": "minecraft:hopper",
           "silkTouch": false,
           "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:hopper_minecart",
+      "name": "Minecart with Hopper",
+      "nameVi": "Xe mỏ có phễu",
+      "miningSources": []
+    },
+    {
+      "id": "minecraft:horn_coral",
+      "name": "Horn Coral",
+      "nameVi": "San hô sừng",
+      "miningSources": [
+        {
+          "block": "minecraft:horn_coral",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
         }
       ]
     },
@@ -7067,20 +6938,6 @@
       "miningSources": [
         {
           "block": "minecraft:horn_coral_fan",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "minecraft:horn_coral",
-      "name": "Horn Coral",
-      "nameVi": "San hô sừng",
-      "miningSources": [
-        {
-          "block": "minecraft:horn_coral",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -7157,15 +7014,15 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:infested_stone_bricks",
-      "name": "Infested Stone Bricks",
-      "nameVi": "Gạch đá bị nhiễm khuẩn",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:infested_stone",
       "name": "Infested Stone",
       "nameVi": "Đá bị nhiễm khuẩn",
+      "miningSources": []
+    },
+    {
+      "id": "minecraft:infested_stone_bricks",
+      "name": "Infested Stone Bricks",
+      "nameVi": "Gạch đá bị nhiễm khuẩn",
       "miningSources": []
     },
     {
@@ -7411,24 +7268,24 @@
       ]
     },
     {
-      "id": "minecraft:jungle_fence_gate",
-      "name": "Jungle Fence Gate",
-      "nameVi": "Cổng rào gỗ rừng",
-      "miningSources": [
-        {
-          "block": "minecraft:jungle_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:jungle_fence",
       "name": "Jungle Fence",
       "nameVi": "Hàng rào gỗ rừng",
       "miningSources": [
         {
           "block": "minecraft:jungle_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:jungle_fence_gate",
+      "name": "Jungle Fence Gate",
+      "nameVi": "Cổng rào gỗ rừng",
+      "miningSources": [
+        {
+          "block": "minecraft:jungle_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -7726,6 +7583,12 @@
       ]
     },
     {
+      "id": "minecraft:leather",
+      "name": "Leather",
+      "nameVi": "Da thuộc",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:leather_boots",
       "name": "Leather Boots",
       "nameVi": "Ủng da",
@@ -7756,12 +7619,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:leather",
-      "name": "Leather",
-      "nameVi": "Da thuộc",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:lectern",
       "name": "Lectern",
       "nameVi": "Bục để sách",
@@ -7784,6 +7641,12 @@
           "tools": []
         }
       ]
+    },
+    {
+      "id": "minecraft:light",
+      "name": "Light",
+      "nameVi": "Ánh sáng",
+      "miningSources": []
     },
     {
       "id": "minecraft:light_blue_banner",
@@ -7845,24 +7708,24 @@
       ]
     },
     {
-      "id": "minecraft:light_blue_concrete_powder",
-      "name": "Light Blue Concrete Powder",
-      "nameVi": "Bột bê tông xanh nước biển nhạt",
-      "miningSources": [
-        {
-          "block": "minecraft:light_blue_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:light_blue_concrete",
       "name": "Light Blue Concrete",
       "nameVi": "Bê tông xanh nước biển nhạt",
       "miningSources": [
         {
           "block": "minecraft:light_blue_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:light_blue_concrete_powder",
+      "name": "Light Blue Concrete Powder",
+      "nameVi": "Bột bê tông xanh nước biển nhạt",
+      "miningSources": [
+        {
+          "block": "minecraft:light_blue_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -7905,12 +7768,12 @@
       ]
     },
     {
-      "id": "minecraft:light_blue_stained_glass_pane",
-      "name": "Light Blue Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm xanh nước biển nhạt",
+      "id": "minecraft:light_blue_stained_glass",
+      "name": "Light Blue Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm xanh nước biển nhạt",
       "miningSources": [
         {
-          "block": "minecraft:light_blue_stained_glass_pane",
+          "block": "minecraft:light_blue_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -7919,12 +7782,12 @@
       ]
     },
     {
-      "id": "minecraft:light_blue_stained_glass",
-      "name": "Light Blue Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm xanh nước biển nhạt",
+      "id": "minecraft:light_blue_stained_glass_pane",
+      "name": "Light Blue Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm xanh nước biển nhạt",
       "miningSources": [
         {
-          "block": "minecraft:light_blue_stained_glass",
+          "block": "minecraft:light_blue_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -8016,24 +7879,24 @@
       ]
     },
     {
-      "id": "minecraft:light_gray_concrete_powder",
-      "name": "Light Gray Concrete Powder",
-      "nameVi": "Bột bê tông xám nhạt",
-      "miningSources": [
-        {
-          "block": "minecraft:light_gray_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:light_gray_concrete",
       "name": "Light Gray Concrete",
       "nameVi": "Bê tông xám nhạt",
       "miningSources": [
         {
           "block": "minecraft:light_gray_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:light_gray_concrete_powder",
+      "name": "Light Gray Concrete Powder",
+      "nameVi": "Bột bê tông xám nhạt",
+      "miningSources": [
+        {
+          "block": "minecraft:light_gray_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -8076,12 +7939,12 @@
       ]
     },
     {
-      "id": "minecraft:light_gray_stained_glass_pane",
-      "name": "Light Gray Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm xám nhạt",
+      "id": "minecraft:light_gray_stained_glass",
+      "name": "Light Gray Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm xám nhạt",
       "miningSources": [
         {
-          "block": "minecraft:light_gray_stained_glass_pane",
+          "block": "minecraft:light_gray_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -8090,12 +7953,12 @@
       ]
     },
     {
-      "id": "minecraft:light_gray_stained_glass",
-      "name": "Light Gray Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm xám nhạt",
+      "id": "minecraft:light_gray_stained_glass_pane",
+      "name": "Light Gray Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm xám nhạt",
       "miningSources": [
         {
-          "block": "minecraft:light_gray_stained_glass",
+          "block": "minecraft:light_gray_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -8138,12 +8001,6 @@
           "tools": []
         }
       ]
-    },
-    {
-      "id": "minecraft:light",
-      "name": "Light",
-      "nameVi": "Ánh sáng",
-      "miningSources": []
     },
     {
       "id": "minecraft:lightning_rod",
@@ -8258,24 +8115,24 @@
       ]
     },
     {
-      "id": "minecraft:lime_concrete_powder",
-      "name": "Lime Concrete Powder",
-      "nameVi": "Bột bê tông xanh lá mạ",
-      "miningSources": [
-        {
-          "block": "minecraft:lime_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:lime_concrete",
       "name": "Lime Concrete",
       "nameVi": "Bê tông xanh lá mạ",
       "miningSources": [
         {
           "block": "minecraft:lime_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:lime_concrete_powder",
+      "name": "Lime Concrete Powder",
+      "nameVi": "Bột bê tông xanh lá mạ",
+      "miningSources": [
+        {
+          "block": "minecraft:lime_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -8318,12 +8175,12 @@
       ]
     },
     {
-      "id": "minecraft:lime_stained_glass_pane",
-      "name": "Lime Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm xanh lá mạ",
+      "id": "minecraft:lime_stained_glass",
+      "name": "Lime Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm xanh lá mạ",
       "miningSources": [
         {
-          "block": "minecraft:lime_stained_glass_pane",
+          "block": "minecraft:lime_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -8332,12 +8189,12 @@
       ]
     },
     {
-      "id": "minecraft:lime_stained_glass",
-      "name": "Lime Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm xanh lá mạ",
+      "id": "minecraft:lime_stained_glass_pane",
+      "name": "Lime Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm xanh lá mạ",
       "miningSources": [
         {
-          "block": "minecraft:lime_stained_glass",
+          "block": "minecraft:lime_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -8471,24 +8328,24 @@
       ]
     },
     {
-      "id": "minecraft:magenta_concrete_powder",
-      "name": "Magenta Concrete Powder",
-      "nameVi": "Bột bê tông đỏ sậm",
-      "miningSources": [
-        {
-          "block": "minecraft:magenta_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:magenta_concrete",
       "name": "Magenta Concrete",
       "nameVi": "Bê tông đỏ sậm",
       "miningSources": [
         {
           "block": "minecraft:magenta_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:magenta_concrete_powder",
+      "name": "Magenta Concrete Powder",
+      "nameVi": "Bột bê tông đỏ sậm",
+      "miningSources": [
+        {
+          "block": "minecraft:magenta_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -8531,12 +8388,12 @@
       ]
     },
     {
-      "id": "minecraft:magenta_stained_glass_pane",
-      "name": "Magenta Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm đỏ sậm",
+      "id": "minecraft:magenta_stained_glass",
+      "name": "Magenta Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm đỏ sậm",
       "miningSources": [
         {
-          "block": "minecraft:magenta_stained_glass_pane",
+          "block": "minecraft:magenta_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -8545,12 +8402,12 @@
       ]
     },
     {
-      "id": "minecraft:magenta_stained_glass",
-      "name": "Magenta Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm đỏ sậm",
+      "id": "minecraft:magenta_stained_glass_pane",
+      "name": "Magenta Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm đỏ sậm",
       "miningSources": [
         {
-          "block": "minecraft:magenta_stained_glass",
+          "block": "minecraft:magenta_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -8643,24 +8500,24 @@
       ]
     },
     {
-      "id": "minecraft:mangrove_fence_gate",
-      "name": "Mangrove Fence Gate",
-      "nameVi": "Cổng rào gỗ đước",
-      "miningSources": [
-        {
-          "block": "minecraft:mangrove_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:mangrove_fence",
       "name": "Mangrove Fence",
       "nameVi": "Hàng rào gỗ đước",
       "miningSources": [
         {
           "block": "minecraft:mangrove_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:mangrove_fence_gate",
+      "name": "Mangrove Fence Gate",
+      "nameVi": "Cổng rào gỗ đước",
+      "miningSources": [
+        {
+          "block": "minecraft:mangrove_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -8851,6 +8708,20 @@
       ]
     },
     {
+      "id": "minecraft:melon",
+      "name": "Melon",
+      "nameVi": "Dưa hấu",
+      "miningSources": [
+        {
+          "block": "minecraft:melon",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
+    },
+    {
       "id": "minecraft:melon_seeds",
       "name": "Melon Seeds",
       "nameVi": "Hạt dưa hấu",
@@ -8876,20 +8747,6 @@
           "block": "minecraft:melon",
           "silkTouch": false,
           "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:melon",
-      "name": "Melon",
-      "nameVi": "Dưa hấu",
-      "miningSources": [
-        {
-          "block": "minecraft:melon",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
         }
       ]
     },
@@ -8948,6 +8805,18 @@
       ]
     },
     {
+      "id": "minecraft:mossy_cobblestone",
+      "name": "Mossy Cobblestone",
+      "nameVi": "Đá cuội phủ rêu",
+      "miningSources": [
+        {
+          "block": "minecraft:mossy_cobblestone",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:mossy_cobblestone_slab",
       "name": "Mossy Cobblestone Slab",
       "nameVi": "Phiến đá cuội phủ rêu",
@@ -8978,18 +8847,6 @@
       "miningSources": [
         {
           "block": "minecraft:mossy_cobblestone_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:mossy_cobblestone",
-      "name": "Mossy Cobblestone",
-      "nameVi": "Đá cuội phủ rêu",
-      "miningSources": [
-        {
-          "block": "minecraft:mossy_cobblestone",
           "silkTouch": false,
           "tools": []
         }
@@ -9057,6 +8914,18 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:mud",
+      "name": "Mud",
+      "nameVi": "Bùn",
+      "miningSources": [
+        {
+          "block": "minecraft:mud",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:mud_brick_slab",
       "name": "Mud Brick Slab",
       "nameVi": "Phiến gạch bùn",
@@ -9099,18 +8968,6 @@
       "miningSources": [
         {
           "block": "minecraft:mud_bricks",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:mud",
-      "name": "Mud",
-      "nameVi": "Bùn",
-      "miningSources": [
-        {
-          "block": "minecraft:mud",
           "silkTouch": false,
           "tools": []
         }
@@ -9179,12 +9036,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:music_disc_bounce",
-      "name": "Music Disc",
-      "nameVi": "Đĩa nhạc",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:music_disc_cat",
       "name": "Music Disc",
       "nameVi": "Đĩa nhạc",
@@ -9197,13 +9048,13 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:music_disc_creator_music_box",
+      "id": "minecraft:music_disc_creator",
       "name": "Music Disc",
       "nameVi": "Đĩa nhạc",
       "miningSources": []
     },
     {
-      "id": "minecraft:music_disc_creator",
+      "id": "minecraft:music_disc_creator_music_box",
       "name": "Music Disc",
       "nameVi": "Đĩa nhạc",
       "miningSources": []
@@ -9325,6 +9176,12 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:nether_brick",
+      "name": "Nether Brick",
+      "nameVi": "Viên gạch Nether",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:nether_brick_fence",
       "name": "Nether Brick Fence",
       "nameVi": "Hàng rào gạch Nether",
@@ -9371,12 +9228,6 @@
           "tools": []
         }
       ]
-    },
-    {
-      "id": "minecraft:nether_brick",
-      "name": "Nether Brick",
-      "nameVi": "Viên gạch Nether",
-      "miningSources": []
     },
     {
       "id": "minecraft:nether_bricks",
@@ -9439,24 +9290,24 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:nether_wart_block",
-      "name": "Nether Wart Block",
-      "nameVi": "Khối bướu Nether",
-      "miningSources": [
-        {
-          "block": "minecraft:nether_wart_block",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:nether_wart",
       "name": "Nether Wart",
       "nameVi": "Bướu Nether",
       "miningSources": [
         {
           "block": "minecraft:nether_wart",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:nether_wart_block",
+      "name": "Nether Wart Block",
+      "nameVi": "Khối bướu Nether",
+      "miningSources": [
+        {
+          "block": "minecraft:nether_wart_block",
           "silkTouch": false,
           "tools": []
         }
@@ -9635,24 +9486,24 @@
       ]
     },
     {
-      "id": "minecraft:oak_fence_gate",
-      "name": "Oak Fence Gate",
-      "nameVi": "Cổng rào gỗ sồi",
-      "miningSources": [
-        {
-          "block": "minecraft:oak_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:oak_fence",
       "name": "Oak Fence",
       "nameVi": "Hàng rào gỗ sồi",
       "miningSources": [
         {
           "block": "minecraft:oak_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:oak_fence_gate",
+      "name": "Oak Fence Gate",
+      "nameVi": "Cổng rào gỗ sồi",
+      "miningSources": [
+        {
+          "block": "minecraft:oak_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -9951,24 +9802,24 @@
       ]
     },
     {
-      "id": "minecraft:orange_concrete_powder",
-      "name": "Orange Concrete Powder",
-      "nameVi": "Bột bê tông cam",
-      "miningSources": [
-        {
-          "block": "minecraft:orange_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:orange_concrete",
       "name": "Orange Concrete",
       "nameVi": "Bê tông cam",
       "miningSources": [
         {
           "block": "minecraft:orange_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:orange_concrete_powder",
+      "name": "Orange Concrete Powder",
+      "nameVi": "Bột bê tông cam",
+      "miningSources": [
+        {
+          "block": "minecraft:orange_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -10011,12 +9862,12 @@
       ]
     },
     {
-      "id": "minecraft:orange_stained_glass_pane",
-      "name": "Orange Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm cam",
+      "id": "minecraft:orange_stained_glass",
+      "name": "Orange Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm cam",
       "miningSources": [
         {
-          "block": "minecraft:orange_stained_glass_pane",
+          "block": "minecraft:orange_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -10025,12 +9876,12 @@
       ]
     },
     {
-      "id": "minecraft:orange_stained_glass",
-      "name": "Orange Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm cam",
+      "id": "minecraft:orange_stained_glass_pane",
+      "name": "Orange Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm cam",
       "miningSources": [
         {
-          "block": "minecraft:orange_stained_glass",
+          "block": "minecraft:orange_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -10103,6 +9954,18 @@
       "miningSources": [
         {
           "block": "minecraft:oxidized_chiseled_copper",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:oxidized_copper",
+      "name": "Oxidized Copper",
+      "nameVi": "Khối đồng bị oxi hóa",
+      "miningSources": [
+        {
+          "block": "minecraft:oxidized_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -10217,12 +10080,12 @@
       ]
     },
     {
-      "id": "minecraft:oxidized_copper",
-      "name": "Oxidized Copper",
-      "nameVi": "Khối đồng bị oxi hóa",
+      "id": "minecraft:oxidized_cut_copper",
+      "name": "Oxidized Cut Copper",
+      "nameVi": "Khối đồng được cắt bị oxi hóa",
       "miningSources": [
         {
-          "block": "minecraft:oxidized_copper",
+          "block": "minecraft:oxidized_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -10247,18 +10110,6 @@
       "miningSources": [
         {
           "block": "minecraft:oxidized_cut_copper_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:oxidized_cut_copper",
-      "name": "Oxidized Cut Copper",
-      "nameVi": "Khối đồng được cắt bị oxi hóa",
-      "miningSources": [
-        {
-          "block": "minecraft:oxidized_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -10384,24 +10235,24 @@
       ]
     },
     {
-      "id": "minecraft:pale_oak_fence_gate",
-      "name": "Pale Oak Fence Gate",
-      "nameVi": "Cổng rào gỗ sồi nhợt",
-      "miningSources": [
-        {
-          "block": "minecraft:pale_oak_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:pale_oak_fence",
       "name": "Pale Oak Fence",
       "nameVi": "Hàng rào gỗ sồi nhợt",
       "miningSources": [
         {
           "block": "minecraft:pale_oak_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:pale_oak_fence_gate",
+      "name": "Pale Oak Fence Gate",
+      "nameVi": "Cổng rào gỗ sồi nhợt",
+      "miningSources": [
+        {
+          "block": "minecraft:pale_oak_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -10738,24 +10589,24 @@
       ]
     },
     {
-      "id": "minecraft:pink_concrete_powder",
-      "name": "Pink Concrete Powder",
-      "nameVi": "Bột bê tông hồng",
-      "miningSources": [
-        {
-          "block": "minecraft:pink_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:pink_concrete",
       "name": "Pink Concrete",
       "nameVi": "Bê tông hồng",
       "miningSources": [
         {
           "block": "minecraft:pink_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:pink_concrete_powder",
+      "name": "Pink Concrete Powder",
+      "nameVi": "Bột bê tông hồng",
+      "miningSources": [
+        {
+          "block": "minecraft:pink_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -10810,12 +10661,12 @@
       ]
     },
     {
-      "id": "minecraft:pink_stained_glass_pane",
-      "name": "Pink Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm hồng",
+      "id": "minecraft:pink_stained_glass",
+      "name": "Pink Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm hồng",
       "miningSources": [
         {
-          "block": "minecraft:pink_stained_glass_pane",
+          "block": "minecraft:pink_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -10824,12 +10675,12 @@
       ]
     },
     {
-      "id": "minecraft:pink_stained_glass",
-      "name": "Pink Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm hồng",
+      "id": "minecraft:pink_stained_glass_pane",
+      "name": "Pink Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm hồng",
       "miningSources": [
         {
-          "block": "minecraft:pink_stained_glass",
+          "block": "minecraft:pink_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -10982,6 +10833,18 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:polished_andesite",
+      "name": "Polished Andesite",
+      "nameVi": "Đá andesit được đánh bóng",
+      "miningSources": [
+        {
+          "block": "minecraft:polished_andesite",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:polished_andesite_slab",
       "name": "Polished Andesite Slab",
       "nameVi": "Phiến đá andesit được đánh bóng",
@@ -11006,24 +10869,24 @@
       ]
     },
     {
-      "id": "minecraft:polished_andesite",
-      "name": "Polished Andesite",
-      "nameVi": "Đá andesit được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_andesite",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:polished_basalt",
       "name": "Polished Basalt",
       "nameVi": "Đá bazan được đánh bóng",
       "miningSources": [
         {
           "block": "minecraft:polished_basalt",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:polished_blackstone",
+      "name": "Polished Blackstone",
+      "nameVi": "Đá đen được đánh bóng",
+      "miningSources": [
+        {
+          "block": "minecraft:polished_blackstone",
           "silkTouch": false,
           "tools": []
         }
@@ -11138,60 +11001,12 @@
       ]
     },
     {
-      "id": "minecraft:polished_blackstone",
-      "name": "Polished Blackstone",
-      "nameVi": "Đá đen được đánh bóng",
+      "id": "minecraft:polished_deepslate",
+      "name": "Polished Deepslate",
+      "nameVi": "Đá bảng sâu được đánh bóng",
       "miningSources": [
         {
-          "block": "minecraft:polished_blackstone",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_cinnabar_slab",
-      "name": "Polished Cinnabar Slab",
-      "nameVi": "Phiến đá chu sa được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_cinnabar_slab",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_cinnabar_stairs",
-      "name": "Polished Cinnabar Stairs",
-      "nameVi": "Cầu thang đá chu sa được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_cinnabar_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_cinnabar_wall",
-      "name": "Polished Cinnabar Wall",
-      "nameVi": "Tường đá chu sa được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_cinnabar_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_cinnabar",
-      "name": "Polished Cinnabar",
-      "nameVi": "Đá chu sa được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_cinnabar",
+          "block": "minecraft:polished_deepslate",
           "silkTouch": false,
           "tools": []
         }
@@ -11234,12 +11049,12 @@
       ]
     },
     {
-      "id": "minecraft:polished_deepslate",
-      "name": "Polished Deepslate",
-      "nameVi": "Đá bảng sâu được đánh bóng",
+      "id": "minecraft:polished_diorite",
+      "name": "Polished Diorite",
+      "nameVi": "Đá diorit được đánh bóng",
       "miningSources": [
         {
-          "block": "minecraft:polished_deepslate",
+          "block": "minecraft:polished_diorite",
           "silkTouch": false,
           "tools": []
         }
@@ -11270,12 +11085,12 @@
       ]
     },
     {
-      "id": "minecraft:polished_diorite",
-      "name": "Polished Diorite",
-      "nameVi": "Đá diorit được đánh bóng",
+      "id": "minecraft:polished_granite",
+      "name": "Polished Granite",
+      "nameVi": "Đá hoa cương được đánh bóng",
       "miningSources": [
         {
-          "block": "minecraft:polished_diorite",
+          "block": "minecraft:polished_granite",
           "silkTouch": false,
           "tools": []
         }
@@ -11306,60 +11121,12 @@
       ]
     },
     {
-      "id": "minecraft:polished_granite",
-      "name": "Polished Granite",
-      "nameVi": "Đá hoa cương được đánh bóng",
+      "id": "minecraft:polished_tuff",
+      "name": "Polished Tuff",
+      "nameVi": "Đá túp được đánh bóng",
       "miningSources": [
         {
-          "block": "minecraft:polished_granite",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_sulfur_slab",
-      "name": "Polished Sulfur Slab",
-      "nameVi": "Phiến lưu huỳnh được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_sulfur_slab",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_sulfur_stairs",
-      "name": "Polished Sulfur Stairs",
-      "nameVi": "Cầu thang lưu huỳnh được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_sulfur_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_sulfur_wall",
-      "name": "Polished Sulfur Wall",
-      "nameVi": "Tường lưu huỳnh được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_sulfur_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_sulfur",
-      "name": "Polished Sulfur",
-      "nameVi": "Lưu huỳnh được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_sulfur",
+          "block": "minecraft:polished_tuff",
           "silkTouch": false,
           "tools": []
         }
@@ -11396,18 +11163,6 @@
       "miningSources": [
         {
           "block": "minecraft:polished_tuff_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:polished_tuff",
-      "name": "Polished Tuff",
-      "nameVi": "Đá túp được đánh bóng",
-      "miningSources": [
-        {
-          "block": "minecraft:polished_tuff",
           "silkTouch": false,
           "tools": []
         }
@@ -11455,18 +11210,6 @@
       ]
     },
     {
-      "id": "minecraft:potent_sulfur",
-      "name": "Potent Sulfur",
-      "nameVi": "Lưu huỳnh hoạt tính",
-      "miningSources": [
-        {
-          "block": "minecraft:potent_sulfur",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:potion",
       "name": "Potion",
       "nameVi": "Thuốc",
@@ -11485,6 +11228,18 @@
       "miningSources": [
         {
           "block": "minecraft:powered_rail",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:prismarine",
+      "name": "Prismarine",
+      "nameVi": "Prismarin",
+      "miningSources": [
+        {
+          "block": "minecraft:prismarine",
           "silkTouch": false,
           "tools": []
         }
@@ -11581,21 +11336,15 @@
       ]
     },
     {
-      "id": "minecraft:prismarine",
-      "name": "Prismarine",
-      "nameVi": "Prismarin",
-      "miningSources": [
-        {
-          "block": "minecraft:prismarine",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:prize_pottery_sherd",
       "name": "Prize Pottery Sherd",
       "nameVi": "Mảnh gốm phần thưởng",
+      "miningSources": []
+    },
+    {
+      "id": "minecraft:pufferfish",
+      "name": "Pufferfish",
+      "nameVi": "Cá nóc",
       "miningSources": []
     },
     {
@@ -11611,10 +11360,16 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:pufferfish",
-      "name": "Pufferfish",
-      "nameVi": "Cá nóc",
-      "miningSources": []
+      "id": "minecraft:pumpkin",
+      "name": "Pumpkin",
+      "nameVi": "Bí ngô",
+      "miningSources": [
+        {
+          "block": "minecraft:pumpkin",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
     },
     {
       "id": "minecraft:pumpkin_pie",
@@ -11634,18 +11389,6 @@
         },
         {
           "block": "minecraft:pumpkin_stem",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:pumpkin",
-      "name": "Pumpkin",
-      "nameVi": "Bí ngô",
-      "miningSources": [
-        {
-          "block": "minecraft:pumpkin",
           "silkTouch": false,
           "tools": []
         }
@@ -11711,24 +11454,24 @@
       ]
     },
     {
-      "id": "minecraft:purple_concrete_powder",
-      "name": "Purple Concrete Powder",
-      "nameVi": "Bột bê tông tím",
-      "miningSources": [
-        {
-          "block": "minecraft:purple_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:purple_concrete",
       "name": "Purple Concrete",
       "nameVi": "Bê tông tím",
       "miningSources": [
         {
           "block": "minecraft:purple_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:purple_concrete_powder",
+      "name": "Purple Concrete Powder",
+      "nameVi": "Bột bê tông tím",
+      "miningSources": [
+        {
+          "block": "minecraft:purple_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -11771,12 +11514,12 @@
       ]
     },
     {
-      "id": "minecraft:purple_stained_glass_pane",
-      "name": "Purple Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm tím",
+      "id": "minecraft:purple_stained_glass",
+      "name": "Purple Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm tím",
       "miningSources": [
         {
-          "block": "minecraft:purple_stained_glass_pane",
+          "block": "minecraft:purple_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -11785,12 +11528,12 @@
       ]
     },
     {
-      "id": "minecraft:purple_stained_glass",
-      "name": "Purple Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm tím",
+      "id": "minecraft:purple_stained_glass_pane",
+      "name": "Purple Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm tím",
       "miningSources": [
         {
-          "block": "minecraft:purple_stained_glass",
+          "block": "minecraft:purple_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -11871,6 +11614,18 @@
       ]
     },
     {
+      "id": "minecraft:quartz",
+      "name": "Nether Quartz",
+      "nameVi": "Thạch anh Nether",
+      "miningSources": [
+        {
+          "block": "minecraft:nether_quartz_ore",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:quartz_block",
       "name": "Block of Quartz",
       "nameVi": "Khối thạch anh",
@@ -11931,16 +11686,10 @@
       ]
     },
     {
-      "id": "minecraft:quartz",
-      "name": "Nether Quartz",
-      "nameVi": "Thạch anh Nether",
-      "miningSources": [
-        {
-          "block": "minecraft:nether_quartz_ore",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
+      "id": "minecraft:rabbit",
+      "name": "Raw Rabbit",
+      "nameVi": "Thịt thỏ sống",
+      "miningSources": []
     },
     {
       "id": "minecraft:rabbit_foot",
@@ -11964,12 +11713,6 @@
       "id": "minecraft:rabbit_stew",
       "name": "Rabbit Stew",
       "nameVi": "Súp thỏ hầm",
-      "miningSources": []
-    },
-    {
-      "id": "minecraft:rabbit",
-      "name": "Raw Rabbit",
-      "nameVi": "Thịt thỏ sống",
       "miningSources": []
     },
     {
@@ -11997,18 +11740,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:raw_copper_block",
-      "name": "Block of Raw Copper",
-      "nameVi": "Khối đồng thô",
-      "miningSources": [
-        {
-          "block": "minecraft:raw_copper_block",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:raw_copper",
       "name": "Raw Copper",
       "nameVi": "Đồng thô",
@@ -12026,12 +11757,12 @@
       ]
     },
     {
-      "id": "minecraft:raw_gold_block",
-      "name": "Block of Raw Gold",
-      "nameVi": "Khối vàng thô",
+      "id": "minecraft:raw_copper_block",
+      "name": "Block of Raw Copper",
+      "nameVi": "Khối đồng thô",
       "miningSources": [
         {
-          "block": "minecraft:raw_gold_block",
+          "block": "minecraft:raw_copper_block",
           "silkTouch": false,
           "tools": []
         }
@@ -12055,12 +11786,12 @@
       ]
     },
     {
-      "id": "minecraft:raw_iron_block",
-      "name": "Block of Raw Iron",
-      "nameVi": "Khối sắt thô",
+      "id": "minecraft:raw_gold_block",
+      "name": "Block of Raw Gold",
+      "nameVi": "Khối vàng thô",
       "miningSources": [
         {
-          "block": "minecraft:raw_iron_block",
+          "block": "minecraft:raw_gold_block",
           "silkTouch": false,
           "tools": []
         }
@@ -12078,6 +11809,18 @@
         },
         {
           "block": "minecraft:iron_ore",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:raw_iron_block",
+      "name": "Block of Raw Iron",
+      "nameVi": "Khối sắt thô",
+      "miningSources": [
+        {
+          "block": "minecraft:raw_iron_block",
           "silkTouch": false,
           "tools": []
         }
@@ -12149,24 +11892,24 @@
       ]
     },
     {
-      "id": "minecraft:red_concrete_powder",
-      "name": "Red Concrete Powder",
-      "nameVi": "Bột bê tông đỏ",
-      "miningSources": [
-        {
-          "block": "minecraft:red_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:red_concrete",
       "name": "Red Concrete",
       "nameVi": "Bê tông đỏ",
       "miningSources": [
         {
           "block": "minecraft:red_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:red_concrete_powder",
+      "name": "Red Concrete Powder",
+      "nameVi": "Bột bê tông đỏ",
+      "miningSources": [
+        {
+          "block": "minecraft:red_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -12197,20 +11940,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:red_mushroom_block",
-      "name": "Red Mushroom Block",
-      "nameVi": "Khối nấm đỏ",
-      "miningSources": [
-        {
-          "block": "minecraft:red_mushroom_block",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
       "id": "minecraft:red_mushroom",
       "name": "Red Mushroom",
       "nameVi": "Nấm đỏ",
@@ -12229,6 +11958,20 @@
           "block": "minecraft:red_mushroom_block",
           "silkTouch": false,
           "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:red_mushroom_block",
+      "name": "Red Mushroom Block",
+      "nameVi": "Khối nấm đỏ",
+      "miningSources": [
+        {
+          "block": "minecraft:red_mushroom_block",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
         }
       ]
     },
@@ -12293,6 +12036,18 @@
       ]
     },
     {
+      "id": "minecraft:red_sandstone",
+      "name": "Red Sandstone",
+      "nameVi": "Cát kết đỏ",
+      "miningSources": [
+        {
+          "block": "minecraft:red_sandstone",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:red_sandstone_slab",
       "name": "Red Sandstone Slab",
       "nameVi": "Phiến cát kết đỏ",
@@ -12329,18 +12084,6 @@
       ]
     },
     {
-      "id": "minecraft:red_sandstone",
-      "name": "Red Sandstone",
-      "nameVi": "Cát kết đỏ",
-      "miningSources": [
-        {
-          "block": "minecraft:red_sandstone",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:red_shulker_box",
       "name": "Red Shulker Box",
       "nameVi": "Hộp Shulker đỏ",
@@ -12353,12 +12096,12 @@
       ]
     },
     {
-      "id": "minecraft:red_stained_glass_pane",
-      "name": "Red Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm đỏ",
+      "id": "minecraft:red_stained_glass",
+      "name": "Red Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm đỏ",
       "miningSources": [
         {
-          "block": "minecraft:red_stained_glass_pane",
+          "block": "minecraft:red_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -12367,12 +12110,12 @@
       ]
     },
     {
-      "id": "minecraft:red_stained_glass",
-      "name": "Red Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm đỏ",
+      "id": "minecraft:red_stained_glass_pane",
+      "name": "Red Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm đỏ",
       "miningSources": [
         {
-          "block": "minecraft:red_stained_glass",
+          "block": "minecraft:red_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -12416,6 +12159,28 @@
       "miningSources": [
         {
           "block": "minecraft:red_wool",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:redstone",
+      "name": "Redstone Dust",
+      "nameVi": "Bột Redstone",
+      "miningSources": [
+        {
+          "block": "minecraft:deepslate_redstone_ore",
+          "silkTouch": false,
+          "tools": []
+        },
+        {
+          "block": "minecraft:redstone_ore",
+          "silkTouch": false,
+          "tools": []
+        },
+        {
+          "block": "minecraft:redstone_wire",
           "silkTouch": false,
           "tools": []
         }
@@ -12472,28 +12237,6 @@
       ]
     },
     {
-      "id": "minecraft:redstone",
-      "name": "Redstone Dust",
-      "nameVi": "Bột Redstone",
-      "miningSources": [
-        {
-          "block": "minecraft:deepslate_redstone_ore",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:redstone_ore",
-          "silkTouch": false,
-          "tools": []
-        },
-        {
-          "block": "minecraft:redstone_wire",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:reinforced_deepslate",
       "name": "Reinforced Deepslate",
       "nameVi": "Đá bảng sâu được gia cố",
@@ -12530,6 +12273,12 @@
       ]
     },
     {
+      "id": "minecraft:resin_brick",
+      "name": "Resin Brick",
+      "nameVi": "Viên gạch nhựa cây",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:resin_brick_slab",
       "name": "Resin Brick Slab",
       "nameVi": "Phiến gạch nhựa cây",
@@ -12564,12 +12313,6 @@
           "tools": []
         }
       ]
-    },
-    {
-      "id": "minecraft:resin_brick",
-      "name": "Resin Brick",
-      "nameVi": "Viên gạch nhựa cây",
-      "miningSources": []
     },
     {
       "id": "minecraft:resin_bricks",
@@ -12655,6 +12398,12 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:salmon",
+      "name": "Raw Salmon",
+      "nameVi": "Cá hồi sống",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:salmon_bucket",
       "name": "Bucket of Salmon",
       "nameVi": "Xô cá hồi",
@@ -12667,18 +12416,24 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:salmon",
-      "name": "Raw Salmon",
-      "nameVi": "Cá hồi sống",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:sand",
       "name": "Sand",
       "nameVi": "Cát",
       "miningSources": [
         {
           "block": "minecraft:sand",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:sandstone",
+      "name": "Sandstone",
+      "nameVi": "Cát kết",
+      "miningSources": [
+        {
+          "block": "minecraft:sandstone",
           "silkTouch": false,
           "tools": []
         }
@@ -12721,18 +12476,6 @@
       ]
     },
     {
-      "id": "minecraft:sandstone",
-      "name": "Sandstone",
-      "nameVi": "Cát kết",
-      "miningSources": [
-        {
-          "block": "minecraft:sandstone",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:scaffolding",
       "name": "Scaffolding",
       "nameVi": "Giàn giáo",
@@ -12749,6 +12492,20 @@
       "name": "Scrape Pottery Sherd",
       "nameVi": "Mảnh gốm cạo vét",
       "miningSources": []
+    },
+    {
+      "id": "minecraft:sculk",
+      "name": "Sculk",
+      "nameVi": "Sculk",
+      "miningSources": [
+        {
+          "block": "minecraft:sculk",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
     },
     {
       "id": "minecraft:sculk_catalyst",
@@ -12799,20 +12556,6 @@
       "miningSources": [
         {
           "block": "minecraft:sculk_vein",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sculk",
-      "name": "Sculk",
-      "nameVi": "Sculk",
-      "miningSources": [
-        {
-          "block": "minecraft:sculk",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -13118,6 +12861,18 @@
       ]
     },
     {
+      "id": "minecraft:smooth_quartz",
+      "name": "Smooth Quartz Block",
+      "nameVi": "Khối thạch anh mịn",
+      "miningSources": [
+        {
+          "block": "minecraft:smooth_quartz",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:smooth_quartz_slab",
       "name": "Smooth Quartz Slab",
       "nameVi": "Phiến thạch anh mịn",
@@ -13142,12 +12897,12 @@
       ]
     },
     {
-      "id": "minecraft:smooth_quartz",
-      "name": "Smooth Quartz Block",
-      "nameVi": "Khối thạch anh mịn",
+      "id": "minecraft:smooth_red_sandstone",
+      "name": "Smooth Red Sandstone",
+      "nameVi": "Cát kết đỏ mịn",
       "miningSources": [
         {
-          "block": "minecraft:smooth_quartz",
+          "block": "minecraft:smooth_red_sandstone",
           "silkTouch": false,
           "tools": []
         }
@@ -13178,12 +12933,12 @@
       ]
     },
     {
-      "id": "minecraft:smooth_red_sandstone",
-      "name": "Smooth Red Sandstone",
-      "nameVi": "Cát kết đỏ mịn",
+      "id": "minecraft:smooth_sandstone",
+      "name": "Smooth Sandstone",
+      "nameVi": "Cát kết mịn",
       "miningSources": [
         {
-          "block": "minecraft:smooth_red_sandstone",
+          "block": "minecraft:smooth_sandstone",
           "silkTouch": false,
           "tools": []
         }
@@ -13214,12 +12969,12 @@
       ]
     },
     {
-      "id": "minecraft:smooth_sandstone",
-      "name": "Smooth Sandstone",
-      "nameVi": "Cát kết mịn",
+      "id": "minecraft:smooth_stone",
+      "name": "Smooth Stone",
+      "nameVi": "Đá mịn",
       "miningSources": [
         {
-          "block": "minecraft:smooth_sandstone",
+          "block": "minecraft:smooth_stone",
           "silkTouch": false,
           "tools": []
         }
@@ -13232,18 +12987,6 @@
       "miningSources": [
         {
           "block": "minecraft:smooth_stone_slab",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:smooth_stone",
-      "name": "Smooth Stone",
-      "nameVi": "Đá mịn",
-      "miningSources": [
-        {
-          "block": "minecraft:smooth_stone",
           "silkTouch": false,
           "tools": []
         }
@@ -13280,6 +13023,18 @@
       "miningSources": []
     },
     {
+      "id": "minecraft:snow",
+      "name": "Snow",
+      "nameVi": "Tuyết",
+      "miningSources": [
+        {
+          "block": "minecraft:snow",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:snow_block",
       "name": "Snow Block",
       "nameVi": "Khối tuyết",
@@ -13303,18 +13058,6 @@
       "name": "Snow Golem Spawn Egg",
       "nameVi": "Trứng sinh ra Người tuyết",
       "miningSources": []
-    },
-    {
-      "id": "minecraft:snow",
-      "name": "Snow",
-      "nameVi": "Tuyết",
-      "miningSources": [
-        {
-          "block": "minecraft:snow",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
     },
     {
       "id": "minecraft:snowball",
@@ -13497,24 +13240,24 @@
       ]
     },
     {
-      "id": "minecraft:spruce_fence_gate",
-      "name": "Spruce Fence Gate",
-      "nameVi": "Cổng rào gỗ vân sam",
-      "miningSources": [
-        {
-          "block": "minecraft:spruce_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:spruce_fence",
       "name": "Spruce Fence",
       "nameVi": "Hàng rào gỗ vân sam",
       "miningSources": [
         {
           "block": "minecraft:spruce_fence",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:spruce_fence_gate",
+      "name": "Spruce Fence Gate",
+      "nameVi": "Cổng rào gỗ vân sam",
+      "miningSources": [
+        {
+          "block": "minecraft:spruce_fence_gate",
           "silkTouch": false,
           "tools": []
         }
@@ -13769,6 +13512,27 @@
       ]
     },
     {
+      "id": "minecraft:stone",
+      "name": "Stone",
+      "nameVi": "Đá",
+      "miningSources": [
+        {
+          "block": "minecraft:infested_stone",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        },
+        {
+          "block": "minecraft:stone",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
+    },
+    {
       "id": "minecraft:stone_axe",
       "name": "Stone Axe",
       "nameVi": "Rìu đá",
@@ -13906,27 +13670,6 @@
       "name": "Stone Sword",
       "nameVi": "Kiếm đá",
       "miningSources": []
-    },
-    {
-      "id": "minecraft:stone",
-      "name": "Stone",
-      "nameVi": "Đá",
-      "miningSources": [
-        {
-          "block": "minecraft:infested_stone",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        },
-        {
-          "block": "minecraft:stone",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
-        }
-      ]
     },
     {
       "id": "minecraft:stonecutter",
@@ -14258,138 +14001,18 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:sugar_cane",
-      "name": "Sugar Cane",
-      "nameVi": "Cây mía",
-      "miningSources": [
-        {
-          "block": "minecraft:sugar_cane",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:sugar",
       "name": "Sugar",
       "nameVi": "Đường",
       "miningSources": []
     },
     {
-      "id": "minecraft:sulfur_brick_slab",
-      "name": "Sulfur Brick Slab",
-      "nameVi": "Phiến gạch lưu huỳnh",
+      "id": "minecraft:sugar_cane",
+      "name": "Sugar Cane",
+      "nameVi": "Cây mía",
       "miningSources": [
         {
-          "block": "minecraft:sulfur_brick_slab",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sulfur_brick_stairs",
-      "name": "Sulfur Brick Stairs",
-      "nameVi": "Cầu thang gạch lưu huỳnh",
-      "miningSources": [
-        {
-          "block": "minecraft:sulfur_brick_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sulfur_brick_wall",
-      "name": "Sulfur Brick Wall",
-      "nameVi": "Tường gạch lưu huỳnh",
-      "miningSources": [
-        {
-          "block": "minecraft:sulfur_brick_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sulfur_bricks",
-      "name": "Sulfur Bricks",
-      "nameVi": "Gạch lưu huỳnh",
-      "miningSources": [
-        {
-          "block": "minecraft:sulfur_bricks",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sulfur_cube_bucket",
-      "name": "Bucket of Sulfur Cube",
-      "nameVi": "Xô khối lưu huỳnh",
-      "miningSources": []
-    },
-    {
-      "id": "minecraft:sulfur_cube_spawn_egg",
-      "name": "Sulfur Cube Spawn Egg",
-      "nameVi": "Trứng sinh ra Khối lưu huỳnh",
-      "miningSources": []
-    },
-    {
-      "id": "minecraft:sulfur_slab",
-      "name": "Sulfur Slab",
-      "nameVi": "Phiến lưu huỳnh",
-      "miningSources": [
-        {
-          "block": "minecraft:sulfur_slab",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sulfur_spike",
-      "name": "Sulfur Spike",
-      "nameVi": "Gai lưu huỳnh",
-      "miningSources": [
-        {
-          "block": "minecraft:sulfur_spike",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sulfur_stairs",
-      "name": "Sulfur Stairs",
-      "nameVi": "Cầu thang lưu huỳnh",
-      "miningSources": [
-        {
-          "block": "minecraft:sulfur_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sulfur_wall",
-      "name": "Sulfur Wall",
-      "nameVi": "Tường lưu huỳnh",
-      "miningSources": [
-        {
-          "block": "minecraft:sulfur_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:sulfur",
-      "name": "Sulfur",
-      "nameVi": "Lưu huỳnh",
-      "miningSources": [
-        {
-          "block": "minecraft:sulfur",
+          "block": "minecraft:sugar_cane",
           "silkTouch": false,
           "tools": []
         }
@@ -14531,12 +14154,6 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:tnt_minecart",
-      "name": "Minecart with TNT",
-      "nameVi": "Xe mỏ có TNT",
-      "miningSources": []
-    },
-    {
       "id": "minecraft:tnt",
       "name": "TNT",
       "nameVi": "TNT",
@@ -14549,24 +14166,18 @@
       ]
     },
     {
+      "id": "minecraft:tnt_minecart",
+      "name": "Minecart with TNT",
+      "nameVi": "Xe mỏ có TNT",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:torch",
       "name": "Torch",
       "nameVi": "Đuốc",
       "miningSources": [
         {
           "block": "minecraft:torch",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:torchflower_seeds",
-      "name": "Torchflower Seeds",
-      "nameVi": "Hạt hoa đuốc",
-      "miningSources": [
-        {
-          "block": "minecraft:torchflower_crop",
           "silkTouch": false,
           "tools": []
         }
@@ -14584,6 +14195,18 @@
         },
         {
           "block": "minecraft:torchflower",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:torchflower_seeds",
+      "name": "Torchflower Seeds",
+      "nameVi": "Hạt hoa đuốc",
+      "miningSources": [
+        {
+          "block": "minecraft:torchflower_crop",
           "silkTouch": false,
           "tools": []
         }
@@ -14644,6 +14267,12 @@
       ]
     },
     {
+      "id": "minecraft:tropical_fish",
+      "name": "Tropical Fish",
+      "nameVi": "Cá nhiệt đới",
+      "miningSources": []
+    },
+    {
       "id": "minecraft:tropical_fish_bucket",
       "name": "Bucket of Tropical Fish",
       "nameVi": "Xô cá nhiệt đới",
@@ -14656,10 +14285,18 @@
       "miningSources": []
     },
     {
-      "id": "minecraft:tropical_fish",
-      "name": "Tropical Fish",
-      "nameVi": "Cá nhiệt đới",
-      "miningSources": []
+      "id": "minecraft:tube_coral",
+      "name": "Tube Coral",
+      "nameVi": "San hô ống tròn",
+      "miningSources": [
+        {
+          "block": "minecraft:tube_coral",
+          "silkTouch": true,
+          "tools": [
+            "silk_touch"
+          ]
+        }
+      ]
     },
     {
       "id": "minecraft:tube_coral_block",
@@ -14690,16 +14327,14 @@
       ]
     },
     {
-      "id": "minecraft:tube_coral",
-      "name": "Tube Coral",
-      "nameVi": "San hô ống tròn",
+      "id": "minecraft:tuff",
+      "name": "Tuff",
+      "nameVi": "Đá túp",
       "miningSources": [
         {
-          "block": "minecraft:tube_coral",
-          "silkTouch": true,
-          "tools": [
-            "silk_touch"
-          ]
+          "block": "minecraft:tuff",
+          "silkTouch": false,
+          "tools": []
         }
       ]
     },
@@ -14782,18 +14417,6 @@
       "miningSources": [
         {
           "block": "minecraft:tuff_wall",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:tuff",
-      "name": "Tuff",
-      "nameVi": "Đá túp",
-      "miningSources": [
-        {
-          "block": "minecraft:tuff",
           "silkTouch": false,
           "tools": []
         }
@@ -14947,18 +14570,6 @@
       ]
     },
     {
-      "id": "minecraft:warped_fence_gate",
-      "name": "Warped Fence Gate",
-      "nameVi": "Cổng rào kì dị",
-      "miningSources": [
-        {
-          "block": "minecraft:warped_fence_gate",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:warped_fence",
       "name": "Warped Fence",
       "nameVi": "Hàng rào kì dị",
@@ -14971,10 +14582,16 @@
       ]
     },
     {
-      "id": "minecraft:warped_fungus_on_a_stick",
-      "name": "Warped Fungus on a Stick",
-      "nameVi": "Cần câu gắn nấm kì dị",
-      "miningSources": []
+      "id": "minecraft:warped_fence_gate",
+      "name": "Warped Fence Gate",
+      "nameVi": "Cổng rào kì dị",
+      "miningSources": [
+        {
+          "block": "minecraft:warped_fence_gate",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
     },
     {
       "id": "minecraft:warped_fungus",
@@ -14992,6 +14609,12 @@
           "tools": []
         }
       ]
+    },
+    {
+      "id": "minecraft:warped_fungus_on_a_stick",
+      "name": "Warped Fungus on a Stick",
+      "nameVi": "Cần câu gắn nấm kì dị",
+      "miningSources": []
     },
     {
       "id": "minecraft:warped_hanging_sign",
@@ -15295,6 +14918,18 @@
       ]
     },
     {
+      "id": "minecraft:waxed_cut_copper",
+      "name": "Waxed Cut Copper",
+      "nameVi": "Khối đồng được cắt đã bôi sáp",
+      "miningSources": [
+        {
+          "block": "minecraft:waxed_cut_copper",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:waxed_cut_copper_slab",
       "name": "Waxed Cut Copper Slab",
       "nameVi": "Phiến đồng được cắt đã bôi sáp",
@@ -15319,24 +14954,24 @@
       ]
     },
     {
-      "id": "minecraft:waxed_cut_copper",
-      "name": "Waxed Cut Copper",
-      "nameVi": "Khối đồng được cắt đã bôi sáp",
-      "miningSources": [
-        {
-          "block": "minecraft:waxed_cut_copper",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:waxed_exposed_chiseled_copper",
       "name": "Waxed Exposed Chiseled Copper",
       "nameVi": "Khối đồng được đục bị phơi ra đã bôi sáp",
       "miningSources": [
         {
           "block": "minecraft:waxed_exposed_chiseled_copper",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:waxed_exposed_copper",
+      "name": "Waxed Exposed Copper",
+      "nameVi": "Khối đồng bị phơi ra đã bôi sáp",
+      "miningSources": [
+        {
+          "block": "minecraft:waxed_exposed_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -15451,12 +15086,12 @@
       ]
     },
     {
-      "id": "minecraft:waxed_exposed_copper",
-      "name": "Waxed Exposed Copper",
-      "nameVi": "Khối đồng bị phơi ra đã bôi sáp",
+      "id": "minecraft:waxed_exposed_cut_copper",
+      "name": "Waxed Exposed Cut Copper",
+      "nameVi": "Khối đồng được cắt bị phơi ra đã bôi sáp",
       "miningSources": [
         {
-          "block": "minecraft:waxed_exposed_copper",
+          "block": "minecraft:waxed_exposed_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -15481,18 +15116,6 @@
       "miningSources": [
         {
           "block": "minecraft:waxed_exposed_cut_copper_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:waxed_exposed_cut_copper",
-      "name": "Waxed Exposed Cut Copper",
-      "nameVi": "Khối đồng được cắt bị phơi ra đã bôi sáp",
-      "miningSources": [
-        {
-          "block": "minecraft:waxed_exposed_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -15529,6 +15152,18 @@
       "miningSources": [
         {
           "block": "minecraft:waxed_oxidized_chiseled_copper",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:waxed_oxidized_copper",
+      "name": "Waxed Oxidized Copper",
+      "nameVi": "Khối đồng bị oxi hóa đã bôi sáp",
+      "miningSources": [
+        {
+          "block": "minecraft:waxed_oxidized_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -15643,12 +15278,12 @@
       ]
     },
     {
-      "id": "minecraft:waxed_oxidized_copper",
-      "name": "Waxed Oxidized Copper",
-      "nameVi": "Khối đồng bị oxi hóa đã bôi sáp",
+      "id": "minecraft:waxed_oxidized_cut_copper",
+      "name": "Waxed Oxidized Cut Copper",
+      "nameVi": "Khối đồng được cắt bị oxi hoá đã bôi sáp",
       "miningSources": [
         {
-          "block": "minecraft:waxed_oxidized_copper",
+          "block": "minecraft:waxed_oxidized_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -15679,18 +15314,6 @@
       ]
     },
     {
-      "id": "minecraft:waxed_oxidized_cut_copper",
-      "name": "Waxed Oxidized Cut Copper",
-      "nameVi": "Khối đồng được cắt bị oxi hoá đã bôi sáp",
-      "miningSources": [
-        {
-          "block": "minecraft:waxed_oxidized_cut_copper",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:waxed_oxidized_lightning_rod",
       "name": "Waxed Oxidized Lightning Rod",
       "nameVi": "Cột thu lôi bị oxi hoá đã bôi sáp",
@@ -15709,6 +15332,18 @@
       "miningSources": [
         {
           "block": "minecraft:waxed_weathered_chiseled_copper",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:waxed_weathered_copper",
+      "name": "Waxed Weathered Copper",
+      "nameVi": "Khối đồng bị phong hoá đã bôi sáp",
+      "miningSources": [
+        {
+          "block": "minecraft:waxed_weathered_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -15823,12 +15458,12 @@
       ]
     },
     {
-      "id": "minecraft:waxed_weathered_copper",
-      "name": "Waxed Weathered Copper",
-      "nameVi": "Khối đồng bị phong hoá đã bôi sáp",
+      "id": "minecraft:waxed_weathered_cut_copper",
+      "name": "Waxed Weathered Cut Copper",
+      "nameVi": "Khối đồng được cắt bị phong hoá đã bôi sáp",
       "miningSources": [
         {
-          "block": "minecraft:waxed_weathered_copper",
+          "block": "minecraft:waxed_weathered_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -15859,18 +15494,6 @@
       ]
     },
     {
-      "id": "minecraft:waxed_weathered_cut_copper",
-      "name": "Waxed Weathered Cut Copper",
-      "nameVi": "Khối đồng được cắt bị phong hoá đã bôi sáp",
-      "miningSources": [
-        {
-          "block": "minecraft:waxed_weathered_cut_copper",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:waxed_weathered_lightning_rod",
       "name": "Waxed Weathered Lightning Rod",
       "nameVi": "Cột thu lôi bị phong hoá đã bôi sáp",
@@ -15895,6 +15518,18 @@
       "miningSources": [
         {
           "block": "minecraft:weathered_chiseled_copper",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:weathered_copper",
+      "name": "Weathered Copper",
+      "nameVi": "Khối đồng bị phong hoá",
+      "miningSources": [
+        {
+          "block": "minecraft:weathered_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -16009,12 +15644,12 @@
       ]
     },
     {
-      "id": "minecraft:weathered_copper",
-      "name": "Weathered Copper",
-      "nameVi": "Khối đồng bị phong hoá",
+      "id": "minecraft:weathered_cut_copper",
+      "name": "Weathered Cut Copper",
+      "nameVi": "Khối đồng được cắt bị phong hóa",
       "miningSources": [
         {
-          "block": "minecraft:weathered_copper",
+          "block": "minecraft:weathered_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -16039,18 +15674,6 @@
       "miningSources": [
         {
           "block": "minecraft:weathered_cut_copper_stairs",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:weathered_cut_copper",
-      "name": "Weathered Cut Copper",
-      "nameVi": "Khối đồng được cắt bị phong hóa",
-      "miningSources": [
-        {
-          "block": "minecraft:weathered_cut_copper",
           "silkTouch": false,
           "tools": []
         }
@@ -16098,6 +15721,18 @@
       ]
     },
     {
+      "id": "minecraft:wheat",
+      "name": "Wheat",
+      "nameVi": "Lúa mì",
+      "miningSources": [
+        {
+          "block": "minecraft:wheat",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
       "id": "minecraft:wheat_seeds",
       "name": "Wheat Seeds",
       "nameVi": "Hạt lúa mì",
@@ -16122,18 +15757,6 @@
           "silkTouch": false,
           "tools": []
         },
-        {
-          "block": "minecraft:wheat",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
-      "id": "minecraft:wheat",
-      "name": "Wheat",
-      "nameVi": "Lúa mì",
-      "miningSources": [
         {
           "block": "minecraft:wheat",
           "silkTouch": false,
@@ -16201,24 +15824,24 @@
       ]
     },
     {
-      "id": "minecraft:white_concrete_powder",
-      "name": "White Concrete Powder",
-      "nameVi": "Bột bê tông trắng",
-      "miningSources": [
-        {
-          "block": "minecraft:white_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:white_concrete",
       "name": "White Concrete",
       "nameVi": "Bê tông trắng",
       "miningSources": [
         {
           "block": "minecraft:white_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:white_concrete_powder",
+      "name": "White Concrete Powder",
+      "nameVi": "Bột bê tông trắng",
+      "miningSources": [
+        {
+          "block": "minecraft:white_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -16261,12 +15884,12 @@
       ]
     },
     {
-      "id": "minecraft:white_stained_glass_pane",
-      "name": "White Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm trắng",
+      "id": "minecraft:white_stained_glass",
+      "name": "White Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm trắng",
       "miningSources": [
         {
-          "block": "minecraft:white_stained_glass_pane",
+          "block": "minecraft:white_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -16275,12 +15898,12 @@
       ]
     },
     {
-      "id": "minecraft:white_stained_glass",
-      "name": "White Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm trắng",
+      "id": "minecraft:white_stained_glass_pane",
+      "name": "White Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm trắng",
       "miningSources": [
         {
-          "block": "minecraft:white_stained_glass",
+          "block": "minecraft:white_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -16520,24 +16143,24 @@
       ]
     },
     {
-      "id": "minecraft:yellow_concrete_powder",
-      "name": "Yellow Concrete Powder",
-      "nameVi": "Bột bê tông vàng",
-      "miningSources": [
-        {
-          "block": "minecraft:yellow_concrete_powder",
-          "silkTouch": false,
-          "tools": []
-        }
-      ]
-    },
-    {
       "id": "minecraft:yellow_concrete",
       "name": "Yellow Concrete",
       "nameVi": "Bê tông vàng",
       "miningSources": [
         {
           "block": "minecraft:yellow_concrete",
+          "silkTouch": false,
+          "tools": []
+        }
+      ]
+    },
+    {
+      "id": "minecraft:yellow_concrete_powder",
+      "name": "Yellow Concrete Powder",
+      "nameVi": "Bột bê tông vàng",
+      "miningSources": [
+        {
+          "block": "minecraft:yellow_concrete_powder",
           "silkTouch": false,
           "tools": []
         }
@@ -16580,12 +16203,12 @@
       ]
     },
     {
-      "id": "minecraft:yellow_stained_glass_pane",
-      "name": "Yellow Stained Glass Pane",
-      "nameVi": "Tấm thủy tinh được nhuộm vàng",
+      "id": "minecraft:yellow_stained_glass",
+      "name": "Yellow Stained Glass",
+      "nameVi": "Thủy tinh được nhuộm vàng",
       "miningSources": [
         {
-          "block": "minecraft:yellow_stained_glass_pane",
+          "block": "minecraft:yellow_stained_glass",
           "silkTouch": true,
           "tools": [
             "silk_touch"
@@ -16594,12 +16217,12 @@
       ]
     },
     {
-      "id": "minecraft:yellow_stained_glass",
-      "name": "Yellow Stained Glass",
-      "nameVi": "Thủy tinh được nhuộm vàng",
+      "id": "minecraft:yellow_stained_glass_pane",
+      "name": "Yellow Stained Glass Pane",
+      "nameVi": "Tấm thủy tinh được nhuộm vàng",
       "miningSources": [
         {
-          "block": "minecraft:yellow_stained_glass",
+          "block": "minecraft:yellow_stained_glass_pane",
           "silkTouch": true,
           "tools": [
             "silk_touch"

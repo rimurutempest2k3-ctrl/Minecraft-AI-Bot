@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "minecraft-ai-bot",
   "version": "${version}",
-  "name": "Minecraft AI Bot",
+  "name": "TaskFlow Bot",
   "description": "A Minecraft client automation mod for ordered task chains, with a visual local web editor, Baritone navigation, crafting, smelting, chest transfers and server menu actions. AI and nearby survival assistance are optional.",
   "authors": [
     "rimurutempest2k3-ctrl"
@@ -24,9 +24,9 @@
   },
   "depends": {
     "fabricloader": ">=0.19.5",
-    "minecraft": "~26.2",
-    "java": ">=25",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
     "fabric-api": "*",
-    "baritone": "1.19.0"
+    "baritone": "1.17.0"
   }
 }

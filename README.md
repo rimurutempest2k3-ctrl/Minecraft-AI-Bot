@@ -1,4 +1,4 @@
-# Minecraft AI Bot
+# TaskFlow Bot
 
 <p align="center"><img src="assets/minecraft-ai-bot-logo.png" alt="Minecraft AI Bot logo" width="320"></p>
 
@@ -10,16 +10,16 @@ Press **F8** in game to open bot controls: Start, Pause, Resume and Stop. The sh
 
 ## Requirements
 
-- Minecraft Java 26.2 and Java 25+.
-- Fabric Loader 0.19.5+, Fabric API for 26.2.
-- [Download Baritone API Fabric 1.19.0](https://github.com/cabaletta/baritone/releases/download/v1.19.0/baritone-api-fabric-1.19.0.jar) for Minecraft 26.2, installed separately.
+- Minecraft Java 1.21.11 and Java 21+.
+- Fabric Loader 0.19.5+, Fabric API for 1.21.11.
+- [Download Baritone API Fabric 1.17.0](https://github.com/cabaletta/baritone/releases/download/v1.17.0/baritone-api-fabric-1.17.0.jar) for Minecraft 1.21.11, installed separately.
 
 
-Use `baritone-api-fabric-1.19.0.jar`. Remove older Baritone JARs from the active profile's `mods/` folder before installing it; keep only one Baritone version.
+Use `baritone-api-fabric-1.17.0.jar`. Remove older Baritone JARs from the active profile's `mods/` folder before installing it; keep only one Baritone version.
 
 ## Install and run
 
-1. Create a Fabric 26.2 profile in your launcher and locate its game directory.
+1. Create a Fabric 1.21.11 profile in your launcher and locate its game directory.
 2. Copy the bot JAR, Fabric API and Baritone into its `mods/` folder.
 3. The mod creates missing default configuration and task files on startup.
    The ZIP includes an editable copy too; preserve customized files when upgrading.
@@ -59,8 +59,8 @@ If a step fails, its progress is held as `BLOCKED`. Resolve the cause, recover i
 
 ## Build from source
 
-Use JDK 25. Download `baritone-api-fabric-1.19.0.jar` from
-[Baritone v1.19.0](https://github.com/cabaletta/baritone/releases/tag/v1.19.0)
+Use JDK 25 to run the current Gradle/Loom build; the mod and shared core target Java 21. Download `baritone-api-fabric-1.17.0.jar` from
+[Baritone v1.17.0](https://github.com/cabaletta/baritone/releases/tag/v1.17.0)
 and place it in `libs/` (create the folder if needed).
 Run `gradlew.bat releaseZip` on Windows or `./gradlew releaseZip`
 on macOS/Linux. The runtime package is written to `build/releases/`.
@@ -79,7 +79,7 @@ Mod tập trung tự động hóa chuỗi nhiệm vụ: tạo trên web hoặc c
 AI là tùy chọn; nhiệm vụ local không cần API key. Bản 1.2.0 tiếp tục hướng Fabric client;
 bản console-only đã lưu trữ và không phát triển tiếp.
 
-1. Cài Minecraft 26.2 với Fabric Loader 0.19.5+, Java 25+, Fabric API và [Baritone API Fabric 1.19.0](https://github.com/cabaletta/baritone/releases/download/v1.19.0/baritone-api-fabric-1.19.0.jar).
+1. Cài Minecraft 1.21.11 với Fabric Loader 0.19.5+, Java 21+, Fabric API và [Baritone API Fabric 1.17.0](https://github.com/cabaletta/baritone/releases/download/v1.17.0/baritone-api-fabric-1.17.0.jar).
 2. Chép các JAR vào `mods/` của đúng thư mục game trong launcher.
 3. Mod tự tạo cấu hình và nhiệm vụ mặc định còn thiếu khi khởi động. ZIP cũng có bản để chỉnh sửa; giữ cấu hình riêng khi nâng cấp.
 4. Vào thế giới, mở địa chỉ trong `bot-web-url.txt`, bật bot và chọn nhiệm vụ trên web.
@@ -92,9 +92,9 @@ Thêm `"mode": "ensure"` để bổ sung cho đủ, hoặc `"mode": "collect"` �
 
 Console là tùy chọn: đặt `bot-console.bat` và `tools/` vào thư mục game, rồi chạy
 `.\bot-console.bat`. Bản đã đóng gói không cần IntelliJ hay Gradle.
-Để build từ mã nguồn, dùng JDK 25, đặt `baritone-api-fabric-1.19.0.jar` vào
+Để build từ mã nguồn, dùng JDK 25, đặt `baritone-api-fabric-1.17.0.jar` vào
 `libs/`, rồi chạy `.\gradlew.bat releaseZip`.
 
 Giấy phép [MIT](LICENSE) cho phép fork và phân phối lại khi giữ thông báo bản quyền và giấy phép. Phần đã công bố theo CC0 vẫn giữ quyền sử dụng CC0.
 
-Nếu gặp lỗi phiên bản Baritone: chuyển JAR Baritone cũ ra khỏi `mods/` của hồ sơ đang chạy, rồi cài đúng `baritone-api-fabric-1.19.0.jar`. Chỉ giữ một bản Baritone.
+Nếu gặp lỗi phiên bản Baritone: chuyển JAR Baritone cũ ra khỏi `mods/` của hồ sơ đang chạy, rồi cài đúng `baritone-api-fabric-1.17.0.jar`. Chỉ giữ một bản Baritone.

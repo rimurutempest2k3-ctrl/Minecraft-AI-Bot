@@ -33,7 +33,7 @@ public final class ExternalConsole {
                 String greeting = server.readLine();
                 System.out.println(greeting);
                 // The server greeting is localized; this product name is language independent.
-                if (greeting == null || !greeting.contains("Minecraft AI Bot.")) return;
+                if (greeting == null || !greeting.contains("TaskFlow Bot.")) return;
                 socket.setSoTimeout(0);
                 BlockingQueue<String> replies = new LinkedBlockingQueue<>();
                 Thread receiver = new Thread(() -> {

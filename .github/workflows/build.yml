@@ -10,18 +10,22 @@ jobs:
       - uses: gradle/actions/wrapper-validation@v6
       - uses: actions/setup-java@v5
         with:
+          java-version: '21'
+          distribution: microsoft
+      - uses: actions/setup-java@v5
+        with:
           java-version: '25'
           distribution: microsoft
-      - name: Download Baritone build dependency
+      - name: Download official Baritone dependency
         run: |
           mkdir -p libs
-          curl --fail --location --retry 3 --output libs/baritone-api-fabric-1.19.0.jar https://github.com/cabaletta/baritone/releases/download/v1.19.0/baritone-api-fabric-1.19.0.jar
-          echo 'eca6e2fdf43c6657fe9fea10a8f9a7572d78dc91ad389b998b808bd28fa5b5d1  libs/baritone-api-fabric-1.19.0.jar' | sha256sum --check
+          curl --fail --location --retry 3 --output libs/baritone-api-fabric-1.17.0.jar https://github.com/cabaletta/baritone/releases/download/v1.17.0/baritone-api-fabric-1.17.0.jar
+          echo 'a1646893c2a6338ea6bf1a3bdecf2cd743ede61e31a4324bd79a82f3d03360f9  libs/baritone-api-fabric-1.17.0.jar' | sha256sum --check
       - name: Test and package
         run: ./gradlew releaseZip --no-daemon
       - uses: actions/upload-artifact@v7
         with:
-          name: minecraft-ai-bot
+          name: taskflow-bot-mc1.21.11
           path: |
             build/releases/*.zip
-            build/libs/minecraft-ai-bot-*.jar
+            build/libs/taskflow-bot-*-mc1.21.11.jar

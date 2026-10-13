@@ -10,7 +10,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.*;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.inventory.*;
-import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.*;
@@ -64,7 +64,7 @@ final class ProductionController {
             cancel(client);
             if(sent)return;
             if(client.player!=owner || client.level!=world || !owner.isAlive() || client.gameMode==null
-                    || client.gui.screen()!=null || owner.containerMenu!=owner.inventoryMenu || owner.isSecondaryUseActive()
+                    || client.screen!=null || owner.containerMenu!=owner.inventoryMenu || owner.isSecondaryUseActive()
                     || !owner.containerMenu.getCarried().isEmpty() || !ItemStack.matches(held,owner.getMainHandItem())
                     || !world.hasChunkAt(target) || !world.getBlockState(target).is(block))throw new IllegalArgumentException("Block opening state changed; no click sent.");
             if(System.nanoTime()>deadline)throw new IllegalArgumentException("Could not aim at the block before opening.");
@@ -152,7 +152,7 @@ final class ProductionController {
                 return;
             }
         }
-        client.gameMode.handleContainerInput(menu.containerId,step.slot(),step.button(),ContainerInput.PICKUP,client.player);
+        client.gameMode.handleInventoryMouseClick(menu.containerId,step.slot(),step.button(),ClickType.PICKUP,client.player);
         expected=step.slots(); cursor=step.cursor();index++;ticks=0;
     }
     private void fail(String reason) { failure=reason;steps=null; }
@@ -164,7 +164,7 @@ final class ProductionController {
             Slot slot=menu.getSlot(i);ItemStack existing=slot.getItem();
             if(slot.container==client.player.getInventory() && slot.getContainerSlot()<36 && slot.mayPlace(carried)
                     && (existing.isEmpty() || ItemStack.isSameItemSameComponents(existing,carried) && existing.getCount()+carried.getCount()<=slot.getMaxStackSize(carried))) {
-                client.gameMode.handleContainerInput(menu.containerId,i,0,ContainerInput.PICKUP,client.player);return;
+                client.gameMode.handleInventoryMouseClick(menu.containerId,i,0,ClickType.PICKUP,client.player);return;
             }
         }
     }
@@ -201,7 +201,7 @@ final class ProductionController {
         String start(Minecraft client,BlockPos requested,Block requestedBlock) {
             if(busy()) throw new IllegalArgumentException("Waiting for production block placement.");
             if(client.player==null || client.level==null || client.gameMode==null || !client.player.isAlive()) throw new IllegalArgumentException("Enter the world first.");
-            if(client.player.containerMenu!=client.player.inventoryMenu || client.gui.screen()!=null || client.gui.overlay()!=null || client.isPaused()) throw new IllegalArgumentException("Close menus and use F3+P before placing blocks.");
+            if(client.player.containerMenu!=client.player.inventoryMenu || client.screen!=null || client.getOverlay()!=null || client.isPaused()) throw new IllegalArgumentException("Close menus and use F3+P before placing blocks.");
             if(!client.player.inventoryMenu.getCarried().isEmpty()) throw new IllegalArgumentException("Store the cursor item first.");
             if(!Set.of(Blocks.CRAFTING_TABLE,Blocks.FURNACE,Blocks.BLAST_FURNACE,Blocks.SMOKER).contains(requestedBlock)) throw new IllegalArgumentException("Unsupported production block.");
             block=requestedBlock;owner=client.player;world=client.level;target=null;destination=null;jump=null;automatic=requested==null;
@@ -228,7 +228,7 @@ final class ProductionController {
             if(source<9) owner.getInventory().setSelectedSlot(source);
             else {
                 int slot=owner.getInventory().getSelectedSlot();ItemStack expected=owner.getInventory().getNonEquipmentItems().get(source).copy();
-                client.gameMode.handleContainerInput(owner.inventoryMenu.containerId,source,slot,ContainerInput.SWAP,owner);
+                client.gameMode.handleInventoryMouseClick(owner.inventoryMenu.containerId,source,slot,ClickType.SWAP,owner);
                 if(!ItemStack.isSameItemSameComponents(owner.getMainHandItem(),expected) || owner.getMainHandItem().getCount()!=expected.getCount()) throw new IllegalArgumentException("Block has not moved to hotbar; check inventory.");
             }
         }
@@ -294,7 +294,7 @@ final class ProductionController {
                 float candidate=items.get(i).getDestroySpeed(clearingState);if(candidate>speed) {tool=i;speed=candidate;}
             }
             if(tool<9)owner.getInventory().setSelectedSlot(tool);
-            else client.gameMode.handleContainerInput(owner.inventoryMenu.containerId,tool,owner.getInventory().getSelectedSlot(),ContainerInput.SWAP,owner);
+            else client.gameMode.handleInventoryMouseClick(owner.inventoryMenu.containerId,tool,owner.getInventory().getSelectedSlot(),ClickType.SWAP,owner);
             begin(Phase.CLEAR,10);announce("Clearing a natural block at "+target.toShortString()+" to make space for production placement.");return true;
         }
         private void stopDigging(Minecraft client) {if(digging && client.gameMode!=null)client.gameMode.stopDestroyBlock();digging=false;}
@@ -354,7 +354,7 @@ final class ProductionController {
         void tick(Minecraft client) {
             if(!busy()) return;
             if(client.player!=owner || client.level!=world || !owner.isAlive()) {cancel("Block placement canceled because game state changed.");return;}
-            if(client.gui.screen()!=null || client.gui.overlay()!=null || client.isPaused() || owner.containerMenu!=owner.inventoryMenu) {cancel("Block placement canceled because menu/pause state changed.");return;}
+            if(client.screen!=null || client.getOverlay()!=null || client.isPaused() || owner.containerMenu!=owner.inventoryMenu) {cancel("Block placement canceled because menu/pause state changed.");return;}
             long now=System.nanoTime();if(now>overallDeadline) {cancel("Block placement exceeded 60 seconds; stopped.");return;}
             // Earlier server confirmation takes priority over another placement at the new position.
             for(BlockPos pos:attempted) if(world.getBlockState(pos).is(block)) {
@@ -474,7 +474,7 @@ final class ProductionController {
             if(active || movement.busy() || placement.busy()) return "Task active; use bot stop first.";
             if(client.player==null || client.level==null || client.gameMode==null || !client.player.isAlive()
                     || bot.state()!=BotState.RUNNING) return "Enter the world and type bot start first.";
-            if(client.isPaused() || client.gui.overlay()!=null || client.gui.screen()!=null
+            if(client.isPaused() || client.getOverlay()!=null || client.screen!=null
                     || client.player.containerMenu!=client.player.inventoryMenu) return "Close menus; use F3+P so the game keeps running when switching to the console.";
             if(!client.player.containerMenu.getCarried().isEmpty()) return "Store the cursor item before smelting.";
             if(quantity<1 || quantity>64) return "Each batch supports 1-64 ingredients.";
@@ -591,7 +591,7 @@ final class ProductionController {
             if(step.slot()<3 && step.slot()!=2 && !FurnaceLogic.allowsInsertion(client,machine,step.slot(),menu.getCarried()))
                 throw new IllegalArgumentException("Game does not allow insertion into the furnace slot.");
             if(!menu.getSlot(step.slot()).mayPickup(owner)) throw new IllegalArgumentException("Server restricts inventory slot actions.");
-            client.gameMode.handleContainerInput(menu.containerId,step.slot(),step.button(),ContainerInput.PICKUP,owner);
+            client.gameMode.handleInventoryMouseClick(menu.containerId,step.slot(),step.button(),ClickType.PICKUP,owner);
             expected=step.slots();expectedCursor=step.cursor();delay=0;return false;
         }
         void tick(Minecraft client) {
@@ -600,7 +600,7 @@ final class ProductionController {
                 cancel(client,"Smelting stopped because world/player/bot state changed.");return;
             }
             if(System.nanoTime()>deadline || System.nanoTime()>phaseDeadline) {cancel(client,"Smelting timed out; inspect furnace and remaining items.");return;}
-            if(client.isPaused() || client.gui.overlay()!=null) return;
+            if(client.isPaused() || client.getOverlay()!=null) return;
             try {
                 if(phase==Phase.PLACE) {
                     if(placement.busy()) return;
@@ -609,7 +609,7 @@ final class ProductionController {
                     approach(client);return;
                 }
                 if(phase==Phase.APPROACH) {
-                    if(owner.containerMenu!=owner.inventoryMenu || client.gui.screen()!=null) throw new IllegalArgumentException("Menu changed while approaching furnace.");
+                    if(owner.containerMenu!=owner.inventoryMenu || client.screen!=null) throw new IllegalArgumentException("Menu changed while approaching furnace.");
                     var hit=reachable();if(hit!=null) open(client,hit);
                     else if(++clock>40 && !movement.busy()) throw new IllegalArgumentException("Cannot reach furnace.");
                     return;
@@ -678,7 +678,7 @@ final class ProductionController {
                             Slot slot=menu.getSlot(i);ItemStack existing=slot.getItem();
                             if(slot.mayPlace(carried) && (existing.isEmpty() || ItemStack.isSameItemSameComponents(existing,carried)
                                     && existing.getCount()+carried.getCount()<=slot.getMaxStackSize(carried))) {
-                                client.gameMode.handleContainerInput(menu.containerId,i,0,ContainerInput.PICKUP,owner);break;
+                                client.gameMode.handleInventoryMouseClick(menu.containerId,i,0,ClickType.PICKUP,owner);break;
                             }
                         }
                     }
@@ -702,10 +702,10 @@ final class ProductionController {
             } catch(java.io.IOException e) {throw new IllegalArgumentException("Cannot read furnace rules.");}
         }
         private static com.google.gson.JsonObject load() throws java.io.IOException {
-            var path=net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("minecraft-ai-bot/core-data/furnace-rules-26.2.json");
+            var path=net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir().resolve("minecraft-ai-bot/core-data/furnace-rules-1.21.11.json");
             if(java.nio.file.Files.size(path)>2_000_000) throw new IllegalArgumentException("Furnace rules file is too large.");
             var root=com.google.gson.JsonParser.parseString(java.nio.file.Files.readString(path)).getAsJsonObject();
-            if(root.get("schemaVersion").getAsInt()!=1 || !root.get("minecraftVersion").getAsString().equals("26.2")) throw new IllegalArgumentException("Unsupported furnace rules version.");
+            if(root.get("schemaVersion").getAsInt()!=1 || !root.get("minecraftVersion").getAsString().equals("1.21.11")) throw new IllegalArgumentException("Unsupported furnace rules version.");
             for(String machine:List.of("furnace","blast_furnace","smoker")) {
                 var settings=root.getAsJsonObject("machines").getAsJsonObject(machine);
                 if(settings.get("defaultCookingTicks").getAsInt()<1 || settings.get("fuelTickDivisor").getAsInt()<1) throw new IllegalArgumentException("Invalid cooking duration.");
@@ -748,7 +748,7 @@ final class ProductionController {
                 var matches=root.getAsJsonObject("acceptedInputs").getAsJsonObject(machine).getAsJsonArray(inputId);
                 boolean inputAllowed=client.level!=null?allowsInsertion(client,machine,0,input):matches!=null;
                 int burn=client.level!=null?client.level.fuelValues().burnDuration(input):fuelTicks(root,inputId);
-                String source=client.level!=null?"Check against running game":"Look up vanilla 26.2 data (not in a world)";
+                String source=client.level!=null?"Check against running game":"Look up vanilla 1.21.11 data (not in a world)";
                 if(parts[0].equals("check")) {
                     String outputs=matches==null?"no vanilla recipe":matches.toString();
                     return source+" | "+machine+" | "+inputId+" | Input slot: "+(inputAllowed?"allowed":"not allowed")
@@ -769,7 +769,7 @@ final class ProductionController {
                 return "Vanilla plan (not executed): "+inputId+" x"+quantity+" → "+result.get("id").getAsString()+" x"+((long)quantity*count)
                         +" | "+machine+" | Estimated "+fuelId+" x"+needed+" with continuous smelting, excluding remaining fire. Game/server recipes may differ; verify the actual output.";
             } catch(NumberFormatException bad) {return "Quantity must be an integer from 1-2304.";}
-            catch(Exception failure) {return "Cannot read/validate furnace-rules-26.2.json; check file structure. Old file preserved.";}
+            catch(Exception failure) {return "Cannot read/validate furnace-rules-1.21.11.json; check file structure. Old file preserved.";}
         }
         private static int fuelTicks(com.google.gson.JsonObject root,String id) {
             var fuel=root.getAsJsonObject("fuels").getAsJsonObject(id);return fuel==null?0:Math.max(0,fuel.get("burnTicks").getAsInt());

@@ -77,7 +77,7 @@ final class ChestController {
         }
         if (busy()) return "Chest action processing. Wait for the result or use bot stop.";
         if (bot.state() != BotState.RUNNING) return "Enter bot start first.";
-        if (client.isPaused() || client.gui.overlay() != null) return "Game paused; use F3+P to disable automatic pause when switching windows.";
+        if (client.isPaused() || client.getOverlay() != null) return "Game paused; use F3+P to disable automatic pause when switching windows.";
         String[] parts = command.split(" ");
         if (parts[0].equals("open")) {
             if (parts.length == 2) {
@@ -92,7 +92,7 @@ final class ChestController {
         return "Invalid chest command.";
     }
     private String open(Minecraft client, String[] parts) {
-        if (client.player.containerMenu != client.player.inventoryMenu || client.gui.screen() != null) return "Close the current menu before opening another chest.";
+        if (client.player.containerMenu != client.player.inventoryMenu || client.screen != null) return "Close the current menu before opening another chest.";
         if (client.player.isSecondaryUseActive()) return "Release the sneak key before opening the chest.";
         Vec3 eye = client.player.getEyePosition(); BlockPos target = null; double nearest = Double.MAX_VALUE;
         BlockPos origin = client.player.blockPosition();
@@ -222,7 +222,7 @@ final class ChestController {
         if (bot.state() != BotState.RUNNING) { cancel(); return; }
         if (approaching != null) {
             if (client.isPaused()) return;
-            if (owner.containerMenu != owner.inventoryMenu || client.gui.screen() != null) { abandon("Chest approach stopped because another menu opened."); return; }
+            if (owner.containerMenu != owner.inventoryMenu || client.screen != null) { abandon("Chest approach stopped because another menu opened."); return; }
             if (System.nanoTime() > approachUntil) { abandon("Could not reach/open chest within 120 seconds. Check route and coordinates."); return; }
             if(requestedChest!=null) {
                 if(owner.blockPosition().distSqr(requestedChest)>100)return;
@@ -271,7 +271,7 @@ final class ChestController {
         }
         var step = steps.get(index++);
         if (cursor.count() == 0 && step.cursor().count() > 0) returnSlot = step.slot();
-        client.gameMode.handleContainerInput(menu.containerId, step.slot(), step.button(), ContainerInput.PICKUP, owner);
+        client.gameMode.handleInventoryMouseClick(menu.containerId, step.slot(), step.button(), ClickType.PICKUP, owner);
         expected = step.slots(); cursor = step.cursor(); delay = index == steps.size() ? 20 : 4;
     }
     void cancel() {
@@ -283,7 +283,7 @@ final class ChestController {
                 Slot slot = menu.getSlot(returnSlot); ItemStack existing = slot.getItem();
                 if (slot.mayPlace(carried) && (existing.isEmpty() || ItemStack.isSameItemSameComponents(existing, carried))
                         && existing.getCount() + carried.getCount() <= slot.getMaxStackSize(carried))
-                    client.gameMode.handleContainerInput(menu.containerId, returnSlot, 0, ContainerInput.PICKUP, owner);
+                    client.gameMode.handleInventoryMouseClick(menu.containerId, returnSlot, 0, ClickType.PICKUP, owner);
             }
         }
         abandon("Chest action canceled. Store cursor items in an empty slot; the mod will not drop them.");

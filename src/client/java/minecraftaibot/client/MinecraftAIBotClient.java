@@ -102,7 +102,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
         if(queuedWorkflow==null)return;
         if(client.player!=queuedPlayer || client.level!=queuedWorld || !queuedPlayer.isAlive() || bot.state()!=BotState.RUNNING) {queuedWorkflow=null;notifyConsole("Task switch canceled because game state changed.");return;}
         if(++queuedTicks<5)return;
-        boolean ready=client.gui.screen()==null && client.gui.overlay()==null && !client.isPaused()
+        boolean ready=client.screen==null && client.getOverlay()==null && !client.isPaused()
                 && client.player.containerMenu==client.player.inventoryMenu && client.player.containerMenu.getCarried().isEmpty()
                 && client.player.inventoryMenu.getInputGridSlots().stream().allMatch(s->s.getItem().isEmpty());
         if(!ready) {if(queuedTicks>=100) {queuedWorkflow=null;notifyConsole("Could not switch task: menu/ingredients not stored, or game paused. Close the menu and run again.");}return;}
@@ -185,7 +185,7 @@ public class MinecraftAIBotClient implements ClientModInitializer {
             if(client.player==null)return;
             long now=System.nanoTime();if(message.equals(lastLocalMessage) && now-lastLocalMessageAt<10_000_000_000L)return;
             lastLocalMessage=message;lastLocalMessageAt=now;
-            client.gui.hud.getChat().addClientSystemMessage(chatNotification(message,true));
+            client.gui.getChat().addMessage(chatNotification(message,true));
         });
     }
     private void notifyConsole(String message) {
@@ -385,11 +385,11 @@ public class MinecraftAIBotClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-        var controlsKey=net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper.registerKeyMapping(new net.minecraft.client.KeyMapping("key.minecraft-ai-bot.controls",org.lwjgl.glfw.GLFW.GLFW_KEY_F8,net.minecraft.client.KeyMapping.Category.MISC));
+        var controlsKey=net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper.registerKeyBinding(new net.minecraft.client.KeyMapping("key.minecraft-ai-bot.controls",org.lwjgl.glfw.GLFW.GLFW_KEY_F8,net.minecraft.client.KeyMapping.Category.MISC));
         ClientTickEvents.END_CLIENT_TICK.register(client->{
             while(controlsKey.consumeClick()) {
-                if(client.gui.screen() instanceof BotControlScreen)client.gui.setScreen(null);
-                else if(client.gui.screen()==null)client.gui.setScreen(new BotControlScreen(this::guiCommand,()->bot.state().name()+" · "+localTasks.status()));
+                if(client.screen instanceof BotControlScreen)client.setScreen(null);
+                else if(client.screen==null)client.setScreen(new BotControlScreen(this::guiCommand,()->bot.state().name()+" · "+localTasks.status()));
             }
         });
         try {I18n.initialize(FabricLoader.getInstance().getConfigDir().resolve("minecraft-ai-bot"));}

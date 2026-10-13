@@ -41,7 +41,7 @@ public final class ConsoleServer implements AutoCloseable {
             properties.setProperty("port", Integer.toString(server.getLocalPort()));
             properties.setProperty("token", token);
             try (Writer writer = Files.newBufferedWriter(this.endpoint, StandardCharsets.UTF_8)) {
-                properties.store(writer, "Minecraft AI Bot local console");
+                properties.store(writer, "TaskFlow Bot local console");
             }
         } catch (IOException failure) {
             server.close();
@@ -67,7 +67,7 @@ public final class ConsoleServer implements AutoCloseable {
                     writer.println(I18n.text("Authentication failed."));
                     continue;
                 }
-                writer.println(I18n.text("Connected to Minecraft AI Bot. Type bot help; exit closes this console."));
+                writer.println(I18n.text("Connected to TaskFlow Bot. Type bot help; exit closes this console."));
                 notifications = writer;
                 socket.setSoTimeout(0);
                 String line;

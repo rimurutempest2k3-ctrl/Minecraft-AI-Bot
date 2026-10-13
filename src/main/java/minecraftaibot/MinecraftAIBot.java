@@ -14,7 +14,7 @@ public class MinecraftAIBot implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		LOGGER.info("Minecraft AI Bot initialized");
+		LOGGER.info("TaskFlow Bot initialized");
 	}
 
 	public static Identifier id(String path) {

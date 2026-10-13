@@ -50,3 +50,7 @@ logs/
 **/bot-web-url.txt
 **/shared-memory.json
 **/sessions/
+
+.port-data/
+build-port.log
+run-client-port.log

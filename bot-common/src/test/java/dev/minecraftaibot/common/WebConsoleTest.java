@@ -22,7 +22,7 @@ public final class WebConsoleTest {
             var crossSite=client.send(HttpRequest.newBuilder(URI.create(url)).header("Sec-Fetch-Site","cross-site").GET().build(),HttpResponse.BodyHandlers.ofString());
             check(crossSite.statusCode()==403);
             var page=client.send(HttpRequest.newBuilder(URI.create(url)).GET().build(),HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            check(page.statusCode()==200 && page.body().contains("Minecraft AI Bot"));
+            check(page.statusCode()==200 && page.body().contains("TaskFlow Bot"));
             String cookie=page.headers().firstValue("Set-Cookie").orElseThrow().split(";")[0];
             for(String lang:java.util.List.of("vi","en")) {
                 var denied=client.send(HttpRequest.newBuilder(URI.create(url+"/lang."+lang)).GET().build(),HttpResponse.BodyHandlers.ofString());
@@ -109,8 +109,8 @@ public final class WebConsoleTest {
             var items=client.send(HttpRequest.newBuilder(URI.create(url+"/items")).header("Cookie",cookie).GET().build(),HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             check(items.statusCode()==200);
             var itemData=com.google.gson.JsonParser.parseString(items.body()).getAsJsonObject();
-            check(itemData.get("minecraftVersion").getAsString().equals("26.2"));
-            var itemEntries=itemData.getAsJsonArray("items");check(itemEntries.size()==1537);
+            check(itemData.get("minecraftVersion").getAsString().equals("1.21.11"));
+            var itemEntries=itemData.getAsJsonArray("items");check(itemEntries.size()==1505);
             var ids=new java.util.HashSet<String>();
             for(var entry:itemEntries){var item=entry.getAsJsonObject();check(ids.add(item.get("id").getAsString()));check(!item.get("name").getAsString().isBlank()&&!item.get("nameVi").getAsString().isBlank());}
             check(ids.containsAll(java.util.List.of("minecraft:oak_log","minecraft:diamond_pickaxe","minecraft:potion","minecraft:zombie_spawn_egg","minecraft:knowledge_book")));

@@ -26,10 +26,10 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Creeper;
-import net.minecraft.world.entity.monster.cubemob.AbstractCubeMob;
-import net.minecraft.world.entity.monster.cubemob.MagmaCube;
+import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.monster.MagmaCube;
 import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
-import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -122,7 +122,7 @@ final class SurvivalController {
         var player=client.player;
         if(!player.isOnFire() || player.isInWater() || !player.onGround() || player.isPassenger()
                 || client.level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.WATER_EVAPORATES,player.blockPosition()) || System.nanoTime()<nextExtinguish
-                || client.gui.screen()!=null || player.containerMenu!=player.inventoryMenu || !player.containerMenu.getCarried().isEmpty())return false;
+                || client.screen!=null || player.containerMenu!=player.inventoryMenu || !player.containerMenu.getCarried().isEmpty())return false;
         var items=player.getInventory().getNonEquipmentItems();
         int bucket=-1;for(int i=0;i<items.size();i++)if(items.get(i).is(Items.WATER_BUCKET)){bucket=i;break;}
         if(bucket<0)return false;
@@ -141,7 +141,7 @@ final class SurvivalController {
         if(++extinguishTicks>60) {finish(client,"Water extinguishing not confirmed; resuming with a retry cooldown.");return;}
         if(waterSent)return;
         if(!owner.onGround() || !owner.blockPosition().below().equals(extinguishFloor)
-                || client.gui.screen()!=null || !owner.getMainHandItem().is(Items.WATER_BUCKET)) {
+                || client.screen!=null || !owner.getMainHandItem().is(Items.WATER_BUCKET)) {
             finish(client,"Cannot place water because player or inventory state changed.");return;
         }
         Vec3 point=Vec3.atCenterOf(extinguishFloor).add(0,0.5,0),delta=point.subtract(owner.getEyePosition());
@@ -405,8 +405,8 @@ final class SurvivalController {
     }
     private boolean safeMaintenance(Minecraft client) {
         return client.player!=null && client.level!=null && client.gameMode!=null && !client.isPaused()
-                && client.gui.overlay()==null && client.player.isAlive() && !client.player.isCreative() && !client.player.isSpectator()
-                && idleForEquipment.getAsBoolean() && client.gui.screen()==null && client.player.containerMenu==client.player.inventoryMenu
+                && client.getOverlay()==null && client.player.isAlive() && !client.player.isCreative() && !client.player.isSpectator()
+                && idleForEquipment.getAsBoolean() && client.screen==null && client.player.containerMenu==client.player.inventoryMenu
                 && client.player.containerMenu.getCarried().isEmpty() && !client.player.isUsingItem() && client.player.onGround()
                 && java.util.stream.IntStream.rangeClosed(1,4).allMatch(i->client.player.inventoryMenu.getSlot(i).getItem().isEmpty());
     }
@@ -445,7 +445,7 @@ final class SurvivalController {
         }
         void drop(Minecraft client) {
             // One vanilla interaction, then wait for observed inventory change; never retry blindly.
-            client.gameMode.handleContainerInput(owner.inventoryMenu.containerId,slot,expected==0?1:0,ContainerInput.THROW,owner);
+            client.gameMode.handleInventoryMouseClick(owner.inventoryMenu.containerId,slot,expected==0?1:0,ClickType.THROW,owner);
             deadline=System.nanoTime()+2_000_000_000L;confirmed=waitingTicks=0;operations++;
         }
         void tick(Minecraft client) {
@@ -476,13 +476,13 @@ final class SurvivalController {
         releaseCreeperBacking(client);
         releaseAttack(client);
         if(!enabled || bot.state()!=BotState.RUNNING || client.player==null || client.level==null || client.gameMode==null || !client.player.isAlive()) {cancel(client);return;}
-        if(client.isPaused() || client.gui.overlay()!=null) {cancel(client);return;}
+        if(client.isPaused() || client.getOverlay()!=null) {cancel(client);return;}
         if(busy() && (client.player!=owner || client.level!=world)) {cancel(client);return;}
         try {
             if(mode==Mode.EXTINGUISH) {tickExtinguishing(client);return;}
             if(startExtinguishing(client))return;
             if(mode==Mode.EAT) {tickEating(client);return;}
-            if(client.gui.screen()!=null || client.player.containerMenu!=client.player.inventoryMenu || !client.player.containerMenu.getCarried().isEmpty()) {if(busy())cancel(client);return;}
+            if(client.screen!=null || client.player.containerMenu!=client.player.inventoryMenu || !client.player.containerMenu.getCarried().isEmpty()) {if(busy())cancel(client);return;}
             long now=System.nanoTime();
             int food=foodSlot(client);
             if(now>=nextFood && SurvivalPolicy.eatingNeeded(client.player.getHealth(),client.player.getMaxHealth(),client.player.getFoodData().getFoodLevel()) && food>=0) {
@@ -569,7 +569,7 @@ final class SurvivalController {
         int radius=Math.max(24,settings.scanRadius());
         for(LivingEntity mob:client.level.getEntitiesOfClass(LivingEntity.class,player.getBoundingBox().inflate(radius),e->e!=player && e.isAlive() && !e.isSpectator())) {
             String id=BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString();
-            double weight=mob instanceof AbstractCubeMob cube?SurvivalPolicy.slimeWeight(cube.getSize(),mob instanceof MagmaCube):mob.isBaby()?1.5:1;
+            double weight=mob instanceof Slime cube?SurvivalPolicy.slimeWeight(cube.getSize(),mob instanceof MagmaCube):mob.isBaby()?1.5:1;
             if(weight==0) continue;
             boolean creeper=mob instanceof Creeper;
             boolean ordinary=DEFENDABLE.contains(id);
@@ -722,7 +722,7 @@ final class SurvivalController {
         if(slot<0 || owner.containerMenu!=owner.inventoryMenu || !owner.containerMenu.getCarried().isEmpty()) return false;
         if(slot<9) {owner.getInventory().setSelectedSlot(slot);return true;}
         int hotbar=owner.getInventory().getSelectedSlot();ItemStack expected=owner.getInventory().getNonEquipmentItems().get(slot).copy();
-        client.gameMode.handleContainerInput(owner.inventoryMenu.containerId,slot,hotbar,ContainerInput.SWAP,owner);
+        client.gameMode.handleInventoryMouseClick(owner.inventoryMenu.containerId,slot,hotbar,ClickType.SWAP,owner);
         return ItemStack.isSameItemSameComponents(owner.getMainHandItem(),expected) && owner.getMainHandItem().getCount()==expected.getCount();
     }
     private int countFood() {
@@ -771,7 +771,7 @@ final class SurvivalController {
         if(!enabled || bot.state()!=BotState.RUNNING || client.player==null || client.level==null || client.gameMode==null
                 || !client.player.isAlive() || client.player.isSpectator() || client.player.isCreative()) {cancel(client);return;}
         if(busy() && (client.player!=owner || client.level!=world)) {cancel(client);return;}
-        if(client.isPaused() || client.gui.overlay()!=null) {cancel(client);return;}
+        if(client.isPaused() || client.getOverlay()!=null) {cancel(client);return;}
         try {
             if(++scanTicks>=5 || scannedPlayer!=client.player || scannedWorld!=client.level) {
                 cached=scan(client);scanTicks=0;scannedPlayer=client.player;scannedWorld=client.level;
@@ -797,7 +797,7 @@ final class SurvivalController {
             var decision=assessment.action();
             escapingBiome=avoidsDestination(client,client.player.blockPosition());
 
-            if(busy() && (owner.containerMenu!=owner.inventoryMenu || client.gui.screen()!=null)) {endAction(client,"Menu changed during survival actions.");return;}
+            if(busy() && (owner.containerMenu!=owner.inventoryMenu || client.screen!=null)) {endAction(client,"Menu changed during survival actions.");return;}
             if(decision==SurvivalPolicy.Action.CREEPER_SHIELD) {
                 if(mode!=Mode.CREEPER) {
                     if(busy()) cancel(client);
@@ -835,7 +835,7 @@ final class SurvivalController {
             // every distant hostile to disappear, or for an escape path to finish first.
             if((autoEquipment || shieldEnabled) && mode!=Mode.EAT && mode!=Mode.PILLAR && now>=nextEquipment
                     && recentDamage<4 && SurvivalPolicy.equipmentOpportunity(health,client.player.getMaxHealth(),urgentFood,seen.stream().map(Seen::threat).toList())
-                    && client.gui.screen()==null && client.player.containerMenu==client.player.inventoryMenu
+                    && client.screen==null && client.player.containerMenu==client.player.inventoryMenu
                     && client.player.containerMenu.getCarried().isEmpty() && client.player.onGround() && !client.player.isPassenger()
                     && java.util.stream.IntStream.rangeClosed(1,4).allMatch(i->client.player.inventoryMenu.getSlot(i).getItem().isEmpty())) {
                 var plan=new EquipmentMaintenance();
@@ -858,7 +858,7 @@ final class SurvivalController {
                 else {pickup.tick(client);return;}
             }
             if(autoLoot && recovering(client) && mode!=Mode.PILLAR && now>=nextLoot && recoverySafe(client)
-                    && client.gui.screen()==null && client.player.containerMenu==client.player.inventoryMenu
+                    && client.screen==null && client.player.containerMenu==client.player.inventoryMenu
                     && client.player.containerMenu.getCarried().isEmpty() && !client.player.isPassenger()) {
                 tryPickup(client,true);
                 if(mode==Mode.LOOT) return;
@@ -915,7 +915,7 @@ final class SurvivalController {
                 nextTrash=System.nanoTime()+120_000_000_000L;
                 beginCleanup(client);
             } else if((autoEquipment || shieldEnabled) && seen.isEmpty() && System.nanoTime()>=nextEquipment && idleForEquipment.getAsBoolean()
-                    && client.gui.screen()==null && client.player.containerMenu==client.player.inventoryMenu
+                    && client.screen==null && client.player.containerMenu==client.player.inventoryMenu
                     && client.player.containerMenu.getCarried().isEmpty()
                     && java.util.stream.IntStream.rangeClosed(1,4).allMatch(i->client.player.inventoryMenu.getSlot(i).getItem().isEmpty())
                     && !client.player.isUsingItem() && client.player.onGround()) {
@@ -1051,7 +1051,7 @@ final class SurvivalController {
         else alignedTicks++;
         weaponDelay++;
         boolean opportunity=alignedTicks>=2 && weaponDelay>=3 && owner.getAttackStrengthScale(0)>=0.9f
-                && owner.isWithinAttackRange(owner.getMainHandItem(),mob.getBoundingBox(),0);
+                && owner.isWithinAttackRange(mob.getBoundingBox(),0);
         boolean ready=opportunity && client.crosshairPickEntity==mob
                 && client.hitResult instanceof EntityHitResult hit && hit.getEntity()==mob;
         boolean ranged=RANGED.contains(BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType()).toString());
@@ -1175,7 +1175,7 @@ final class SurvivalController {
             return ItemStack.isSameItemSameComponents(actual,expected) && actual.getCount()==expected.getCount();
         }
         private void swap(Minecraft client,int slot,int hotbar) {
-            client.gameMode.handleContainerInput(owner.inventoryMenu.containerId,slot,hotbar,ContainerInput.SWAP,owner);
+            client.gameMode.handleInventoryMouseClick(owner.inventoryMenu.containerId,slot,hotbar,ClickType.SWAP,owner);
         }
         private void start(Minecraft client) {
             var menu=owner.inventoryMenu;
@@ -1256,7 +1256,7 @@ final class SurvivalController {
             var items=owner.getInventory().getNonEquipmentItems();
             for(int i=0;i<items.size();i++) if(items.get(i).is(Items.SHIELD) && items.get(i).getMaxDamage()-items.get(i).getDamageValue()>3) {
                 shieldSource=i<9?36+i:i;oldOffhand=owner.getOffhandItem().copy();
-                client.gameMode.handleContainerInput(owner.inventoryMenu.containerId,shieldSource,40,ContainerInput.SWAP,owner);
+                client.gameMode.handleInventoryMouseClick(owner.inventoryMenu.containerId,shieldSource,40,ClickType.SWAP,owner);
                 break;
             }
         }
@@ -1279,7 +1279,7 @@ final class SurvivalController {
             var source=owner.inventoryMenu.getSlot(shieldSource).getItem();
             if(ItemStack.isSameItemSameComponents(source,oldOffhand) && source.getCount()==oldOffhand.getCount()
                     && (owner.getOffhandItem().isEmpty() || owner.getOffhandItem().is(Items.SHIELD))) {
-                client.gameMode.handleContainerInput(owner.inventoryMenu.containerId,shieldSource,40,ContainerInput.SWAP,owner);
+                client.gameMode.handleInventoryMouseClick(owner.inventoryMenu.containerId,shieldSource,40,ClickType.SWAP,owner);
             } else notify.accept("Survival: inventory changed; keeping current shield/offhand positions to avoid swapping the wrong item.");
         }
         shieldSource=-1;oldOffhand=ItemStack.EMPTY;

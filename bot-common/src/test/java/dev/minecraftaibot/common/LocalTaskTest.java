@@ -15,7 +15,7 @@ public final class LocalTaskTest {
             check(java.nio.file.Files.exists(empty.resolve("production-tasks.json")));
             check(java.nio.file.Files.exists(empty.resolve("tasks/example.taskbot")));
             check(!java.nio.file.Files.exists(empty.resolve("tasks/starter-kit.taskbot")));
-            for(String name:List.of("minecraft-recipes-26.2.json","furnace-rules-26.2.json","task-recipes.json","mining-rules.json")) {
+            for(String name:List.of("minecraft-recipes-1.21.11.json","furnace-rules-1.21.11.json","task-recipes.json","mining-rules.json")) {
                 var core=empty.resolve("core-data").resolve(name);
                 check(java.nio.file.Files.isRegularFile(core) && java.nio.file.Files.size(core)>0);
                 var original=java.nio.file.Files.readString(core);java.nio.file.Files.delete(core);
@@ -131,8 +131,8 @@ public final class LocalTaskTest {
             var file=directory.resolve("local-tasks.json");file.toFile().deleteOnExit();
             installFixtures(directory);
             java.nio.file.Files.writeString(file,edited.toString());TaskPresets.initialize(file);
-            var recipeFile=directory.resolve("core-data/minecraft-recipes-26.2.json");recipeFile.toFile().deleteOnExit();
-            var furnaceFile=directory.resolve("core-data/furnace-rules-26.2.json");furnaceFile.toFile().deleteOnExit();
+            var recipeFile=directory.resolve("core-data/minecraft-recipes-1.21.11.json");recipeFile.toFile().deleteOnExit();
+            var furnaceFile=directory.resolve("core-data/furnace-rules-1.21.11.json");furnaceFile.toFile().deleteOnExit();
             var furnace=JsonParser.parseString(java.nio.file.Files.readString(furnaceFile)).getAsJsonObject();
             check(furnace.getAsJsonObject("acceptedInputs").getAsJsonObject("furnace").has("minecraft:cobblestone"));
             check(!furnace.getAsJsonObject("acceptedInputs").getAsJsonObject("blast_furnace").has("minecraft:cobblestone"));
@@ -147,7 +147,7 @@ public final class LocalTaskTest {
             check(1600 / furnace.getAsJsonObject("machines").getAsJsonObject("blast_furnace").get("fuelTickDivisor").getAsInt()
                     / furnace.getAsJsonObject("machines").getAsJsonObject("blast_furnace").get("defaultCookingTicks").getAsInt()==8);
             var allRecipes=JsonParser.parseString(java.nio.file.Files.readString(recipeFile)).getAsJsonObject();
-            check(allRecipes.get("minecraftVersion").getAsString().equals("26.2"));
+            check(allRecipes.get("minecraftVersion").getAsString().equals("1.21.11"));
             check(allRecipes.getAsJsonObject("recipes").has("minecraft:wooden_pickaxe"));
             java.nio.file.Files.writeString(recipeFile,"user-edited-catalog");
             check(TaskPresets.miningCommand("extra_wood").equals("bot mine minecraft:spruce_log 7"));
@@ -356,7 +356,7 @@ public final class LocalTaskTest {
         }
     }
     private static void verifyFullRecipes(TaskPresets.Starter starter) {
-        try(var in=LocalTaskTest.class.getResourceAsStream("/core-data/minecraft-recipes-26.2.json")) {
+        try(var in=LocalTaskTest.class.getResourceAsStream("/core-data/minecraft-recipes-1.21.11.json")) {
             var source=JsonParser.parseString(new String(in.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
             int grids=0;
             for(var entry:source.getAsJsonObject("recipes").entrySet()) {
@@ -367,7 +367,7 @@ public final class LocalTaskTest {
                 check(recipe.count()==(original.getAsJsonObject("result").has("count")?original.getAsJsonObject("result").get("count").getAsInt():1));
                 check(recipe.cells().size()<=9 && recipe.cells().stream().allMatch(c->!c.choices().isEmpty()));grids++;
             }
-            check(grids==1056);
+            check(grids==1026);
             check(starter.recipes().get("vanilla_diamond_helmet").cells().size()==5);
             check(starter.recipes().get("vanilla_suspicious_stew_from_allium").components()!=null);
             var armor=TaskPresets.parseWorkflow("diamond.taskbot","{\"version\":1,\"title\":\"Helmet\",\"steps\":[{\"label\":\"Helmet\",\"action\":\"craft\",\"item\":\"minecraft:diamond_helmet\",\"count\":1}]}");

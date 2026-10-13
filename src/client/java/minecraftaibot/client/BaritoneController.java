@@ -121,7 +121,7 @@ final class BaritoneController {
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null) return "Not in a world.";
         if (!client.player.isAlive()) return "Player died.";
-        if (client.gui.screen() != null || client.gui.overlay() != null || client.isPaused())
+        if (client.screen != null || client.getOverlay() != null || client.isPaused())
             return "Close menus and disable auto pause with F3+P first.";
         String[] parts = command.split(" ");
         if (parts[0].equals("goto")) {
@@ -252,6 +252,6 @@ final class BaritoneController {
         public boolean isTemporary() { return true; }
         public void onLostControl() { }
         public double priority() { return DEFAULT_PRIORITY + 1; }
-        public String displayName0() { return "Minecraft AI Bot pause"; }
+        public String displayName0() { return "TaskFlow Bot pause"; }
     }
 }

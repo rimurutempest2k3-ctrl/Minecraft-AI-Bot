@@ -84,7 +84,7 @@ public final class WebConsole implements AutoCloseable {
             }
             if(method.equals("GET") && path.equals("/events")) {stream(exchange);return;}
             if(method.equals("GET") && path.equals("/items")) {
-                try(var asset=WebConsole.class.getResourceAsStream("/core-data/items-26.2.json")) {
+                try(var asset=WebConsole.class.getResourceAsStream("/core-data/items-1.21.11.json")) {
                     if(asset==null){reply(exchange,503,"Item catalog unavailable.");return;}
                     byte[] body=asset.readAllBytes();exchange.getResponseHeaders().set("Content-Type","application/json; charset=utf-8");
                     exchange.sendResponseHeaders(200,body.length);exchange.getResponseBody().write(body);

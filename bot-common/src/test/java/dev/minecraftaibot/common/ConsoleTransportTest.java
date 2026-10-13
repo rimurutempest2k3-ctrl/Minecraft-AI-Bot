@@ -33,7 +33,7 @@ public final class ConsoleTransportTest {
                     PrintWriter writer = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8);
                     BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));
                     writer.println(properties.getProperty("token"));
-                    check(reader.readLine().startsWith("Connected to Minecraft AI Bot"));
+                    check(reader.readLine().startsWith("Connected to TaskFlow Bot"));
                     writer.println("bot status");
                     check("Bot state: STOPPED".equals(reader.readLine()));
                     console.notifyConsole("AI đã trả lời\nKiểm tra tự động");

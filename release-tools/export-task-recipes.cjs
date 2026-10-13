@@ -1,7 +1,7 @@
 // Regenerate static crafting grids from the bundled official Minecraft recipe catalog.
 const fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),folder=path.join(root,'bot-common/src/main/resources/core-data');
-const source=JSON.parse(fs.readFileSync(path.join(folder,'minecraft-recipes-26.2.json'),'utf8'));
+const source=JSON.parse(fs.readFileSync(path.join(folder,'minecraft-recipes-1.21.11.json'),'utf8'));
 const library=JSON.parse(fs.readFileSync(path.join(folder,'task-recipes.json'),'utf8'));
 for(const key of Object.keys(library.recipes))if(key.startsWith('vanilla_'))delete library.recipes[key];
 let count=0;

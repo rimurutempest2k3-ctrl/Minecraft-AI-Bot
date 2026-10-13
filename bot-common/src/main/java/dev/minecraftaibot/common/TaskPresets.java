@@ -43,7 +43,7 @@ public final class TaskPresets {
         Files.createDirectories(path.toAbsolutePath().getParent());
         file=path;
         workflowCache.clear();
-        for(String name:List.of("minecraft-recipes-26.2.json","furnace-rules-26.2.json","task-recipes.json","mining-rules.json"))
+        for(String name:List.of("minecraft-recipes-1.21.11.json","furnace-rules-1.21.11.json","task-recipes.json","mining-rules.json"))
             installCoreData(path.toAbsolutePath().getParent(),name);
         installDefault(path,"local-tasks.json");
         ProductionPlan.initialize(path.resolveSibling("production-tasks.json"));
@@ -107,7 +107,7 @@ public final class TaskPresets {
     private static final class MiningCatalog {
         static final Map<String,List<MiningSource>> SOURCES=load();
         private static Map<String,List<MiningSource>> load() {
-            try(var in=TaskPresets.class.getResourceAsStream("/core-data/items-26.2.json")) {
+            try(var in=TaskPresets.class.getResourceAsStream("/core-data/items-1.21.11.json")) {
                 var result=new HashMap<String,List<MiningSource>>();
                 var entries=JsonParser.parseString(new String(Objects.requireNonNull(in).readAllBytes(),StandardCharsets.UTF_8)).getAsJsonObject().getAsJsonArray("items");
                 for(var entry:entries){var item=entry.getAsJsonObject();var sources=new ArrayList<MiningSource>();for(var source:item.getAsJsonArray("miningSources")){var row=source.getAsJsonObject();var tools=new ArrayList<String>();for(var tool:row.getAsJsonArray("tools"))tools.add(tool.getAsString());sources.add(new MiningSource(row.get("block").getAsString(),row.get("silkTouch").getAsBoolean(),List.copyOf(tools)));}if(!sources.isEmpty())result.put(item.get("id").getAsString(),List.copyOf(sources));}
