@@ -21,6 +21,18 @@
 .panel section{border-top:2px solid var(--tab-accent,#7895a8)}.panel .action:not(.stop){background:var(--tab-fill,#293f31);border-color:var(--tab-accent,#46654f)}.panel .action:not(.stop):hover{filter:brightness(1.16)}.panel input:not([type=checkbox]),.panel select,.panel textarea{background:#121b23;border-color:#4b5b68}.notice,.info{background:#141e26}.panel .pill{background:var(--tab-fill,#213c29);color:#e7edf5}.tag{background:#203b48;border-color:#7fd0e5;color:#bdeaf5}.slot{background:#29323a;border-color:#58616a}.avatar{background:#203b48;border-color:#7fd0e5}.node-caption{background:#3b304f}.task-node .node-action{background:#2b2638}.task-node{background:#252a32}.node-links line{stroke:#baa3ef}.task-node::before,.task-node::after{background:#baa3ef}.node-viewport{background-color:#151b21}
 #workflow-tab-library{--tab-accent:#d3ba82;--tab-fill:#42392a}#workflow-tab-builder{--tab-accent:#baa3ef;--tab-fill:#3b304f}#workflow-tab-progress{--tab-accent:#88ccc5;--tab-fill:#24423f}
 @media(prefers-reduced-motion:reduce){.tab,.switch,.switch::after{transition:none}}
+</style><style>
+/* Animate deliberate navigation and input, never the periodic status refresh. */
+@keyframes panel-reveal{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes detail-reveal{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.panel:not([hidden]),.workflow-tabs~[role=tabpanel]:not([hidden]){animation:panel-reveal .24s cubic-bezier(.2,.7,.3,1)}
+.tab{transition:background .18s,color .18s,border-color .18s,box-shadow .18s,transform .18s}.tab:hover{transform:translateY(-2px)}.tab:active{transform:translateY(0)}
+.action,.plain,.chest-card,[data-workflow-file]{transition:background .18s,border-color .18s,box-shadow .18s,transform .18s,filter .18s}.action:hover:not(:disabled),.chest-card:hover,[data-workflow-file]:hover{transform:translateY(-2px);box-shadow:0 4px 10px #0003}.action:active:not(:disabled),.plain:active,.chest-card:active,[data-workflow-file]:active{transform:translateY(0) scale(.98)}
+.switch{transition:background .2s,border-color .2s,box-shadow .2s}.switch::after{transition:transform .22s cubic-bezier(.2,.8,.3,1),background .2s}.switch:hover:not(:disabled){box-shadow:0 0 0 3px #8bd5a018}
+input,select,textarea{transition:border-color .18s,box-shadow .18s}input:focus-visible,select:focus-visible,textarea:focus-visible{outline:1px solid var(--tab-accent,#91b5ee);box-shadow:0 0 0 3px #91b5ee16}
+.task-node{transition:border-color .18s,box-shadow .18s}.task-node:focus-within{border-color:#baa3ef;box-shadow:0 0 0 1px #baa3ef55,0 5px 12px #0005}.progress>div{transition:width .35s ease}
+.node-inspector[open]>:not(summary),.item-picker[open]>:not(summary){animation:detail-reveal .18s ease-out}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.tab:hover,.action:hover:not(:disabled),.chest-card:hover,[data-workflow-file]:hover{transform:none}}
 </style></head><body>
 <header><div><p class="eyebrow">LOCAL CONTROL</p><h1>Minecraft AI Bot</h1></div><span class="tag" id="connection">Connecting…</span></header>
 <p class="intro">Control the bot in game. Hover over the tab strip and use the mouse wheel to scroll horizontally.</p>
