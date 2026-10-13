@@ -1,5 +1,4 @@
 'use strict';
-// The same catalogs are read by Java and served here. Translate display text only.
 window.BotLanguage=(()=>{
     const dictionaries=new Map(),textSources=new WeakMap(),attributeSources=new WeakMap();
     let language='en',catalog=null,matcher=null,generation=0;

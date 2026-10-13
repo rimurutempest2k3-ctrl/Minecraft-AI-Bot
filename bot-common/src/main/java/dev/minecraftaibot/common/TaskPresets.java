@@ -311,7 +311,6 @@ public final class TaskPresets {
             if(root.get("version").getAsInt()!=1) throw invalid("Invalid starter version");
             Starter s=new Gson().fromJson(root,Starter.class);
             if(s.steps()==null || s.steps().isEmpty() || s.steps().size()>100) throw invalid("Invalid starter step count");
-            // Reuse the existing strict recipe validator.
             var wrapper=JsonParser.parseString("{\"version\":1,\"tasks\":{\"kit\":{\"label\":\"kit\",\"goal\":\"minecraft:stone\",\"resultItem\":\"minecraft:cobblestone\",\"quantity\":1}},\"preparations\":{}}").getAsJsonObject();
             wrapper.add("recipes",root.get("recipes"));parse(wrapper.toString());
             for(var step:root.getAsJsonArray("steps")) {

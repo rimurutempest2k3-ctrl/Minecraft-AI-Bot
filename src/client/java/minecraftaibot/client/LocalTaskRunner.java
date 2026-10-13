@@ -23,7 +23,6 @@ import com.mojang.blaze3d.platform.InputConstants;
 import java.util.*;
 import java.util.function.*;
 
-/** JSON local task executor, using vanilla crafting and Baritone only. */
 final class LocalTaskRunner {
     private static final org.slf4j.Logger LOG=org.slf4j.LoggerFactory.getLogger("minecraft-ai-bot");
     private enum Phase { PLAN, WOOD, APPROACH, OPEN, PLACE, CRAFT, GOAL, HUNT, SMELT, FOOD_CROP, CHEST_OPEN, CHEST_TRANSFER, MENU_OPEN, MENU_CONFIRM, MENU_READY, TRAVEL, LOOP_WAIT }

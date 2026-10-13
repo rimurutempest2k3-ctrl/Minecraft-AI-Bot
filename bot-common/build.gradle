@@ -23,7 +23,6 @@ tasks.named('processResources') {
     }
 }
 
-// The same editable JSON defaults ship in the JAR and standalone task pack.
 tasks.named('processTestResources') {
     from(rootProject.file('task-pack/config/minecraft-ai-bot')) { into 'task-fixtures' }
 }
@@ -48,7 +47,7 @@ java {
 }
 
 application {
-    mainClass = 'dev.minecraftaibot.common.ConsoleLauncher'
+    mainClass = 'dev.minecraftaibot.common.ExternalConsole'
 }
 
 tasks.named('jar') {
@@ -64,6 +63,7 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 tasks.named('run', JavaExec) {
+    workingDir = rootProject.projectDir
     standardInput = System.in
 }
 
@@ -84,7 +84,7 @@ tasks.named('check') {
 }
 
 // These checks have main methods rather than JUnit annotations.
-// Both are executed explicitly by check above.
+// Run them through the JavaExec checks above.
 tasks.named('test') {
     enabled = false
 }

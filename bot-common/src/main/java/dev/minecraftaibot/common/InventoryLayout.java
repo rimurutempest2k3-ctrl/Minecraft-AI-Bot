@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
 
-/** Data-only hotbar layout. Slot numbers in the file are 1..9. */
 public record InventoryLayout(List<Rule> slots,Map<String,Double> materials) {
     public record Facts(String id,Set<String> tags,boolean regularFood,boolean goldenFood,
                         double nutrition,double saturation,int remaining,int maximum,int count,Map<String,Integer> enchantments) {}

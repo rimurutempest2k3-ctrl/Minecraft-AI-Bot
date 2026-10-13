@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/** Small in-game controller; all actions run on the client thread. */
 final class BotControlScreen extends Screen {
     private final Function<String,String> command;
     private final Supplier<String> status;
