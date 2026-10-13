@@ -11,7 +11,7 @@ Press **F8** in game to open bot controls: Start, Pause, Resume and Stop. The sh
 ## Requirements
 
 - Minecraft Java 1.21.11 and Java 21+.
-- Fabric Loader 0.19.5+, Fabric API for 1.21.11.
+- Fabric Loader 0.19.3+, Fabric API for 1.21.11.
 - [Download Baritone API Fabric 1.17.0](https://github.com/cabaletta/baritone/releases/download/v1.17.0/baritone-api-fabric-1.17.0.jar) for Minecraft 1.21.11, installed separately.
 
 
@@ -79,7 +79,7 @@ Mod tập trung tự động hóa chuỗi nhiệm vụ: tạo trên web hoặc c
 AI là tùy chọn; nhiệm vụ local không cần API key. Bản 1.2.0 tiếp tục hướng Fabric client;
 bản console-only đã lưu trữ và không phát triển tiếp.
 
-1. Cài Minecraft 1.21.11 với Fabric Loader 0.19.5+, Java 21+, Fabric API và [Baritone API Fabric 1.17.0](https://github.com/cabaletta/baritone/releases/download/v1.17.0/baritone-api-fabric-1.17.0.jar).
+1. Cài Minecraft 1.21.11 với Fabric Loader 0.19.3+, Java 21+, Fabric API và [Baritone API Fabric 1.17.0](https://github.com/cabaletta/baritone/releases/download/v1.17.0/baritone-api-fabric-1.17.0.jar).
 2. Chép các JAR vào `mods/` của đúng thư mục game trong launcher.
 3. Mod tự tạo cấu hình và nhiệm vụ mặc định còn thiếu khi khởi động. ZIP cũng có bản để chỉnh sửa; giữ cấu hình riêng khi nâng cấp.
 4. Vào thế giới, mở địa chỉ trong `bot-web-url.txt`, bật bot và chọn nhiệm vụ trên web.
